@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
+    "config": "^3.3.2",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-bearer-token": "^2.4.0",
@@ -19,9 +21,12 @@
     "fabric-client": "^1.4.8",
     "fabric-network": "^2.1.0",
     "http": "0.0.1-security",
+    "joi": "^17.3.0",
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.20",
     "log4js": "^6.2.0",
+    "mongoose": "^5.10.15",
     "npm": "^6.4.1"
   }
 }
