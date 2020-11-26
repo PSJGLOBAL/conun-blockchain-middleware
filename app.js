@@ -10,7 +10,7 @@ const expressJWT = require('express-jwt');
 const jwt = require('jsonwebtoken');
 const bearerToken = require('express-bearer-token');
 const cors = require('cors');
-const constants = require('./config/constants.json')
+const constants = require('./private/config/constants.json')
 
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port;
@@ -20,6 +20,9 @@ const helper = require('./app/helper')
 const invoke = require('./app/invoke')
 const query = require('./app/query')
 
+
+require('./startup/routes.v1')(app);
+console.log('start')
 app.options('*', cors());
 app.use(cors());
 app.use(bodyParser.json());

@@ -3,6 +3,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const _ = require('lodash');
+const web3Handlers = require('../../web3/eth.main');
+const crypto = require('./encryption.algorithm');
 const auth = require('../../middleware/auth');
 
 router.get('/me', auth, async (req, res) => {
@@ -24,7 +26,15 @@ router.post('/', async (req, res) => {
     if (user)
         return res.status(400).send('User already exist');
 
-    user = new User(_.pick(req.body, ['name', 'email', 'password', 'isAdmin']));
+    const account = await web3Handlers.CreateAccountAdvanced(req.body.password);
+
+    let encrypt  = {
+        privateKey: crypto.AesEncrypt(account.privateKey, req.body.password),
+        stringKeystore: crypto.AesEncrypt(account.stringKeystore, req.body.password),
+    }
+    console.log('encrypt: ', encrypt);
+    user = new User(_.pick(req.body, ['name', 'email', 'password', 'isAdmin']),
+                    account.wallet_address, encrypt.privateKey, encrypt.stringKeystore);
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
 
