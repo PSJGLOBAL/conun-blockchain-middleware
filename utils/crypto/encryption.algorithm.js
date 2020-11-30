@@ -6,10 +6,9 @@ module.exports = {
             let key = crypto.createCipher('aes-128-cbc', password);
             let str = key.update(text, 'utf8', 'base64')
             str += key.final('base64');
-            console.log(str);
             return str;
         } catch (e) {
-            console.log('AesEncrypt error')
+            console.log('AesEncrypt error', e)
         }
     },
 
@@ -18,10 +17,9 @@ module.exports = {
             let key = crypto.createDecipher('aes-128-cbc', password);
             let str = key.update(hash, 'base64', 'utf8')
             str += key.final('utf8');
-            console.log(str);
             return str;
         } catch (e) {
-            console.log('AESDecrypt error')
+            console.log('AESDecrypt error', e)
         }
     }
 }

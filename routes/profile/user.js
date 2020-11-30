@@ -26,20 +26,30 @@ router.post('/', async (req, res) => {
     if (user)
         return res.status(400).send('User already exist');
 
-    const account = await web3Handlers.CreateAccountAdvanced(req.body.password);
+    let account = await web3Handlers.CreateAccountAdvanced(req.body.password);
+        let encrypt  = {
+            privateKey: crypto.AesEncrypt(account.privateKey, req.body.password),
+            stringKeystore: crypto.AesEncrypt(account.stringKeystore, req.body.password),
+        }
+        console.log('account: ', account);
+        console.log('encrypt: ', encrypt);
+        console.log('req.body: ', req.body);
+        user = new User ({
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password,
+            isAdmin:  req.body.isAdmin,
+            wallet_address: account.wallet_address,
+            privateKey: encrypt.privateKey,
+            stringKeystore: encrypt.stringKeystore
+        });
 
-    let encrypt  = {
-        privateKey: crypto.AesEncrypt(account.privateKey, req.body.password),
-        stringKeystore: crypto.AesEncrypt(account.stringKeystore, req.body.password),
-    }
-    console.log('encrypt: ', encrypt);
-    user = new User(_.pick(req.body, ['name', 'email', 'password', 'isAdmin']),
-                    account.wallet_address, encrypt.privateKey, encrypt.stringKeystore);
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
 
-    await user.save();
-    res.send(_.pick(user, ['_id', 'name', 'email']));
+    await user.save()
+    res.send( _.pick(user, ['_id', 'name', 'email', 'wallet_address']));
+
 });
 
 module.exports = router;

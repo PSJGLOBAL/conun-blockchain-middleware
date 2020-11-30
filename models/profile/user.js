@@ -25,6 +25,24 @@ const userSchema = new mongoose.Schema({
         minlength: 5,
         maxlength: 1024
     },
+    wallet_address: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 1024,
+    },
+    privateKey: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 1024,
+    },
+    stringKeystore: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 1024,
+    },
     isAdmin: Boolean
 });
 

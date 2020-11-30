@@ -183,9 +183,13 @@ module.exports = {
     CreateAccount : (password) => {
         return new Promise(
             (resolve, reject) => {
+                console.log('password: ', password);
                 const cw = web3.eth.accounts.create(password);
                 if(cw) {
-                    resolve([cw.address, cw.privateKey])
+                    resolve({
+                        address: cw.address,
+                        privateKey: cw.privateKey
+                    })
                 }
                 else {
                     reject(cw)
@@ -195,16 +199,15 @@ module.exports = {
     },
 
     CreateAccountAdvanced : async ( password ) => {
-        let address, privateKey;
-        [address, privateKey] = await CreateAccount();
+        const cw = await web3.eth.accounts.create(password);
+        const getKeystore = await web3.eth.accounts.encrypt(cw.privateKey, password);
         return new Promise(
             (resolve, reject) => {
-                let getKeystore = web3.eth.accounts.encrypt(privateKey, password);
                 let stringKeystore = JSON.stringify(getKeystore);
                 if (stringKeystore) {
                     let data = {
-                        wallet_address: wallet_address,
-                        privateKey: privateKey,
+                        wallet_address: cw.address,
+                        privateKey: cw.privateKey,
                         password: password,
                         stringKeystore: stringKeystore
                     }

@@ -15,13 +15,16 @@ const constants = require('./config/constants.json')
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port;
 
-
+require('./startup/logging');
+require('./startup/routes.v1')(app);
+require('./startup/db')();
+require('./startup/config')();
+//before
 const helper = require('./app/helper')
 const invoke = require('./app/invoke')
 const query = require('./app/query')
 
 
-require('./startup/routes.v1')(app);
 console.log('start')
 app.options('*', cors());
 app.use(cors());
