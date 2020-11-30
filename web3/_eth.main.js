@@ -2,7 +2,7 @@
 const events = require('events');
 var web3Event = new events.EventEmitter();
 
-const {config} = require('../private/project.settings');
+const {config} = require('../config/private/project.settings');
 
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var xmlHttp = new XMLHttpRequest();

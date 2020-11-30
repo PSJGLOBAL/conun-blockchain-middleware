@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const router = express.Router();
 const _ = require('lodash');
 const web3Handlers = require('../../web3/eth.main');
-const crypto = require('./encryption.algorithm');
+const crypto = require('../../utils/crypto/encryption.algorithm');
 const auth = require('../../middleware/auth');
 
 router.get('/me', auth, async (req, res) => {

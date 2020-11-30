@@ -10,7 +10,7 @@ const expressJWT = require('express-jwt');
 const jwt = require('jsonwebtoken');
 const bearerToken = require('express-bearer-token');
 const cors = require('cors');
-const constants = require('./private/config/constants.json')
+const constants = require('./config/constants.json')
 
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port;

@@ -2,15 +2,14 @@
 const events = require('events');
 var web3Event = new events.EventEmitter();
 
-const {config} = require('../private/project.settings');
-
+const config = require('config');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var xmlHttp = new XMLHttpRequest();
 var Tx = require('ethereumjs-tx').Transaction;
 
 const Web3 = require('web3');
-const provider = new Web3.providers.HttpProvider(config().ethereum.httpProvider);
-//test const provider = new Web3.providers.HttpProvider('https://ropsten-rpc.linkpool.io/');
+const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
+
 const web3 = new Web3(provider);
 
 var abijson = require('./abi.json');
@@ -85,7 +84,7 @@ async function SendETH(object) {
 
 async function SendCON(object) {
     try {
-        object.contract_address = config().ethereum.contract_address;
+        object.contract_address = config.get('ethereum.contract_address');
         web3.eth.defaultAccount = object.from_address;
 
         if(object.private_key.includes('0x')) {
