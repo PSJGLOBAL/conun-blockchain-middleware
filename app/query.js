@@ -7,7 +7,7 @@ const util = require('util')
 
 
 const helper = require('./helper')
-const query = async (channelName, chaincodeName, args, fcn, username, org_name) => {
+const query = async (channelName, chaincodeName, fcn, username, org_name) => {
 
     try {
 
@@ -42,10 +42,10 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
 
         // Get the contract from the network.
         const contract = network.getContract(chaincodeName);
-
-        let result = await contract.evaluateTransaction(fcn, args[0]);
-        console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
-        result = JSON.parse(result.toString());
+        console.log(fcn)
+        let result = await contract.evaluateTransaction(fcn);
+        console.log(`Transaction has been evaluated, result is: ${result}`);
+        //result = JSON.parse(result.toString());
         return result
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
