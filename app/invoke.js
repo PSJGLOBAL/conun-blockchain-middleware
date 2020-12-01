@@ -51,39 +51,38 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
         let result
         let message;
 
-        // if (fcn === "createCar") {
-        //     result = await contract.submitTransaction(fcn, args[0], args[1], args[2], args[3], args[4]);
-        //     message = `Successfully added the car asset with key ${args[0]}`
+        if (fcn === "createCar") {
+            result = await contract.submitTransaction(fcn, args[0], args[1], args[2], args[3], args[4]);
+            message = `Successfully added the car asset with key ${args[0]}`
 
-        // } else if (fcn === "changeCarOwner") {
-        //     result = await contract.submitTransaction(fcn, args[0], args[1]);
-        //     message = `Successfully changed car owner with key ${args[0]}`
-        // } else {
-        //     return `Invocation require either createCar or changeCarOwner as function but got ${fcn}`
-        // }
-        if (fcn === "AddMarks") {
+        } else if (fcn === "changeCarOwner") {
+            result = await contract.submitTransaction(fcn, args[0], args[1]);
+            message = `Successfully changed car owner with key ${args[0]}`
+        }
+        //-=-=-=-
+        else if (fcn === "AddMarks") {
             result = await contract.submitTransaction(fcn, args[0], args[1], args[2]);
             message = `Successfully added the car asset with key ${args[0]}`
 
         } else if (fcn === "updateMarks") {
             result = await contract.submitTransaction(fcn, args[0], args[1],args[2]);
             message = `Successfully changed car owner with key ${args[0]}`
-        } else if (fcn == "Decimals") {
+        } else if (fcn === "Decimals") {
             result = await contract.submitTransaction(fcn, args[0])
             message = `Sucessfully submitted`
-        } else if (fcn == "TotalSupply") {
+        } else if (fcn === "TotalSupply") {
             result = await contract.submitTransaction(fcn)
             message = `Successfully submitted`
-        } else if (fcn == "TokenName") {
+        } else if (fcn === "TokenName") {
             result = await contract.submitTransaction(fcn)
             message = `Successfully submitted`
-        } else if (fcn == "SetOption") {
+        } else if (fcn === "SetOption") {
             result = await contract.submitTransaction(fcn, args[0], args[1], args[2])
             console.log(result.toString())
-        }else if (fcn == "Mint") {
+        }else if (fcn === "Mint") {
             result = await contract.submitTransaction(fcn, args[0], args[1])
             console.log(result.toString())
-        } else if (fcn == "BalanceOf") {
+        } else if (fcn === "BalanceOf") {
             result = await contract.submitTransaction(fcn, args[0])
         } else {
             return `Invocation require either createCar or changeCarOwner as function but got ${fcn}`

@@ -9,14 +9,13 @@ const util = require('util');
 
 
 const ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org1.json');
-console.log('ccpPath: ', ccpPath);
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
 const ccp = JSON.parse(ccpJSON);
 
 
 const getRegisteredUser = async (username, userOrg, isJson) => {
-
-    console.log(JSON.stringify(Wallets))
+    console.log('username: ', username);
+    console.log('Wallets', JSON.stringify(Wallets))
 
     // Create a new CA client for interacting with the CA.
     const caURL = ccp.certificateAuthorities['ca.org1.example.com'].url;

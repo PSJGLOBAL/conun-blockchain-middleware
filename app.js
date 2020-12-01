@@ -89,6 +89,7 @@ app.post('/users', async function (req, res) {
     logger.debug('End point : /users');
     logger.debug('User name : ' + username);
     logger.debug('Org name  : ' + orgName);
+
     if (!username) {
         res.json(getErrorMessage('\'username\''));
         return;
@@ -107,6 +108,7 @@ app.post('/users', async function (req, res) {
     let response = await helper.getRegisteredUser(username, orgName, true);
 
     logger.debug('-- returned from registering the username %s for organization %s', username, orgName);
+
     if (response && typeof response !== 'string') {
         logger.debug('Successfully registered the username %s for organization %s', username, orgName);
         response.token = token;

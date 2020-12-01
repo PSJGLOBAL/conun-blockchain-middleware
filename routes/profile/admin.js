@@ -22,14 +22,14 @@ router.post('/', async (req, res) => {
     const { error } = validate(req.body);
     if (error)
         return res.status(400).send({error: error.details[0].message, status: 400});
-    if (req.body.isAdmin)
+    if (!req.body.isAdmin)
         return res.status(400).send({error: '-', status: 400});
     let user = await User.findOne({ email: req.body.email });
     if (user)
         return res.status(400).send({error: 'User already exist', status: 400});
     try {
         let account = await web3Handlers.CreateAccountAdvanced(req.body.password);
-        var username = account.wallet_address;
+        var username = req.body.name;
         var orgName = req.body.orgName;
         let response = await helper.getRegisteredUser(username, orgName, true);
 
@@ -61,7 +61,7 @@ router.post('/', async (req, res) => {
             res.json({ success: false, message: response }).status(400);
         }
     } catch (e) {
-        res.json({ success: false, message: 'error while user creation' }).status(400);
+        res.json({ success: false, message: 'error while admin creation' }).status(400);
     }
 });
 

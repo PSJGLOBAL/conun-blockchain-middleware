@@ -167,7 +167,7 @@ module.exports = {
                 let account = web3.eth.accounts.privateKeyToAccount(privateKey);
                 if(account) {
                     resolve({
-                        wallet_address: account.address,
+                        wallet_address: account.address.toUpperCase(),
                         privateKey: privateKey
                     })
                 }
@@ -187,7 +187,7 @@ module.exports = {
                 const cw = web3.eth.accounts.create(password);
                 if(cw) {
                     resolve({
-                        address: cw.address,
+                        address: cw.address.toUpperCase(),
                         privateKey: cw.privateKey
                     })
                 }
@@ -206,7 +206,7 @@ module.exports = {
                 let stringKeystore = JSON.stringify(getKeystore);
                 if (stringKeystore) {
                     let data = {
-                        wallet_address: cw.address,
+                        wallet_address: cw.address.toUpperCase(),
                         privateKey: cw.privateKey,
                         password: password,
                         stringKeystore: stringKeystore
