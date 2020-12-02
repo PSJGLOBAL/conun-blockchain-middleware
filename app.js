@@ -34,8 +34,8 @@ app.use(bodyParser.urlencoded({
 }));
 
 var server = http.createServer(app).listen(port, function () { console.log(`Server started on ${port}`) });
-logger.info('****************** SERVER STARTED ************************');
-logger.info('***************  http://%s:%s  ******************', host, port);
+// logger.info('****************** SERVER STARTED ************************');
+// logger.info('***************  http://%s:%s  ******************', host, port);
 server.timeout = 240000;
 
 

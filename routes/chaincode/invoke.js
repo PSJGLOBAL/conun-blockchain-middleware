@@ -5,19 +5,20 @@ const invoke = require('../../app/invoke');
 const query = require('../../app/query');
 const auth = require('../../middleware/auth');
 
-router.post('/channels/:channelName/chaincodes/:chaincodeName', auth,async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chaincodeName', auth, async (req, res) => {
     try {
-        logger.debug('==================== INVOKE ON CHAINCODE ==================');
-        var peers = req.body.peers;
+        // logger.debug('==================== INVOKE ON CHAINCODE ==================');
+        console.log('>> req', req.body)
+        // var peers = req.body.peers;
         var chaincodeName = req.params.chaincodeName;
         var channelName = req.params.channelName;
         var fcn = req.body.fcn;
         var args = req.body.args;
-        console.log(args)
-        logger.debug('channelName  : ' + channelName);
-        logger.debug('chaincodeName : ' + chaincodeName);
-        logger.debug('fcn  : ' + fcn);
-        logger.debug('args  : ' + args);
+        console.log('args: ', args);
+        // logger.debug('channelName  : ' + channelName);
+        // logger.debug('chaincodeName : ' + chaincodeName);
+        // logger.debug('fcn  : ' + fcn);
+        // logger.debug('args  : ' + args);
         if (!chaincodeName) {
             res.json(getErrorMessage('\'chaincodeName\''));
             return;
@@ -35,7 +36,7 @@ router.post('/channels/:channelName/chaincodes/:chaincodeName', auth,async (req,
             return;
         }
 
-        let message = await invoke.invokeTransaction(channelName, chaincodeName, fcn, args, req.username, req.orgname);
+        let message = await invoke.invokeTransaction(channelName, chaincodeName, fcn, args, req.body.wallet_address, req.body.orgname);
         console.log(`message result is : ${message}`)
 
         const response_payload = {
@@ -48,8 +49,8 @@ router.post('/channels/:channelName/chaincodes/:chaincodeName', auth,async (req,
     } catch (error) {
         const response_payload = {
             result: null,
-            error: error.name,
-            errorData: error.message
+            error: 'error.name',
+            errorData: 'error.message'
         }
         res.send(response_payload)
     }
@@ -57,8 +58,8 @@ router.post('/channels/:channelName/chaincodes/:chaincodeName', auth,async (req,
 
 router.get('/channels/:channelName/chaincodes/:chaincodeName', auth, async (req, res) => {
     try {
-        logger.debug('==================== QUERY BY CHAINCODE ==================');
-        console.log('==================== QUERY BY CHAINCODE ==================');
+        // logger.debug('==================== QUERY BY CHAINCODE ==================');
+        // console.log('==================== QUERY BY CHAINCODE ==================');
 
         var channelName = req.params.channelName;
         var chaincodeName = req.params.chaincodeName;
@@ -70,10 +71,10 @@ router.get('/channels/:channelName/chaincodes/:chaincodeName', auth, async (req,
         //   let peer = req.query.peer;
         console.log(`func name is :${fcn}`)
 
-        logger.debug('channelName : ' + channelName);
-        logger.debug('chaincodeName : ' + chaincodeName);
-        logger.debug('fcn : ' + fcn);
-        //logger.debug('args : ' + args);
+        // logger.debug('channelName : ' + channelName);
+        // logger.debug('chaincodeName : ' + chaincodeName);
+        // logger.debug('fcn : ' + fcn);
+        // logger.debug('args : ' + args);
 
         if (!chaincodeName) {
             res.json(getErrorMessage('\'chaincodeName\''));
@@ -96,7 +97,7 @@ router.get('/channels/:channelName/chaincodes/:chaincodeName', auth, async (req,
         // args = JSON.parse(args);
         // logger.debug(args);
 
-        let message = await query.query(channelName, chaincodeName, fcn, req.username, req.orgname);
+        let message = await query.query(channelName, chaincodeName, fcn, req.wallet_address, req.orgname);
 
         const response_payload = {
             result: message,
@@ -108,8 +109,8 @@ router.get('/channels/:channelName/chaincodes/:chaincodeName', auth, async (req,
     } catch (error) {
         const response_payload = {
             result: null,
-            error: error.name,
-            errorData: error.message
+            error: 'error.name',
+            errorData: 'error.message'
         }
         res.send(response_payload)
     }

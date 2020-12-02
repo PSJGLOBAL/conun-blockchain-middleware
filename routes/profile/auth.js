@@ -12,11 +12,11 @@ router.post('/', async (req, res) => {
 
     let user = await User.findOne({ email: req.body.email });
     if (!user)
-        return res.status(400).send('Email or password is incorrect !');
+        return res.status(400).send({error: 'Email or password is incorrect !', status: 400});
 
     const isValidPassword = await bcrypt.compare(req.body.password, user.password);
     if(!isValidPassword)
-        return res.status(400).send('Email or password is incorrect !');
+        return res.status(400).send({error: 'Email or password is incorrect !', status: 400});
 
     const token = user.generateAuthToken();
     res.header('x-auth-token', token).send({

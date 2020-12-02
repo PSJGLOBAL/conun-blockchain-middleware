@@ -13,8 +13,8 @@ const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
 const ccp = JSON.parse(ccpJSON);
 
 
-const getRegisteredUser = async (username, userOrg, isJson) => {
-    console.log('username: ', username);
+const getRegisteredUser = async (wallet_address, userOrg, isJson) => {
+    console.log('wallet_address: ', wallet_address);
     console.log('Wallets', JSON.stringify(Wallets))
 
     // Create a new CA client for interacting with the CA.
@@ -25,12 +25,12 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
-    const userIdentity = await wallet.get(username);
+    const userIdentity = await wallet.get(wallet_address);
     if (userIdentity) {
-        console.log(`An identity for the user ${username} already exists in the wallet`);
+        console.log(`An identity for the user ${wallet_address} already exists in the wallet`);
         var response = {
             success: true,
-            message: username + ' enrolled Successfully',
+            message: wallet_address + ' enrolled Successfully',
         };
         return response
     }
@@ -49,11 +49,11 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
 
     // Register the user, enroll the user, and import the new identity into the wallet.
-    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: username, role: 'client' }, adminUser);
-    // const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: username, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
+    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: wallet_address, role: 'client' }, adminUser);
+    // const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: wallet_address, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
 
-    const enrollment = await ca.enroll({ enrollmentID: username, enrollmentSecret: secret });
-    // const enrollment = await ca.enroll({ enrollmentID: username, enrollmentSecret: secret, attr_reqs: [{ name: 'role', optional: false }] });
+    const enrollment = await ca.enroll({ enrollmentID: wallet_address, enrollmentSecret: secret });
+    // const enrollment = await ca.enroll({ enrollmentID: wallet_address, enrollmentSecret: secret, attr_reqs: [{ name: 'role', optional: false }] });
     const x509Identity = {
         credentials: {
             certificate: enrollment.certificate,
@@ -63,12 +63,12 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
         type: 'X.509',
     };
 
-    await wallet.put(username, x509Identity);
-    console.log(`Successfully registered and enrolled admin user ${username} and imported it into the wallet`);
+    await wallet.put(wallet_address, x509Identity);
+    console.log(`Successfully registered and enrolled admin user ${wallet_address} and imported it into the wallet`);
 
     var response = {
         success: true,
-        message: username + ' enrolled Successfully',
+        message: wallet_address + ' enrolled Successfully',
     };
     return response
 }
