@@ -14,8 +14,7 @@ const ccp = JSON.parse(ccpJSON);
 
 
 const getRegisteredUser = async (wallet_address, userOrg, isJson) => {
-    console.log('wallet_address: ', wallet_address);
-    console.log('Wallets', JSON.stringify(Wallets))
+    console.log('getRegisteredUser wallet_address: ', wallet_address);
 
     // Create a new CA client for interacting with the CA.
     const caURL = ccp.certificateAuthorities['ca.org1.example.com'].url;

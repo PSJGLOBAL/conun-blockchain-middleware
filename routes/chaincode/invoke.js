@@ -1,51 +1,85 @@
 const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
-const invoke = require('../../app/invoke');
+const invokeHandler = require('../../app/invoke');
 const query = require('../../app/query');
 const auth = require('../../middleware/auth');
+const events = require('events');
 
-router.post('/channels/:channelName/chaincodes/:chaincodeName', auth, async (req, res) => {
+function CallInvoke(event, req) {
+    const eventDeal = new events.EventEmitter();
+    return new Promise(
+        (resolve, reject) => {
+            eventDeal.on('BalanceOf', async () => {
+                let result = await invokeHandler.BalanceOf({
+                    channelName: req.params.channelName,
+                    chainCodeName: req.params.chainCodeName,
+                    fcn: req.body.fcn,
+                    orgName: req.body.orgName,
+                    wallet_address: req.body.wallet_address
+                });
+                resolve(result)
+            })
+
+            eventDeal.on('Transfer', async () => {
+                let result = await invokeHandler.Transfer({
+                    channelName: req.params.channelName,
+                    chainCodeName: req.params.chainCodeName,
+                    fcn: req.body.fcn,
+                    orgName: req.body.orgName,
+                    _from: req.body._from,
+                    to: req.body.to,
+                    value: req.body.value,
+                });
+                resolve(result);
+            })
+
+
+            eventDeal.on('Burn', async () => {
+                let result = await invokeHandler.Burn({
+                    channelName: req.params.channelName,
+                    chainCodeName: req.params.chainCodeName,
+                    fcn: req.body.fcn,
+                    orgName: req.body.orgName,
+                    admin_wallet: req.body.admin_wallet,
+                    amount: req.body.amount,
+                });
+                resolve(result)
+            })
+
+
+            eventDeal.on('Mint', async () => {
+                let result = await invokeHandler.Mint({
+                    channelName: req.params.channelName,
+                    chainCodeName: req.params.chainCodeName,
+                    fcn: req.body.fcn,
+                    orgName: req.body.orgName,
+                    wallet_address: req.body.wallet_address,
+                    amount: req.body.amount,
+                });
+                resolve(result)
+            })
+
+            let status = eventDeal.emit(event)
+            if (!status) {
+                eventDeal.removeAllListeners();
+                reject(status);
+            }
+        }
+    )
+}
+
+router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
     try {
-        // logger.debug('==================== INVOKE ON CHAINCODE ==================');
-        console.log('>> req', req.body)
-        // var peers = req.body.peers;
-        var chaincodeName = req.params.chaincodeName;
-        var channelName = req.params.channelName;
-        var fcn = req.body.fcn;
-        var args = req.body.args;
-        console.log('args: ', args);
-        // logger.debug('channelName  : ' + channelName);
-        // logger.debug('chaincodeName : ' + chaincodeName);
-        // logger.debug('fcn  : ' + fcn);
-        // logger.debug('args  : ' + args);
-        if (!chaincodeName) {
-            res.json(getErrorMessage('\'chaincodeName\''));
-            return;
-        }
-        if (!channelName) {
-            res.json(getErrorMessage('\'channelName\''));
-            return;
-        }
-        if (!fcn) {
-            res.json(getErrorMessage('\'fcn\''));
-            return;
-        }
-        if (!args) {
-            res.json(getErrorMessage('\'args\''));
-            return;
-        }
-
-        let message = await invoke.invokeTransaction(channelName, chaincodeName, fcn, args, req.body.wallet_address, req.body.orgname);
-        console.log(`message result is : ${message}`)
-
-        const response_payload = {
-            result: message,
-            error: null,
-            errorData: null
-        }
-        res.send(response_payload);
-
+        console.log('>> req: ', req.body);
+        let response = await CallInvoke(req.body.fcn, req);
+        console.log('response: ', response);
+        res.send({
+                result: response,
+                error: null,
+                errorData: null
+            }
+        );
     } catch (error) {
         const response_payload = {
             result: null,
@@ -58,23 +92,13 @@ router.post('/channels/:channelName/chaincodes/:chaincodeName', auth, async (req
 
 router.get('/channels/:channelName/chaincodes/:chaincodeName', auth, async (req, res) => {
     try {
-        // logger.debug('==================== QUERY BY CHAINCODE ==================');
-        // console.log('==================== QUERY BY CHAINCODE ==================');
-
         var channelName = req.params.channelName;
         var chaincodeName = req.params.chaincodeName;
         console.log(`chaincode name is :${chaincodeName}`)
         console.log(`channel name is :${channelName}`)
 
         let fcn = req.query.fcn;
-        //  let args = req.query.args;
-        //   let peer = req.query.peer;
         console.log(`func name is :${fcn}`)
-
-        // logger.debug('channelName : ' + channelName);
-        // logger.debug('chaincodeName : ' + chaincodeName);
-        // logger.debug('fcn : ' + fcn);
-        // logger.debug('args : ' + args);
 
         if (!chaincodeName) {
             res.json(getErrorMessage('\'chaincodeName\''));
@@ -88,14 +112,6 @@ router.get('/channels/:channelName/chaincodes/:chaincodeName', auth, async (req,
             res.json(getErrorMessage('\'fcn\''));
             return;
         }
-        // if (!args) {
-        //     res.json(getErrorMessage('\'args\''));
-        //     return;
-        // }
-        // console.log('args==========', args);
-        // args = args.replace(/'/g, '"');
-        // args = JSON.parse(args);
-        // logger.debug(args);
 
         let message = await query.query(channelName, chaincodeName, fcn, req.wallet_address, req.orgname);
 
