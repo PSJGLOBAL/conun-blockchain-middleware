@@ -1,0 +1,5 @@
+{
+    "krwToUsd" : "https://earthquake.kr:23490/query/KRWUSD",
+    "ConPrice" : "https://api.bithumb.com/public/transaction_history/CON",
+    "EthPrice" : "https://api.bithumb.com/public/transaction_history/ETH"
+}
