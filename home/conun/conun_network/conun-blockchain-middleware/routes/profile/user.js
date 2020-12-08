@@ -48,7 +48,6 @@ router.post('/', async (req, res) => {
         if (response && typeof response !== 'string') {
             res.send( _.pick(user, ['_id', 'name', 'email', 'wallet_address'])).status(201);
         } else {
-            // logger.debug('Failed to register the username %s for organization %s with::%s', username, orgName, response);
             res.json({ success: false, message: response }).status(400);
         }
     } catch (e) {
