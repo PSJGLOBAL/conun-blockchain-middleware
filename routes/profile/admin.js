@@ -28,25 +28,17 @@ router.post('/', async (req, res) => {
     if (user)
         return res.status(400).send({error: 'User already exist', status: 400});
     try {
-        let account = await web3Handlers.CreateAccountAdvanced(req.body.password);
-        var wallet_address = account.wallet_address;
+        var wallet_address = req.body.wallet_address;
         var orgName = req.body.orgName;
         let response = await helper.getRegisteredUser(wallet_address, orgName, true);
-
-        let encrypt = {
-            privateKey: crypto.AesEncrypt(account.privateKey, req.body.password),
-            stringKeystore: crypto.AesEncrypt(account.stringKeystore, req.body.password),
-        }
 
         user = new User ({
             name: req.body.name,
             email: req.body.email,
-            orgName: req.body.orgName,
+            orgName: orgName,
             password: req.body.password,
             isAdmin:  req.body.isAdmin,
-            wallet_address: account.wallet_address,
-            privateKey: encrypt.privateKey,
-            stringKeystore: encrypt.stringKeystore
+            wallet_address: wallet_address,
         });
 
         const salt = await bcrypt.genSalt();

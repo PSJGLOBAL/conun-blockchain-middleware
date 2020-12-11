@@ -6,3 +6,4 @@ config/private/
 config
 wallet
 config
+*.csv

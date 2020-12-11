@@ -79,14 +79,14 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req
                 error: null,
                 errorData: null
             }
-        );
+        ).status(200);
     } catch (error) {
         const response_payload = {
             result: null,
             error: 'error.name',
             errorData: 'error.message'
         }
-        res.send(response_payload)
+        res.send(response_payload).status(400)
     }
 });
 

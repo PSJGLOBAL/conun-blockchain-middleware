@@ -3,8 +3,6 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const _ = require('lodash');
-const web3Handlers = require('../../web3/eth.main');
-const crypto = require('../../utils/crypto/encryption.algorithm');
 const auth = require('../../middleware/auth');
 const helper = require('../../app/helper')
 
@@ -28,25 +26,18 @@ router.post('/', async (req, res) => {
     if (user)
         return res.status(400).send({error: 'User already exist', status: 400});
     try {
-        let account = await web3Handlers.CreateAccountAdvanced(req.body.password);
-        var wallet_address = account.wallet_address;
-        var orgName = req.body.orgName;
+        let wallet_address = req.body.wallet_address;
+        let orgName = req.body.orgName;
         let response = await helper.getRegisteredUser(wallet_address, orgName, true);
 
-        let encrypt = {
-            privateKey: crypto.AesEncrypt(account.privateKey, req.body.password),
-            stringKeystore: crypto.AesEncrypt(account.stringKeystore, req.body.password),
-        }
 
         user = new User ({
             name: req.body.name,
             email: req.body.email,
-            orgName: req.body.orgName,
+            orgName: orgName,
             password: req.body.password,
-            isAdmin:  req.body.isAdmin,
-            wallet_address: account.wallet_address,
-            privateKey: encrypt.privateKey,
-            stringKeystore: encrypt.stringKeystore
+            wallet_address: wallet_address,
+            isAdmin:  req.body.isAdmin
         });
 
         const salt = await bcrypt.genSalt();
@@ -57,7 +48,6 @@ router.post('/', async (req, res) => {
         if (response && typeof response !== 'string') {
             res.send( _.pick(user, ['_id', 'name', 'email', 'wallet_address'])).status(201);
         } else {
-            // logger.debug('Failed to register the username %s for organization %s with::%s', username, orgName, response);
             res.json({ success: false, message: response }).status(400);
         }
     } catch (e) {

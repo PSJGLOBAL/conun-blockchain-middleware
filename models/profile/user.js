@@ -35,18 +35,6 @@ const userSchema = new mongoose.Schema({
         minlength: 3,
         maxlength: 1024,
     },
-    privateKey: {
-        type: String,
-        required: true,
-        minlength: 3,
-        maxlength: 1024,
-    },
-    stringKeystore: {
-        type: String,
-        required: true,
-        minlength: 3,
-        maxlength: 1024,
-    },
     isAdmin: Boolean
 });
 
@@ -63,6 +51,7 @@ function validateUser(user) {
         email: Joi.string().min(5).max(255).required().email(),
         orgName: Joi.string().min(3).max(50).required(),
         password: Joi.string().min(5).max(1024).required(),
+        wallet_address: Joi.string().min(5).max(1024).required(),
         isAdmin: Joi.boolean().required()
     });
     return schema.validate(user);
