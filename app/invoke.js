@@ -43,32 +43,6 @@ async function connectionOrg(wallet_address, org_name) {
 }
 
 module.exports = {
-    BalanceOf: async (arg) => {
-        try {
-            console.log('>> BalanceOf: ', arg);
-            const connection = await connectionOrg(arg.wallet_address, arg.orgName);
-            // Create a new gateway for connecting to our peer node.
-            const gateway = new Gateway();
-            await gateway.connect(connection.ccp, connection.connectOptions);
-
-            // Get the network (channel) our contract is deployed to.
-            const network = await gateway.getNetwork(arg.channelName);
-            const contract = network.getContract(arg.chainCodeName);
-
-            let result = await contract.submitTransaction(arg.fcn, arg.wallet_address);
-
-            await gateway.disconnect();
-
-            result = result.toString();
-
-            return result;
-
-        } catch (error) {
-            console.log(`Getting error: ${error}`)
-            return error.message
-        }
-    },
-
     Transfer: async (arg) => {
         try {
             console.log('>> Transfer: ', arg);

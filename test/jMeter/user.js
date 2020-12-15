@@ -24,7 +24,8 @@ router.post('/', async (req, res) => {
         const csvWriter = createCsvWriter({
             path: __dirname+'wallet.csv',
             header: [
-                {id: 'wallet_address'},
+                {id: 'wallet_address_1'},
+                {id: 'wallet_address_2'}
             ]
         });
         for (let i = 0; i < 100; i++) {
@@ -40,7 +41,8 @@ router.post('/', async (req, res) => {
 
             let data = [
                 {
-                    wallet_address: wallet_address.concat(`${i}`),
+                    wallet_address_1: wallet_address.concat(`${i}`),
+                    wallet_address_2: wallet_address.concat(`${i}`+'ea'+`${i+1}`),
                 },
             ]
 
