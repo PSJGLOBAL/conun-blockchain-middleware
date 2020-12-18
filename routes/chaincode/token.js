@@ -49,6 +49,19 @@ function CallInvoke(event, req) {
                 resolve(result)
             })
 
+
+            eventDeal.on('Init', async () => {
+                let result = await invokeHandler.Init({
+                    channelName: req.params.channelName,
+                    chainCodeName: req.params.chainCodeName,
+                    fcn: req.body.fcn,
+                    orgName: req.body.orgName,
+                    wallet_address: req.body.wallet_address,
+                    amount: req.body.amount,
+                });
+                resolve(result)
+            })
+
             let status = eventDeal.emit(event)
             if (!status) {
                 eventDeal.removeAllListeners();
@@ -64,7 +77,7 @@ function CallQuery(event, req) {
         (resolve, reject) => {
             eventQuery.on('BalanceOf', async () => {
                 console.log('event: ', event);
-                let result = await queryHandler.query({
+                let result = await queryHandler.BalanceOf({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
@@ -74,8 +87,28 @@ function CallQuery(event, req) {
                 resolve(result)
             })
 
-            eventQuery.on('TotalSupply', async () => {
-                //TODO Get TotalSupply
+            eventQuery.on('GetDetails', async () => {
+                console.log('event: ', event);
+                let result = await queryHandler.GetDetails({
+                    channelName: req.params.channelName,
+                    chainCodeName: req.params.chainCodeName,
+                    fcn:  req.query.fcn,
+                    wallet_address: req.query.wallet_address,
+                    orgName: req.query.orgName
+                });
+                resolve(result)
+            })
+
+            eventQuery.on('ClientAccountID', async () => {
+                console.log('event: ', event);
+                let result = await queryHandler.ClientAccountID({
+                    channelName: req.params.channelName,
+                    chainCodeName: req.params.chainCodeName,
+                    fcn:  req.query.fcn,
+                    wallet_address: req.query.wallet_address,
+                    orgName: req.query.orgName
+                });
+                resolve(result)
             })
 
             let status = eventQuery.emit(event)
@@ -130,5 +163,4 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req,
         res.send(response_payload).status(400)
     }
 });
-
 module.exports = router;

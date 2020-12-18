@@ -2,13 +2,19 @@ const {User, validate} = require('../../models/profile/user');
 const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
-const _ = require('lodash');
 const auth = require('../../middleware/auth');
+const _ = require('lodash');
 const helper = require('../../app/helper')
 
 router.get('/me', auth, async (req, res) => {
-    const user = await User.findById(req.user._id).select('-password');
-    res.send(user);
+    try {
+        console.log('me >>  ')
+        const user = await User.findById(req.user._id).select('-password');
+        console.log('>> user', user)
+        res.send(user);
+    }catch (e) {
+        console.log('me err: ', e)
+    }
 });
 
 router.get('/', auth, async (req, res) => {
@@ -30,7 +36,6 @@ router.post('/', async (req, res) => {
         let orgName = req.body.orgName;
         let response = await helper.getRegisteredUser(wallet_address, orgName, true);
 
-
         user = new User ({
             name: req.body.name,
             email: req.body.email,
@@ -45,13 +50,13 @@ router.post('/', async (req, res) => {
 
         await user.save()
 
-        if (response && typeof response !== 'string') {
+        if (typeof response !== 'string') {
             res.send( _.pick(user, ['_id', 'name', 'email', 'wallet_address'])).status(201);
         } else {
             res.json({ success: false, message: response }).status(400);
         }
     } catch (e) {
-        res.json({ success: false, message: 'error while user creation' }).status(400);
+        res.json({ success: false, message: 'error while user creation in blockchain network' }).status(400);
     }
 });
 

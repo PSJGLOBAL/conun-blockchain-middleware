@@ -1,20 +1,18 @@
-const {User, validate} = require('../../models/profile/user');
 const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const _ = require('lodash');
-const web3Handlers = require('../../web3/eth.main');
-const crypto = require('../../utils/crypto/encryption.algorithm');
 const auth = require('../../middleware/auth');
-const helper = require('../../app/helper')
+const {User, validate} = require('../../models/profile/user');
+const helper = require('../../app/helper');
 
 router.get('/me', auth, async (req, res) => {
-    const user = await User.findById(req.user._id).select('-password');
-    res.send(user);
+        const user = await User.findById(req.user._id).select('-password');
+        res.send(user);
 });
 
 router.get('/', auth, async (req, res) => {
-    const user = await User.find();
+    const user = await User.find({isAdmin: true});
     res.send(user);
 });
 
@@ -46,7 +44,7 @@ router.post('/', async (req, res) => {
 
         await user.save()
 
-        if (response && typeof response !== 'string') {
+        if (typeof response !== 'string') {
             res.send( _.pick(user, ['_id', 'name', 'email', 'wallet_address'])).status(201);
         } else {
             // logger.debug('Failed to register the wallet_address %s for organization %s with::%s', wallet_address, orgName, response);

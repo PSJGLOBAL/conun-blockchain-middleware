@@ -19,7 +19,7 @@ const getRegisteredUser = async (wallet_address, userOrg, isJson) => {
     // Create a new CA client for interacting with the CA.
     const caURL = ccp.certificateAuthorities['ca.org1.example.com'].url;
     const ca = new FabricCAServices(caURL);
-
+    console.log('caURL: ',caURL)
     const walletPath = path.join(process.cwd(), 'wallet');
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
@@ -116,6 +116,5 @@ const enrollAdmin = async () => {
 
 
 }
-
 
 exports.getRegisteredUser = getRegisteredUser

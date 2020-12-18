@@ -1,9 +1,9 @@
-const {User} = require('../../models/profile/user');
 const express = require('express');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
-const router = express.Router();
 const _ = require('lodash');
+const {User} = require('../../models/profile/user');
+const router = express.Router();
 
 router.post('/', async (req, res) => {
     const { error } = validate(req.body);

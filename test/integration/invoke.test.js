@@ -18,7 +18,7 @@ describe('INVOKE', () => {
 
         const execute = async () => {
             return await request(server)
-                .post('/api/v1/invoke/channels/mychannel/chaincodes/token')
+                .post('/api/v1/invoke/channels/mychannel/chaincodes/conToken')
                 .set('x-auth-token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZmQwNTBjM2Y2YmFjYzQxNjZhZGQ4ZjUiLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNjA3NDg3NzUxfQ.lvee460oHn4-NgICHTwrIixKP2rfcnbLlQafaZDXkvE')
                 .send({
                     fcn,

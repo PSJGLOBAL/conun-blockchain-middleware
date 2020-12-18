@@ -59,9 +59,8 @@ module.exports = {
 
             await gateway.disconnect();
 
-            result = result.toString();
 
-            return result;
+            return JSON.parse(result.toString());
 
         } catch (error) {
             console.log(`Getting error: ${error}`)
@@ -81,33 +80,7 @@ module.exports = {
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
 
-            let result = await contract.submitTransaction(arg.fcn, arg.admin_wallet, arg.amount);
-
-            await gateway.disconnect();
-
-            result = result.toString();
-
-            return result;
-
-        } catch (error) {
-            console.log(`Getting error: ${error}`)
-            return error.message
-        }
-    },
-
-    SetOption: async (arg) => {
-        try {
-            console.log('>> SetOption: ', arg);
-            const connection = await connectionOrg(arg.wallet_address, arg.orgName);
-            // Create a new gateway for connecting to our peer node.
-            const gateway = new Gateway();
-            await gateway.connect(connection.ccp, connection.connectOptions);
-
-            // Get the network (channel) our contract is deployed to.
-            const network = await gateway.getNetwork(arg.channelName);
-            const contract = network.getContract(arg.chainCodeName);
-
-            let result = await contract.submitTransaction(arg.fcn, arg.name, arg.symbol, arg.decimals);
+            let result = await contract.submitTransaction(arg.fcn, arg.amount);
 
             await gateway.disconnect();
 
@@ -133,19 +106,42 @@ module.exports = {
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
 
-            let result = await contract.submitTransaction(arg.fcn, arg.wallet_address, arg.amount);
+            let result = await contract.submitTransaction(arg.fcn, arg.amount);
 
             await gateway.disconnect();
 
-            result = result.toString();
+            return JSON.parse(result.toString());
 
-            return result;
+        } catch (error) {
+            console.log(`Getting error: ${error}`)
+            return error.message
+        }
+    },
+
+    Init: async (arg) => {
+        try {
+            console.log('>> Init: ', arg);
+            const connection = await connectionOrg(arg.wallet_address, arg.orgName);
+            // Create a new gateway for connecting to our peer node.
+            const gateway = new Gateway();
+            await gateway.connect(connection.ccp, connection.connectOptions);
+
+            // Get the network (channel) our contract is deployed to.
+            const network = await gateway.getNetwork(arg.channelName);
+            const contract = network.getContract(arg.chainCodeName);
+
+            let result = await contract.submitTransaction(arg.fcn, arg.wallet_address);
+
+            await gateway.disconnect();
+
+            return JSON.parse(result.toString());
 
         } catch (error) {
             console.log(`Getting error: ${error}`)
             return error.message
         }
     }
+
 }
 
 

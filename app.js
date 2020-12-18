@@ -1,8 +1,8 @@
 'use strict';
-const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const constants = require('./config/constants.json');
 
 require('./startup/logging');
