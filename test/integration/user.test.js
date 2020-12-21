@@ -4,13 +4,13 @@ let server;
 
 describe('USER', () => {
 
-    beforeEach(() => {
-        server = require('../../app');
-    });
-
-    afterEach(() => {
-        server.close();
-    });
+    // beforeEach(() => {
+    //     server = require('../../app');
+    // });
+    //
+    // afterEach(() => {
+    //     server.close();
+    // });
 
 
     describe('POST / USER', () => {

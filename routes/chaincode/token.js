@@ -4,6 +4,7 @@ const _ = require('lodash');
 const invokeHandler = require('../../app/invoke');
 const queryHandler = require('../../app/query');
 const auth = require('../../middleware/auth');
+const verify = require('../../middleware/verify');
 const events = require('events');
 
 function CallInvoke(event, req) {
@@ -20,6 +21,7 @@ function CallInvoke(event, req) {
                     to: req.body.to,
                     value: req.body.value,
                 });
+                if(!result) reject(false);
                 resolve(result);
             })
 
@@ -33,6 +35,7 @@ function CallInvoke(event, req) {
                     admin_wallet: req.body.admin_wallet,
                     amount: req.body.amount,
                 });
+                if(!result) reject(false);
                 resolve(result)
             })
 
@@ -46,6 +49,7 @@ function CallInvoke(event, req) {
                     wallet_address: req.body.wallet_address,
                     amount: req.body.amount,
                 });
+                if(!result) reject(false);
                 resolve(result)
             })
 
@@ -59,6 +63,7 @@ function CallInvoke(event, req) {
                     wallet_address: req.body.wallet_address,
                     amount: req.body.amount,
                 });
+                if(!result) reject(false);
                 resolve(result)
             })
 
@@ -84,6 +89,7 @@ function CallQuery(event, req) {
                     wallet_address: req.query.wallet_address,
                     orgName: req.query.orgName
                 });
+                if(!result) reject(false);
                 resolve(result)
             })
 
@@ -96,6 +102,7 @@ function CallQuery(event, req) {
                     wallet_address: req.query.wallet_address,
                     orgName: req.query.orgName
                 });
+                if(!result) reject(false);
                 resolve(result)
             })
 
@@ -108,10 +115,12 @@ function CallQuery(event, req) {
                     wallet_address: req.query.wallet_address,
                     orgName: req.query.orgName
                 });
+                if(!result) reject(false);
                 resolve(result)
             })
 
             let status = eventQuery.emit(event)
+            console.log('>> status: ', status);
             if (!status) {
                 eventQuery.removeAllListeners();
                 reject(status);
@@ -121,46 +130,67 @@ function CallQuery(event, req) {
 }
 
 
-router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, verify, async (req, res) => {
     try {
-        let response = await CallInvoke(req.body.fcn, req);
-        console.log('response: ', response);
-        res.send({
-                result: response,
-                error: null,
-                errorData: null
+        console.log('>> req.body: ', req.body)
+        CallInvoke(req.body.fcn, req)
+            .then((response) => {
+                console.log('>> response: ', response);
+                    res.status(200).send({
+                            result: response,
+                            error: null,
+                            errorData: null
+                        }
+                    );
             }
-        ).status(200);
+        ).catch((err)=>  {
+            res.status(400).send({
+                    result: null,
+                    error: err,
+                    errorData: 'error while invoking'
+                }
+            );
+        });
     } catch (error) {
         const response_payload = {
-            result: null,
+            result: error,
             error: 'error.name',
             errorData: 'error.message'
         }
-        res.send(response_payload).status(400)
+        res.status(400).send(response_payload)
     }
 });
 
-router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
+router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, verify,async (req, res) => {
     try {
         console.log('params: ', req.params);
         console.log('query: ', req.query);
         console.log('body: ', req.body);
-        let response = await CallQuery(req.query.fcn, req);
-        console.log('response: ', response);
-        const response_payload = {
-            result: response,
-            error: null,
-            errorData: null
-        }
-        res.send(response_payload).status(200);
+        CallQuery(req.query.fcn, req)
+            .then((response) => {
+                console.log('response: ', response);
+                const response_payload = {
+                    result: response,
+                    error: null,
+                    errorData: null
+                }
+                res.status(200).send(response_payload);
+            }
+        ).catch((err) => {
+            res.status(400).send({
+                    result: null,
+                    error: err,
+                    errorData: 'error while query'
+                }
+            );
+        });
     } catch (error) {
         const response_payload = {
             result: null,
-            error: 'error.name',
-            errorData: 'error.message'
+            error: error,
+            errorData: 'error while query'
         }
-        res.send(response_payload).status(400)
+        res.status(400).send(response_payload)
     }
 });
 module.exports = router;

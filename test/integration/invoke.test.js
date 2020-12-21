@@ -11,53 +11,65 @@ describe('INVOKE', () => {
         server.close();
     });
 
-    describe('POST / BalanceOf', () => {
+    describe('POST / Transfer', () => {
         let fcn;
-        let wallet_address;
         let orgName;
+        let _from;
+        let to;
+        let value;
 
         const execute = async () => {
             return await request(server)
-                .post('/api/v1/invoke/channels/mychannel/chaincodes/conToken')
+                .post('/api/v1/con-token/channels/mychannel/chaincodes/conToken')
                 .set('x-auth-token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZmQwNTBjM2Y2YmFjYzQxNjZhZGQ4ZjUiLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNjA3NDg3NzUxfQ.lvee460oHn4-NgICHTwrIixKP2rfcnbLlQafaZDXkvE')
                 .send({
                     fcn,
                     orgName,
-                    wallet_address
+                    _from,
+                    to,
+                    value
                 });
         }
 
         beforeEach(() => {
-                fcn = 'BalanceOf';
+                fcn = 'Transfer';
                 orgName = 'Org1';
-                wallet_address = '0X06AFFAC583D04E9367FC02F265FE55D6800B0A14';
+                _from = '0xAE040495D3720Ec3a551F5A0179B933B8B41ae458';
+                to = '0xD040495D3720Ec3a551F5A0179B933B8B41ae244';
+                value = 10;
         })
 
-        it('1 - should return 400 if category if name is empty', async () => {
-            fcn = ''
-            orgName = ''
-            wallet_address = ''
+        it('1 - test', async () => {
+            fcn = '';
+            orgName = '';
+            _from = '';
+            to = '';
+            value = '';
             const res = await execute();
             expect(res.status).toBe(400);
         });
 
-        it('2 - if fcn name is not exist should return  400', async () => {
+        it('2 - test', async () => {
             fcn = 'aaaa'
             orgName = 'Org1'
-            wallet_address = '0X06AFFAC583D04E9367FC02F265FE55D6800B0A14'
+            _from = '0xAE040495D3720Ec3a551F5A0179B933B8B41ae458'
+            to = ''
+            value = 10
             const res = await execute();
             expect(res.status).toBe(400);
         });
 
-        it('3 - not exiting wallet should return 400', async () => {
-            fcn = 'BalanceOf'
+        it('3 - test', async () => {
+            fcn = 'Transfer'
             orgName = 'Org1'
-            wallet_address = new Array(21).join('c');
+            _from = new Array(21).join('X');
+            to = '0xD040495D3720Ec3a551F5A0179B933B8B41ae244'
+            value = 10
             const res = await execute();
             expect(res.status).toBe(400);
         });
 
-        it('4 - should save the category if it is valid', async () => {
+        it('4 - test', async () => {
             await execute();
             const user = await User.find({ wallet_address: '0X06AFFAC583D04E9367FC02F265FE55D6800B0A14' });
             expect(user).not.toBeNull();

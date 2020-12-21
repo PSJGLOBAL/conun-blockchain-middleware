@@ -4,6 +4,18 @@ const path = require("path")
 const helper = require('./helper');
 
 
+async function checkWalletAddress(wallet_address, org_name) {
+    console.log('connectionOrg: ', wallet_address, org_name);
+    const walletPath = path.join(process.cwd(), 'wallet');
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+    console.log(`connectionOrg Wallet path: ${walletPath}`);
+    let identity = await wallet.get(wallet_address);
+    if (!identity) {
+        return false
+    }
+    return true
+}
+
 async function connectionOrg(wallet_address, org_name) {
     try {
         console.log('connectionOrg: ', wallet_address, org_name);
@@ -19,10 +31,10 @@ async function connectionOrg(wallet_address, org_name) {
         // Check to see if we've already enrolled the user.
         let identity = await wallet.get(wallet_address);
         if (!identity) {
-            console.log(`An identity for the user ${wallet_address} does not exist in the wallet, so registering user`);
-            await helper.getRegisteredUser(wallet_address, org_name, true)
-            identity = await wallet.get(wallet_address);
-            console.log('Run the registerUser.js application before retrying', identity);
+            // console.log(`An identity for the user ${wallet_address} does not exist in the wallet, so registering user`);
+            // await helper.getRegisteredUser(wallet_address, org_name, true)
+            // identity = await wallet.get(wallet_address);
+            // console.log('Run the registerUser.js application before retrying', identity);
             return;
         }
 
@@ -54,6 +66,8 @@ module.exports = {
             // Get the network (channel) our contract is deployed to.
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
+            let status = await checkWalletAddress(arg.to, arg.orgName)
+            if(!status) return false;
 
             let result = await contract.submitTransaction(arg.fcn, arg._from, arg.to, arg.value);
 
@@ -64,7 +78,7 @@ module.exports = {
 
         } catch (error) {
             console.log(`Getting error: ${error}`)
-            return error.message
+            return false
         }
     },
 
@@ -90,7 +104,7 @@ module.exports = {
 
         } catch (error) {
             console.log(`Getting error: ${error}`)
-            return error.message
+            return false
         }
     },
 
@@ -114,7 +128,7 @@ module.exports = {
 
         } catch (error) {
             console.log(`Getting error: ${error}`)
-            return error.message
+            return false
         }
     },
 
@@ -138,7 +152,7 @@ module.exports = {
 
         } catch (error) {
             console.log(`Getting error: ${error}`)
-            return error.message
+            return false
         }
     }
 

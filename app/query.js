@@ -22,10 +22,10 @@ async function connectionOrg(wallet_address, org_name) {
         // Check to see if we've already enrolled the user.
         let identity = await wallet.get(wallet_address);
         if (!identity) {
-            console.log(`An identity for the user ${wallet_address} does not exist in the wallet, so registering user`);
-            await helper.getRegisteredUser(wallet_address, org_name, true)
-            identity = await wallet.get(wallet_address);
-            console.log('Run the registerUser.js application before retrying', identity);
+            // console.log(`An identity for the user ${wallet_address} does not exist in the wallet, so registering user`);
+            // await helper.getRegisteredUser(wallet_address, org_name, true)
+            // identity = await wallet.get(wallet_address);
+            // console.log('Run the registerUser.js application before retrying', identity);
             return;
         }
 
@@ -62,7 +62,7 @@ module.exports = {
             return JSON.parse(result.toString());
         } catch (error) {
             console.error(`Failed to evaluate transaction: ${error}`);
-            return error.message
+            return false
         }
     },
 
@@ -79,7 +79,7 @@ module.exports = {
             return JSON.parse(result.toString());
         } catch (error) {
             console.error(`Failed to evaluate transaction: ${error}`);
-            return error.message
+            return false
         }
     },
 
@@ -96,7 +96,7 @@ module.exports = {
             return result.toString();
         } catch (error) {
             console.error(`Failed to evaluate transaction: ${error}`);
-            return error.message
+            return false
         }
     },
 
@@ -127,7 +127,7 @@ module.exports = {
             return JSON.parse(result.toString());
         } catch (error) {
             console.error(`Failed to evaluate transaction: ${error}`);
-            return error.message
+            return false
         }
     }
 }
