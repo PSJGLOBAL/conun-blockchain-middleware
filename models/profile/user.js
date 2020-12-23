@@ -35,6 +35,12 @@ const userSchema = new mongoose.Schema({
         minlength: 3,
         maxlength: 1024,
     },
+    key: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 2048,
+    },
     isAdmin: Boolean
 });
 

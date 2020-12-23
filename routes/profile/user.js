@@ -1,6 +1,7 @@
 const {User, validate} = require('../../models/profile/user');
 const express = require('express');
 const bcrypt = require('bcrypt');
+const NodeRSA = require('node-rsa');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 const _ = require('lodash');
@@ -32,9 +33,15 @@ router.post('/', async (req, res) => {
     if (user)
         return res.status(400).send({error: 'User already exist', status: 400});
     try {
+        let key = new NodeRSA({b:1024})
         let wallet_address = req.body.wallet_address;
         let orgName = req.body.orgName;
-        let response = await helper.getRegisteredUser(wallet_address, orgName, true);
+
+        let publicKey = key.exportKey('public');
+        let privateKey = key.exportKey('private');
+
+        console.log('publicKey: ',  publicKey);
+        console.log('privateKey: ',  privateKey);
 
         user = new User ({
             name: req.body.name,
@@ -42,13 +49,15 @@ router.post('/', async (req, res) => {
             orgName: orgName,
             password: req.body.password,
             wallet_address: wallet_address,
+            key: JSON.stringify({ publicKey, privateKey }),
             isAdmin:  req.body.isAdmin
         });
-
+        console.log('>> user: ', user)
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
         await user.save()
+        let response = await helper.getRegisteredUser(wallet_address, orgName, true);
 
         if (typeof response !== 'string') {
             res.send( _.pick(user, ['_id', 'name', 'email', 'wallet_address'])).status(201);

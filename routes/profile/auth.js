@@ -17,10 +17,11 @@ router.post('/', async (req, res) => {
     const isValidPassword = await bcrypt.compare(req.body.password, user.password);
     if(!isValidPassword)
         return res.status(400).send({error: 'Email or password is incorrect !', status: 400});
-
+    let key = JSON.parse(user.key)
     const token = user.generateAuthToken();
     res.header('x-auth-token', token).send({
         'x-auth-token': token,
+        publicKey: key.publicKey,
         user: _.pick(user, ['_id', 'name', 'email', 'wallet_address'])
     });
 });

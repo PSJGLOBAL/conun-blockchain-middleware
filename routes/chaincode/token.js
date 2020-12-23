@@ -5,6 +5,7 @@ const invokeHandler = require('../../app/invoke');
 const queryHandler = require('../../app/query');
 const auth = require('../../middleware/auth');
 const verify = require('../../middleware/verify');
+const signInTransaction = require('../../middleware/signIn');
 const events = require('events');
 
 function CallInvoke(event, req) {
@@ -12,6 +13,8 @@ function CallInvoke(event, req) {
     return new Promise(
         (resolve, reject) => {
             eventDeal.on('Transfer', async () => {
+                let signStatus = await signInTransaction(req.user, req.body._from);
+                if(!signStatus) return reject(false);
                 let result = await invokeHandler.Transfer({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -25,22 +28,23 @@ function CallInvoke(event, req) {
                 resolve(result);
             })
 
-
-            eventDeal.on('Burn', async () => {
-                let result = await invokeHandler.Burn({
+            eventDeal.on('Init', async () => {
+                let signStatus = await signInTransaction(req.user, req.body.wallet_address);
+                if(!signStatus) return reject(false);
+                let result = await invokeHandler.Init({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    admin_wallet: req.body.admin_wallet,
-                    amount: req.body.amount,
+                    wallet_address: req.body.wallet_address,
                 });
                 if(!result) reject(false);
                 resolve(result)
             })
 
-
             eventDeal.on('Mint', async () => {
+                let signStatus = await signInTransaction(req.user, req.body.wallet_address);
+                if(!signStatus) return reject(false);
                 let result = await invokeHandler.Mint({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -53,19 +57,21 @@ function CallInvoke(event, req) {
                 resolve(result)
             })
 
-
-            eventDeal.on('Init', async () => {
-                let result = await invokeHandler.Init({
+            eventDeal.on('Burn', async () => {
+                let signStatus = await signInTransaction(req.user, req.body.wallet_address);
+                if(!signStatus) return reject(false);
+                let result = await invokeHandler.Burn({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    wallet_address: req.body.wallet_address,
+                    admin_wallet: req.body.admin_wallet,
                     amount: req.body.amount,
                 });
                 if(!result) reject(false);
                 resolve(result)
             })
+
 
             let status = eventDeal.emit(event)
             if (!status) {
