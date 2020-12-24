@@ -5,7 +5,7 @@ const invokeHandler = require('../../app/invoke');
 const queryHandler = require('../../app/query');
 const auth = require('../../middleware/auth');
 const verify = require('../../middleware/verify');
-const signInTransaction = require('../../middleware/signIn');
+const signIn = require('../../middleware/signIn');
 const events = require('events');
 
 function CallInvoke(event, req) {
@@ -13,8 +13,6 @@ function CallInvoke(event, req) {
     return new Promise(
         (resolve, reject) => {
             eventDeal.on('Transfer', async () => {
-                let signStatus = await signInTransaction(req.user, req.body._from);
-                if(!signStatus) return reject(false);
                 let result = await invokeHandler.Transfer({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -29,8 +27,6 @@ function CallInvoke(event, req) {
             })
 
             eventDeal.on('Init', async () => {
-                let signStatus = await signInTransaction(req.user, req.body.wallet_address);
-                if(!signStatus) return reject(false);
                 let result = await invokeHandler.Init({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -43,8 +39,6 @@ function CallInvoke(event, req) {
             })
 
             eventDeal.on('Mint', async () => {
-                let signStatus = await signInTransaction(req.user, req.body.wallet_address);
-                if(!signStatus) return reject(false);
                 let result = await invokeHandler.Mint({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -58,8 +52,6 @@ function CallInvoke(event, req) {
             })
 
             eventDeal.on('Burn', async () => {
-                let signStatus = await signInTransaction(req.user, req.body.wallet_address);
-                if(!signStatus) return reject(false);
                 let result = await invokeHandler.Burn({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -136,7 +128,7 @@ function CallQuery(event, req) {
 }
 
 
-router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, verify, async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, verify, signIn,async (req, res) => {
     try {
         console.log('>> req.body: ', req.body)
         CallInvoke(req.body.fcn, req)

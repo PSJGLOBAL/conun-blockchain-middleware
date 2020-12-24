@@ -28,22 +28,22 @@ router.post('/', async (req, res) => {
     try {
         var wallet_address = req.body.wallet_address;
         var orgName = req.body.orgName;
-        let response = await helper.getRegisteredUser(wallet_address, orgName, true);
 
         user = new User ({
             name: req.body.name,
             email: req.body.email,
             orgName: orgName,
             password: req.body.password,
-            isAdmin:  req.body.isAdmin,
             wallet_address: wallet_address,
+            isAdmin: req.body.isAdmin
         });
-
+        console.log('>> user: ', user);
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
         await user.save()
 
+        let response = await helper.getRegisteredUser(wallet_address, orgName, true);
         if (typeof response !== 'string') {
             res.send( _.pick(user, ['_id', 'name', 'email', 'wallet_address'])).status(201);
         } else {

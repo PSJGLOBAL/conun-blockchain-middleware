@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
     },
     key: {
         type: String,
-        required: true,
+        required: false,
         minlength: 3,
         maxlength: 2048,
     },

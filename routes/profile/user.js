@@ -1,11 +1,10 @@
 const {User, validate} = require('../../models/profile/user');
 const express = require('express');
 const bcrypt = require('bcrypt');
-const NodeRSA = require('node-rsa');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 const _ = require('lodash');
-const helper = require('../../app/helper')
+const helper = require('../../app/helper');
 
 router.get('/me', auth, async (req, res) => {
     try {
@@ -13,7 +12,7 @@ router.get('/me', auth, async (req, res) => {
         const user = await User.findById(req.user._id).select('-password');
         console.log('>> user', user)
         res.send(user);
-    }catch (e) {
+    } catch (e) {
         console.log('me err: ', e)
     }
 });
@@ -33,15 +32,8 @@ router.post('/', async (req, res) => {
     if (user)
         return res.status(400).send({error: 'User already exist', status: 400});
     try {
-        let key = new NodeRSA({b:1024})
         let wallet_address = req.body.wallet_address;
         let orgName = req.body.orgName;
-
-        let publicKey = key.exportKey('public');
-        let privateKey = key.exportKey('private');
-
-        console.log('publicKey: ',  publicKey);
-        console.log('privateKey: ',  privateKey);
 
         user = new User ({
             name: req.body.name,
@@ -49,10 +41,9 @@ router.post('/', async (req, res) => {
             orgName: orgName,
             password: req.body.password,
             wallet_address: wallet_address,
-            key: JSON.stringify({ publicKey, privateKey }),
             isAdmin:  req.body.isAdmin
         });
-        console.log('>> user: ', user)
+        console.log('>> user: ', user);
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
