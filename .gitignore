@@ -7,3 +7,5 @@ config
 wallet
 config
 *.csv
+logs/
+*.log

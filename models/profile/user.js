@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.generateAuthToken = function () {
-    return jwt.sign({_id: this._id, isAdmin: this.isAdmin}, config.get('jwtPrivateKey'));
+    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, wallet_address: this.wallet_address, key: this.key}, config.get('jwtPrivateKey'), { expiresIn: '365d' });
 }
 
 const User = mongoose.model('User', userSchema);

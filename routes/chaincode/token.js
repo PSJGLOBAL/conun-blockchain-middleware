@@ -128,7 +128,7 @@ function CallQuery(event, req) {
 }
 
 
-router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, verify, signIn,async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, signIn,async (req, res) => {
     try {
         console.log('>> req.body: ', req.body)
         CallInvoke(req.body.fcn, req)
@@ -144,14 +144,14 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, verify, si
         ).catch((err)=>  {
             res.status(400).send({
                     result: null,
-                    error: err,
+                    error: err.message,
                     errorData: 'error while invoking'
                 }
             );
         });
     } catch (error) {
         const response_payload = {
-            result: error,
+            result: error.message,
             error: 'error.name',
             errorData: 'error.message'
         }
@@ -159,7 +159,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, verify, si
     }
 });
 
-router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, verify,async (req, res) => {
+router.get('/channels/:channelName/chaincodes/:chainCodeName', auth,async (req, res) => {
     try {
         console.log('params: ', req.params);
         console.log('query: ', req.query);
@@ -185,7 +185,7 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, verify,asyn
     } catch (error) {
         const response_payload = {
             result: null,
-            error: error,
+            error: error.message,
             errorData: 'error while query'
         }
         res.status(400).send(response_payload)

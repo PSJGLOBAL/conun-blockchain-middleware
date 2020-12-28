@@ -11,6 +11,7 @@ require('./test/jMeter/routes.v1')(app);
 require('./startup/db')();
 require('./startup/config')();
 
+
 console.log('start');
 app.options('*', cors());
 app.use(cors());
@@ -18,6 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
 }));
+
 
 const port = process.env.PORT || constants.port;
 const server = app.listen(port, () => {

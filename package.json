@@ -39,7 +39,6 @@
     "csv-stringify": "^5.5.3",
     "csv-writer": "^1.6.0",
     "jest": "^26.6.1",
-    "supertest": "^6.0.0",
-    "uuid": "^8.3.2"
+    "supertest": "^6.0.0"
   }
 }
