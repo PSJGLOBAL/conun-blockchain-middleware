@@ -77,12 +77,12 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
         console.log('>> req: ', req.body);
         let response = await CallInvoke(req.body.fcn, req);
         console.log('response: ', await response);
-        res.send({
+        res.status(200).send({
                 result: await response,
                 error: null,
                 errorData: null
             }
-        ).status(200);
+        );
     } catch (error) {
         const response_payload = {
             result: null,
@@ -102,14 +102,14 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) 
             error: null,
             errorData: null
         }
-        res.send(response_payload).status(200);
+        res.status(200).send(response_payload);
     } catch (error) {
         const response_payload = {
             result: null,
             error: 'error.name',
             errorData: 'error.message'
         }
-        res.send(response_payload).status(400)
+        res.status(400).send(response_payload);
     }
 });
 

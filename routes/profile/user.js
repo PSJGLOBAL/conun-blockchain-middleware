@@ -1,14 +1,14 @@
 const {User, validate} = require('../../models/profile/user');
 const express = require('express');
-const bcrypt = require('bcrypt');
 const router = express.Router();
-const auth = require('../../middleware/auth');
 const _ = require('lodash');
+const bcrypt = require('bcrypt');
 const helper = require('../../app/helper');
+const auth = require('../../middleware/auth');
 
 router.get('/me', auth, async (req, res) => {
     try {
-        console.log('me >>  ')
+        console.log('me >>  ');
         const user = await User.findById(req.user._id).select('-password');
         console.log('>> user', user)
         res.send(user);
@@ -23,6 +23,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+    console.log('req body: ', req.body)
     const { error } = validate(req.body);
     if (error)
         return res.status(400).send({error: error.details[0].message, status: 400});

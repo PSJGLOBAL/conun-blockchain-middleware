@@ -53,7 +53,7 @@ module.exports = {
 
             let result = await contract.evaluateTransaction(arg.fcn, arg.wallet_address);
             console.log(`Transaction has been evaluated, result is: ${result}`);
-            return JSON.parse(result.toString());
+            return result.toString();
         } catch (error) {
             console.error(`Failed to evaluate transaction: ${error}`);
             return false

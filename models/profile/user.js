@@ -35,17 +35,11 @@ const userSchema = new mongoose.Schema({
         minlength: 3,
         maxlength: 1024,
     },
-    key: {
-        type: String,
-        required: false,
-        minlength: 3,
-        maxlength: 2048,
-    },
     isAdmin: Boolean
 });
 
-userSchema.methods.generateAuthToken = function () {
-    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, wallet_address: this.wallet_address, key: this.key}, config.get('jwtPrivateKey'), { expiresIn: '365d' });
+userSchema.methods.generateAuthToken = function (key) {
+    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, wallet_address: this.wallet_address, key: key}, config.get('jwtPrivateKey'), { expiresIn: '365d' });
 }
 
 const User = mongoose.model('User', userSchema);

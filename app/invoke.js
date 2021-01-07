@@ -64,10 +64,7 @@ module.exports = {
             if(!status) return false;
 
             let result = await contract.submitTransaction(arg.fcn, arg._from, arg.to, arg.value);
-
             await gateway.disconnect();
-
-
             return JSON.parse(result.toString());
 
         } catch (error) {

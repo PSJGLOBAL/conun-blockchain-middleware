@@ -1,6 +1,17 @@
 {
   "swagger": "2.0",
   "paths": {
+    "*": {
+      "options": {
+        "summary": "*",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
     "/api/v1/users/me": {
       "get": {
         "summary": "/api/v1/users/me",
@@ -165,17 +176,6 @@
             "required": true
           }
         ],
-        "responses": {},
-        "tags": []
-      }
-    },
-    "*": {
-      "options": {
-        "summary": "*",
-        "consumes": [
-          "application/json"
-        ],
-        "parameters": [],
         "responses": {},
         "tags": []
       }
