@@ -1,10 +1,11 @@
 'use strict';
 const express = require('express');
 const app = express();
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const constants = require('./config/constants.json');
-const expressOasGenerator = require('express-oas-generator');
 
 app.use((req, res,next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -25,13 +26,26 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-expressOasGenerator.init(
-    app,
-    function(spec) { return spec; },
-    'api-docs',
-    true
-)
-expressOasGenerator.handleRequests();
+// Extended: https://swagger.io/specification/#infoObject
+const swaggerOptions = {
+    swaggerDefinition: {
+        info: {
+            version: "1.0.0",
+            title: "Middleware API",
+            description: "Customer API Information",
+            contact: {
+                name: "Amazing Developer"
+            },
+            servers: ["http://localhost:4000"]
+        }
+    },
+    // ['.routes/*.js']
+    apis: ['./routes/profile/user.js']
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 
 require('./startup/logging');
 require('./startup/routes.v1')(app);
