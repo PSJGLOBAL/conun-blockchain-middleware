@@ -57,7 +57,7 @@ function CallInvoke(event, req) {
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    admin_wallet: req.body.admin_wallet,
+                    wallet_address: req.body.wallet_address,
                     amount: req.body.amount,
                 });
                 if(!result) reject(false);

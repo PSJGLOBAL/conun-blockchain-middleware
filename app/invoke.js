@@ -76,7 +76,7 @@ module.exports = {
     Burn: async (arg) => {
         try {
             console.log('>> Burn: ', arg);
-            const connection = await connectionOrg(arg.admin_wallet, arg.orgName);
+            const connection = await connectionOrg(arg.wallet_address, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);

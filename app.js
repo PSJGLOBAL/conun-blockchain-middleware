@@ -26,6 +26,12 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
+require('./startup/logging');
+require('./startup/routes.v1')(app);
+require('./test/jMeter/routes.v1')(app);
+require('./startup/db')();
+require('./startup/config')();
+
 // Extended: https://swagger.io/specification/#infoObject
 const swaggerOptions = {
     swaggerDefinition: {
@@ -45,13 +51,10 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
-
-require('./startup/logging');
-require('./startup/routes.v1')(app);
-require('./test/jMeter/routes.v1')(app);
-require('./startup/db')();
-require('./startup/config')();
+app.get('/swagger.json', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerDocs);
+});
 
 
 const port = process.env.PORT || constants.port;
