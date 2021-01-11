@@ -1,0 +1,769 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Middleware REST API Doc",
+    "description": "Rest API",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "name": "CONUN Blockchain Team"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Login",
+      "description": "Everything about your Login"
+    },
+    {
+      "name": "Token",
+      "description": "CONUN BLOCKCHAIN ERC-20 Token"
+    },
+    {
+      "name": "Channel",
+      "description": "Everything about your channel"
+    },
+    {
+      "name": "Chaincodes",
+      "description": "Everything about your chaincodes"
+    },
+    {
+      "name": "Blocks",
+      "description": "Everything about your blocks"
+    },
+    {
+      "name": "Transactions",
+      "description": "Everything about your transactions"
+    }
+  ],
+  "paths": {
+
+    "/api/v1/auth": {
+      "post": {
+        "tags": ["Login"],
+        "summary": "Login",
+        "operationId": "Login",
+        "requestBody": {
+          "description": "Login",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/login"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "post": {
+        "tags": ["Login"],
+        "summary": "Register",
+        "operationId": "register",
+        "requestBody": {
+          "description": "Register",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sign"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "tags": ["Login"],
+        "summary": "Get current user",
+        "operationId": "get me",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+
+
+    "/api/v1/con-token/channels/{channelName-Init}/chaincodes/{chainCodeName-Init}": {
+      "post": {
+        "tags": ["Token"],
+        "summary": "Token Initializer",
+        "operationId": "Init",
+        "parameters": [
+          {
+            "name": "channelName-Init",
+            "in": "path",
+            "description": "Please fill channelName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chainCodeName-Init",
+            "in": "path",
+            "description": "Please fill chainCodeName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Init",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/token_init"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+
+    "/api/v1/con-token/channels/{channelName-Mint}/chaincodes/{chainCodeName-Mint}": {
+      "post": {
+        "tags": ["Token"],
+        "summary": "Token Mint",
+        "operationId": "Mint",
+        "parameters": [
+          {
+            "name": "channelName-Mint",
+            "in": "path",
+            "description": "Please fill channelName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chainCodeName-Mint",
+            "in": "path",
+            "description": "Please fill chainCodeName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Init",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/token_mint"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+
+    "/api/v1/con-token/channels/{channelName-Burn}/chaincodes/{chainCodeName-Burn}": {
+      "post": {
+        "tags": ["Token"],
+        "summary": "Token Burn",
+        "operationId": "Burn",
+        "parameters": [
+          {
+            "name": "channelName-Burn",
+            "in": "path",
+            "description": "Please fill channelName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chainCodeName-Burn",
+            "in": "path",
+            "description": "Please fill chainCodeName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Init",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/token_burn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+
+    "/api/v1/con-token/channels/{channelName-Transfer}/chaincodes/{chainCodeName-Transfer}": {
+      "post": {
+        "tags": ["Token"],
+        "summary": "Token Transfer",
+        "operationId": "Transfer",
+        "parameters": [
+          {
+            "name": "channelName-Transfer",
+            "in": "path",
+            "description": "Please fill channelName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chainCodeName-Transfer",
+            "in": "path",
+            "description": "Please fill chainCodeName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Transfer",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/token_transfer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+
+    "/api/v1/con-token/channels/{channelName-BalanceOf}/chaincodes/{chainCodeName-BalanceOf}?/wallet_address={wallet_address}&orgName={orgName}&fcn={fcn}": {
+      "get": {
+        "tags": ["Token"],
+        "summary": "Query to get Count of all Channel details",
+        "operationId": "getStatusByHash",
+        "parameters": [
+          {
+            "name": "channelName-BalanceOf",
+            "in": "path",
+            "description": "Please fill channelName-BalanceOf",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chainCodeName-BalanceOf",
+            "in": "path",
+            "description": "Please fill chainCodeName-BalanceOf",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "wallet_address",
+            "in": "path",
+            "description": "Please fill wallet_address",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orgName",
+            "in": "path",
+            "description": "Please fill orgName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fcn",
+            "in": "path",
+            "description": "Please fill fcn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+
+    "/api/v1/con-token/channels/{channelName-GetDetails}/chaincodes/{chainCodeName-GetDetails}?/wallet_address={wallet_address}&orgName={orgName}&fcn={fcn}": {
+      "get": {
+        "tags": ["Token"],
+        "summary": "Query to get Count of all Channel details",
+        "operationId": "getStatusByHash",
+        "parameters": [
+          {
+            "name": "channelName-GetDetails",
+            "in": "path",
+            "description": "Please fill channelName-GetDetails",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chainCodeName-GetDetails",
+            "in": "path",
+            "description": "Please fill chainCodeName-GetDetails",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "wallet_address",
+            "in": "path",
+            "description": "Please fill wallet_address",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orgName",
+            "in": "path",
+            "description": "Please fill orgName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fcn",
+            "in": "path",
+            "description": "Please fill fcn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+
+    "/api/v1/con-token/channels/{channelName-ClientAccountID}/chaincodes/{chainCodeName-ClientAccountID}?/wallet_address={wallet_address}&orgName={orgName}&fcn={fcn}": {
+      "get": {
+        "tags": ["Token"],
+        "summary": "Query to get Count of all Channel details",
+        "operationId": "getStatusByHash",
+        "parameters": [
+          {
+            "name": "channelName-ClientAccountID",
+            "in": "path",
+            "description": "Please fill channelName-ClientAccountID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chainCodeName-ClientAccountID",
+            "in": "path",
+            "description": "Please fill chainCodeName-ClientAccountID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "wallet_address",
+            "in": "path",
+            "description": "Please fill wallet_address",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orgName",
+            "in": "path",
+            "description": "Please fill orgName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fcn",
+            "in": "path",
+            "description": "Please fill fcn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {}
+          },
+          "401": {
+            "description": "UnAuthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "login": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        }
+      },
+      "sign": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "orgName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "wallet_address": {
+            "type": "string"
+          },
+          "isAdmin": {
+            "type": "boolean"
+          }
+        }
+      },
+      "token": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        }
+      },
+      "token_init": {
+        "type": "object",
+        "properties": {
+          "fcn": {
+            "type": "string"
+          },
+          "orgName": {
+            "type": "string"
+          },
+          "wallet_address": {
+            "type": "string"
+          }
+        }
+      },
+      "token_mint": {
+        "type": "object",
+        "properties": {
+          "fcn": {
+            "type": "string"
+          },
+          "orgName": {
+            "type": "string"
+          },
+          "wallet_address": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer"
+          }
+        }
+      },
+      "token_burn": {
+        "type": "object",
+        "properties": {
+          "fcn": {
+            "type": "string"
+          },
+          "orgName": {
+            "type": "string"
+          },
+          "wallet_address": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer"
+          }
+        }
+      },
+      "token_transfer": {
+        "type": "object",
+        "properties": {
+          "fcn": {
+            "type": "string"
+          },
+          "orgName": {
+            "type": "string"
+          },
+          "_from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer"
+          },
+          "sign": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

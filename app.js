@@ -1,8 +1,8 @@
 'use strict';
 const express = require('express');
 const app = express();
-const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require ('./swagger.json');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const constants = require('./config/constants.json');
@@ -32,29 +32,15 @@ require('./test/jMeter/routes.v1')(app);
 require('./startup/db')();
 require('./startup/config')();
 
-// Extended: https://swagger.io/specification/#infoObject
-const swaggerOptions = {
-    swaggerDefinition: {
-        info: {
-            version: "1.0.0",
-            title: "Middleware API",
-            description: "Customer API Information",
-            contact: {
-                name: "Amazing Developer"
-            },
-            servers: ["http://localhost:4000"]
-        }
-    },
-    // ['.routes/*.js']
-    apis: ['./routes/profile/user.js']
-};
+// if (process.env.NODE_ENV !== 'production') {
+//     this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// }
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-app.get('/swagger.json', function(req, res) {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(swaggerDocs);
-});
+// app.get('/swagger.json', function(req, res) {
+//     res.setHeader('Content-Type', 'application/json');
+//     res.send(swaggerDocument);
+// });
 
 
 const port = process.env.PORT || constants.port;

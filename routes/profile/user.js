@@ -6,42 +6,6 @@ const bcrypt = require('bcrypt');
 const helper = require('../../app/helper');
 const auth = require('../../middleware/auth');
 
-/**
- * @swagger
- * definitions:
- *   userSchema:
- *     properties:
- *       name:
- *         type: string
- *       email:
- *         type: string
- *       orgName:
- *         type: string
- *       password:
- *         type: string
- *       wallet_address:
- *         type: string
- *       isAdmin:
- *         type: boolean
- */
-
-
-/**
- * @swagger
- * /api/v1/users/me:
- *   get:
- *     tags:
- *       - usersRoute
- *     description: Returns current user
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         description: get single user
- *         schema:
- *           $ref: '#/definitions/userSchema'
- */
-
 router.get('/me', auth, async (req, res) => {
     try {
         console.log('me >>  ');
@@ -53,48 +17,10 @@ router.get('/me', auth, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/v1/users:
- *   get:
- *     tags:
- *       - Puppies
- *     description: check if user exist
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         description: An array of puppies
- *         schema:
- *           $ref: '#/definitions/userSchema'
- */
-
 router.get('/', auth, async (req, res) => {
     const user = await User.find();
     res.send(user);
 });
-
-
-/**
- * @swagger
- * /api/v1/users:
- *   post:
- *     tags:
- *       - usersRoute
- *     description: Creates a new puppy
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: puppy
- *         description: Puppy object
- *         in: body
- *         required: true
- *         schema:
- *           $ref: '#/definitions/userSchema'
- *     responses:
- *       200:
- *         description: Successfully created
- */
 
 router.post('/', async (req, res) => {
     console.log('req body: ', req.body)
