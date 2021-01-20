@@ -28,14 +28,13 @@ var options = {
 const logger = winston.createLogger({
     transports: [
         new winston.transports.Console,
-        new winston.transports.File(options.file),
+        new winston.transports.MongoDB(options.LogDB),
     ],
     exitOnError: false
 });
 
 logger.info("Logger is working")
 logger.error("Testing errors too!")
-
 
 process.on('uncaughtException', ex => {
     logger.error('>> uncaughtException: ', ex.message);

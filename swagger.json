@@ -26,22 +26,6 @@
     {
       "name": "Token",
       "description": "CONUN BLOCKCHAIN ERC-20 Token"
-    },
-    {
-      "name": "Channel",
-      "description": "Everything about your channel"
-    },
-    {
-      "name": "Chaincodes",
-      "description": "Everything about your chaincodes"
-    },
-    {
-      "name": "Blocks",
-      "description": "Everything about your blocks"
-    },
-    {
-      "name": "Transactions",
-      "description": "Everything about your transactions"
     }
   ],
   "paths": {
@@ -399,7 +383,7 @@
       }
     },
 
-    "/api/v1/con-token/channels/{channelName-BalanceOf}/chaincodes/{chainCodeName-BalanceOf}?/wallet_address={wallet_address}&orgName={orgName}&fcn={fcn}": {
+    "/api/v1/con-token/channels/{channelName-BalanceOf}/chaincodes/{chainCodeName-BalanceOf}?wallet_address={wallet_address}&orgName={orgName}&fcn={fcn}": {
       "get": {
         "tags": ["Token"],
         "summary": "Query to get Count of all Channel details",

@@ -22,6 +22,12 @@ router.get('/', auth, async (req, res) => {
     res.send(user);
 });
 
+router.get('/check', async (req, res) => {
+    const user = await User.findOne({email: req.query.email}).select('-password');
+    if(!user) res.status(400).json({message: 'none', success: false,  status:  400 });
+    res.status(200).json({message: user, success: false, status:  200  });
+});
+
 router.post('/', async (req, res) => {
     console.log('req body: ', req.body)
     const { error } = validate(req.body);
@@ -52,12 +58,12 @@ router.post('/', async (req, res) => {
         let response = await helper.getRegisteredUser(wallet_address, orgName, true);
 
         if (typeof response !== 'string') {
-            res.send( _.pick(user, ['_id', 'name', 'email', 'wallet_address'])).status(201);
+            res.status(201).send( _.pick(user, ['_id', 'name', 'email', 'wallet_address']));
         } else {
-            res.json({ success: false, message: response }).status(400);
+            res.status(400).json({ success: false, message: response });
         }
     } catch (e) {
-        res.json({ success: false, message: 'error while user creation in blockchain network' }).status(400);
+        res.status(400).json({ success: false, message: e.message });
     }
 });
 
