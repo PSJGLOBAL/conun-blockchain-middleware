@@ -52,6 +52,7 @@ module.exports = {
     Transfer: async (arg) => {
         try {
             console.log('>> Transfer: ', arg);
+            if(arg._from === arg.to) return false
             const connection = await connectionOrg(arg._from, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();

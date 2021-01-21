@@ -25,7 +25,7 @@ router.get('/', auth, async (req, res) => {
 router.get('/check', async (req, res) => {
     const user = await User.findOne({email: req.query.email}).select('-password');
     if(!user) res.status(400).json({message: 'none', success: false,  status:  400 });
-    res.status(200).json({message: user, success: false, status:  200  });
+    res.status(200).json({message: user, success: true, status:  200  });
 });
 
 router.post('/', async (req, res) => {
