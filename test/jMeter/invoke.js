@@ -17,7 +17,7 @@ function CallInvoke(event, req) {
                     orgName: 'Org1',
                     _from: req.body._from,
                     to: req.body.to,
-                    value: Math.floor(Math.random() * 20),
+                    value: Math.floor(Math.random() * 9),
                 });
                 resolve(result);
             })

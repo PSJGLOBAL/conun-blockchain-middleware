@@ -1,6 +1,6 @@
 'use strict';
 
-var { Gateway, Wallets } = require('fabric-network');
+var { Gateway, Wallets, DefaultEventHandlerStrategies  } = require('fabric-network');
 const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
@@ -11,6 +11,80 @@ const util = require('util');
 const ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org1.json');
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
 const ccp = JSON.parse(ccpJSON);
+
+
+async function connectionOrg(wallet_address, org_name) {
+    try {
+        console.log('connectionOrg: ', wallet_address, org_name);
+        const ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org1.json');
+        const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
+        const ccp = JSON.parse(ccpJSON);
+
+        // Create a new file system based wallet for managing identities.
+        const walletPath = path.join(process.cwd(), 'wallet');
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        console.log(`connectionOrg Wallet path: ${walletPath}`);
+
+        // Check to see if we've already enrolled the user.
+        let identity = await wallet.get(wallet_address);
+        if (!identity) return;
+
+        const connectOptions = {
+            wallet, identity: wallet_address, discovery: { enabled: true, asLocalhost: true },
+            eventHandlerOptions: {
+                commitTimeout: 100,
+                strategy: DefaultEventHandlerStrategies.NETWORK_SCOPE_ALLFORTX
+            },
+        }
+        return  {
+            ccp,
+            connectOptions
+        };
+    } catch (e) {
+        console.log('connectionOrg Error: ', e);
+    }
+}
+
+const getUserIdentity = async (wallet_address)  => {
+    try {
+
+        const walletPath = path.join(process.cwd(), 'wallet');
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        let identity = await wallet.get(wallet_address);
+        if (!identity) {
+            return false
+        }
+
+        const connection = await connectionOrg(wallet_address, 'Org1');
+        const gateway = new Gateway();
+
+        await gateway.connect(connection.ccp, connection.connectOptions);
+
+
+        const caInfo = ccp.certificateAuthorities['ca.org1.example.com'];
+        const caTLSCACerts = caInfo.tlsCACerts.pem;
+        const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
+
+        let adminIdentity = await wallet.get('admin');
+        if (!adminIdentity) {
+            console.log('An identity for the admin user "admin" does not exist in the wallet');
+            await enrollAdmin();
+            adminIdentity = await wallet.get('admin');
+            console.log("Admin Enrolled Successfully")
+        }
+        const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
+        const adminUser = await provider.getUserContext(adminIdentity, 'admin');
+
+        const identityService = await ca.newIdentityService();
+
+        const retrieveIdentity = await identityService.getOne(wallet_address, adminUser)
+        console.log("user attributes: ",retrieveIdentity.result.attrs)
+
+    } catch (error) {
+        console.log(`Getting error: ${error}`)
+        return false
+    }
+}
 
 
 const getRegisteredUser = async (wallet_address, userOrg, isJson) => {
@@ -48,11 +122,13 @@ const getRegisteredUser = async (wallet_address, userOrg, isJson) => {
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
 
     // Register the user, enroll the user, and import the new identity into the wallet.
-    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: wallet_address, role: 'client' }, adminUser);
-    // const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: wallet_address, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
+    // const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: wallet_address, role: 'client' }, adminUser);
+    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: wallet_address, role: 'client', attrs: [{ name: 'doctor', value: 'check', ecert: true }] }, adminUser);
 
-    const enrollment = await ca.enroll({ enrollmentID: wallet_address, enrollmentSecret: secret });
-    // const enrollment = await ca.enroll({ enrollmentID: wallet_address, enrollmentSecret: secret, attr_reqs: [{ name: 'role', optional: false }] });
+    // const enrollment = await ca.enroll({ enrollmentID: wallet_address, enrollmentSecret: secret });
+    const enrollment = await ca.enroll({ enrollmentID: wallet_address, enrollmentSecret: secret, attr_reqs: [{ name: 'doctor', optional: true }] });
+
+
     const x509Identity = {
         credentials: {
             certificate: enrollment.certificate,
@@ -118,3 +194,4 @@ const enrollAdmin = async () => {
 }
 
 exports.getRegisteredUser = getRegisteredUser
+exports.getUserIdentity = getUserIdentity

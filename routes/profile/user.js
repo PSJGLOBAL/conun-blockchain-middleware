@@ -28,6 +28,12 @@ router.get('/check', async (req, res) => {
     res.status(200).json({message: user, success: true, status:  200  });
 });
 
+router.post('/idx', async (req, res) => {
+    let user = await helper.getUserIdentity(req.body.wallet_address)
+    console.log('USER: >>', user)
+    res.status(200).json({ success: false, message: user });
+});
+
 router.post('/', async (req, res) => {
     console.log('req body: ', req.body)
     const { error } = validate(req.body);
@@ -36,8 +42,8 @@ router.post('/', async (req, res) => {
     if (req.body.isAdmin)
         return res.status(400).send({error: '-', status: 400});
     let user = await User.findOne({ email: req.body.email });
-    if (user)
-        return res.status(400).send({error: 'User already exist', status: 400});
+    // if (user)
+    //     return res.status(400).send({error: 'User already exist', status: 400});
     try {
         let wallet_address = req.body.wallet_address;
         let orgName = req.body.orgName;
@@ -54,9 +60,9 @@ router.post('/', async (req, res) => {
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
-        await user.save()
+        // await user.save()
         let response = await helper.getRegisteredUser(wallet_address, orgName, true);
-
+        console.log('response from register: ', response)
         if (typeof response !== 'string') {
             res.status(201).send( _.pick(user, ['_id', 'name', 'email', 'wallet_address']));
         } else {
