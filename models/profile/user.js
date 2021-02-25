@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         minlength: 5,
-        maxlength: 255,
+        maxlength: 100,
     },
     orgName: {
         type: String,
@@ -28,6 +28,12 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 5,
         maxlength: 1024
+    },
+    walletType: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 100,
     },
     wallet_address: {
         type: String,
@@ -49,10 +55,12 @@ function validateUser(user) {
     console.log('validate: ', user);
     const schema = Joi.object({
         name: Joi.string().min(3).max(50).required(),
-        email: Joi.string().min(5).max(255).required().email(),
+        email: Joi.string().min(5).max(100).required().email(),
         orgName: Joi.string().min(3).max(50).required(),
         password: Joi.string().min(5).max(1024).required(),
         wallet_address: Joi.string().min(5).max(1024).required(),
+        privateKey: Joi.string().min(5).max(1024).required(),
+        walletType: Joi.string().min(3).max(50).required(),
         isAdmin: Joi.boolean().required()
     });
     return schema.validate(user);

@@ -4,14 +4,14 @@ var { Gateway, Wallets, DefaultEventHandlerStrategies  } = require('fabric-netwo
 const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
-
-const util = require('util');
-
-
+const crypto = require('../utils/crypto/encryption.algorithm');
 const ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org1.json');
-const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
+const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
+const mapOrganizations = new Map();
+mapOrganizations.set('Org1', 'ca.org1.example.com')
+mapOrganizations.set('Org2', 'ca.org2.example.com')
 
 async function connectionOrg(wallet_address, org_name) {
     try {
@@ -45,17 +45,16 @@ async function connectionOrg(wallet_address, org_name) {
     }
 }
 
-const getUserIdentity = async (wallet_address)  => {
+const getUserIdentity = async (arg)  => {
     try {
-
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
-        let identity = await wallet.get(wallet_address);
+        let identity = await wallet.get(arg.wallet_address);
         if (!identity) {
             return false
         }
 
-        const connection = await connectionOrg(wallet_address, 'Org1');
+        const connection = await connectionOrg(arg.wallet_address, 'Org1');
         const gateway = new Gateway();
 
         await gateway.connect(connection.ccp, connection.connectOptions);
@@ -77,8 +76,25 @@ const getUserIdentity = async (wallet_address)  => {
 
         const identityService = await ca.newIdentityService();
 
-        const retrieveIdentity = await identityService.getOne(wallet_address, adminUser)
-        console.log("user attributes: ",retrieveIdentity.result.attrs)
+        const retrieveIdentity = await identityService.getOne(arg.wallet_address, adminUser)
+        let userWallet = retrieveIdentity.result.id
+
+        return new Promise((resolve, reject) => {
+            retrieveIdentity.result.attrs.forEach(obj => {
+                if(obj.name === arg.walletType) {
+                    let privateKey = crypto.AESDecrypt(obj.value, arg.password)
+                    console.log('privateKey: ', privateKey)
+                    if(privateKey)
+                        resolve({
+                            walletType: obj.name,
+                            wallet: userWallet,
+                            privateKey: privateKey
+                        })
+                }
+            });
+            reject(false)
+        })
+
 
     } catch (error) {
         console.log(`Getting error: ${error}`)
@@ -87,25 +103,24 @@ const getUserIdentity = async (wallet_address)  => {
 }
 
 
-const getRegisteredUser = async (wallet_address, userOrg, isJson) => {
-    console.log('getRegisteredUser wallet_address: ', wallet_address);
-
+const getRegisteredUser = async (arg) => {
+    console.log('getRegisteredUser wallet_address: ', arg.wallet_address);
+    console.log('mapOrganizations: ', mapOrganizations.get(arg.orgName))
     // Create a new CA client for interacting with the CA.
-    const caURL = ccp.certificateAuthorities['ca.org1.example.com'].url;
+    const caURL = ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)].url;
     const ca = new FabricCAServices(caURL);
     console.log('caURL: ',caURL)
     const walletPath = path.join(process.cwd(), 'wallet');
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
-    const userIdentity = await wallet.get(wallet_address);
+    const userIdentity = await wallet.get(arg.wallet_address);
     if (userIdentity) {
-        console.log(`An identity for the user ${wallet_address} already exists in the wallet`);
-        var response = {
+        console.log(`An identity for the user ${arg.wallet_address} already exists in the wallet`);
+        return {
             success: true,
-            message: wallet_address + ' enrolled Successfully',
-        };
-        return response
+            message: arg.wallet_address + ' enrolled Successfully',
+        }
     }
 
     // Check to see if we've already enrolled the admin user.
@@ -121,12 +136,12 @@ const getRegisteredUser = async (wallet_address, userOrg, isJson) => {
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
 
+    let privateKey = crypto.AesEncrypt(arg.privateKey, arg.password);
+    if(!privateKey) return;
     // Register the user, enroll the user, and import the new identity into the wallet.
-    // const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: wallet_address, role: 'client' }, adminUser);
-    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: wallet_address, role: 'client', attrs: [{ name: 'doctor', value: 'check', ecert: true }] }, adminUser);
+    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: arg.wallet_address, role: 'client', attrs: [{ name: arg.walletType, value: privateKey, ecert: true }] }, adminUser);
 
-    // const enrollment = await ca.enroll({ enrollmentID: wallet_address, enrollmentSecret: secret });
-    const enrollment = await ca.enroll({ enrollmentID: wallet_address, enrollmentSecret: secret, attr_reqs: [{ name: 'doctor', optional: true }] });
+    const enrollment = await ca.enroll({ enrollmentID: arg.wallet_address, enrollmentSecret: secret, attr_reqs: [{ name: arg.walletType, optional: true }] });
 
 
     const x509Identity = {
@@ -138,23 +153,18 @@ const getRegisteredUser = async (wallet_address, userOrg, isJson) => {
         type: 'X.509',
     };
 
-    await wallet.put(wallet_address, x509Identity);
-    console.log(`Successfully registered and enrolled admin user ${wallet_address} and imported it into the wallet`);
+    await wallet.put(arg.wallet_address, x509Identity);
+    console.log(`Successfully registered and enrolled admin user ${arg.wallet_address} and imported it into the wallet`);
 
-    var response = {
+    return {
         success: true,
-        message: wallet_address + ' enrolled Successfully',
-    };
-    return response
+        message: arg.wallet_address + ' enrolled Successfully',
+    }
 }
 
 
 const enrollAdmin = async () => {
-
-    console.log('calling enroll Admin method')
-
     try {
-
         const caInfo = ccp.certificateAuthorities['ca.org1.example.com'];
         const caTLSCACerts = caInfo.tlsCACerts.pem;
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
@@ -183,7 +193,7 @@ const enrollAdmin = async () => {
         };
         await wallet.put('admin', x509Identity);
         console.log('Successfully enrolled admin user "admin" and imported it into the wallet');
-        return
+        return;
 
 
     } catch (error) {
@@ -195,3 +205,4 @@ const enrollAdmin = async () => {
 
 exports.getRegisteredUser = getRegisteredUser
 exports.getUserIdentity = getUserIdentity
+exports.connectionOrg = connectionOrg

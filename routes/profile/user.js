@@ -8,39 +8,30 @@ const auth = require('../../middleware/auth');
 
 router.get('/me', auth, async (req, res) => {
     try {
-        console.log('me >>  ');
         const user = await User.findById(req.user._id).select('-password');
-        console.log('>> user', user)
-        res.send(user);
+        res.status(200).json({message: user, success: true, status: 200})
     } catch (e) {
-        console.log('me err: ', e)
+        res.status(400).json({message: e.message, success: false, status: 400 })
     }
 });
 
-router.get('/', auth, async (req, res) => {
-    const user = await User.find();
-    res.send(user);
-});
-
-router.get('/check', async (req, res) => {
-    const user = await User.findOne({email: req.query.email}).select('-password');
-    if(!user) res.status(400).json({message: 'none', success: false,  status:  400 });
-    res.status(200).json({message: user, success: true, status:  200  });
-});
-
-router.post('/idx', async (req, res) => {
-    let user = await helper.getUserIdentity(req.body.wallet_address)
-    console.log('USER: >>', user)
-    res.status(200).json({ success: false, message: user });
+router.get('/checkKey', auth, async (req, res) => {
+    let user = await helper.getUserIdentity({
+        wallet_address: req.user.wallet_address,
+        walletType: req.query.walletType,
+        password: req.query.password
+    })
+    console.log('user', await user)
+    res.status(200).json({message: user, success: true, status: 200})
 });
 
 router.post('/', async (req, res) => {
     console.log('req body: ', req.body)
     const { error } = validate(req.body);
     if (error)
-        return res.status(400).send({error: error.details[0].message, status: 400});
+        return res.status(400).json({message: error.details[0].message, success: false, status: 400 })
     if (req.body.isAdmin)
-        return res.status(400).send({error: '-', status: 400});
+        return res.status(400).json({message: '', success: false, status: 400 })
     let user = await User.findOne({ email: req.body.email });
     // if (user)
     //     return res.status(400).send({error: 'User already exist', status: 400});
@@ -53,23 +44,29 @@ router.post('/', async (req, res) => {
             email: req.body.email,
             orgName: orgName,
             password: req.body.password,
+            walletType: req.body.walletType,
             wallet_address: wallet_address,
             isAdmin:  req.body.isAdmin
         });
         console.log('>> user: ', user);
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
-
-        // await user.save()
-        let response = await helper.getRegisteredUser(wallet_address, orgName, true);
+        let response = await helper.getRegisteredUser({
+            wallet_address,
+            orgName,
+            walletType: req.body.walletType,
+            privateKey: req.body.privateKey,
+            password: req.body.password
+        });
         console.log('response from register: ', response)
+        await user.save()
         if (typeof response !== 'string') {
-            res.status(201).send( _.pick(user, ['_id', 'name', 'email', 'wallet_address']));
+            res.status(201).json({message:  _.pick(user, ['_id', 'name', 'email', 'wallet_address']), success: true, status: 201})
         } else {
-            res.status(400).json({ success: false, message: response });
+            res.status(400).json({message: response, success: false, status: 400})
         }
     } catch (e) {
-        res.status(400).json({ success: false, message: e.message });
+        res.status(400).json({message: `${req.body.email} duplicate user error`, success: false, status: 400})
     }
 });
 
