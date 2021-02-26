@@ -134,28 +134,27 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, signIn, as
         CallInvoke(req.body.fcn, req)
             .then((response) => {
                 console.log('>> response: ', response);
-                    res.status(200).send({
-                            result: response,
-                            error: null,
-                            errorData: null
+                    res.status(200).json({
+                            message: response,
+                            success: true,
+                            status: 200
                         }
                     );
             }
-        ).catch((err) =>  {
-            res.status(400).send({
-                    result: null,
-                    error: err.message,
-                    errorData: 'error while invoking'
+        ).catch((err) => {
+            res.status(400).json({
+                    message: err.message,
+                    success: false,
+                    status: 400
                 }
             );
         });
     } catch (error) {
-        const response_payload = {
-            result: null,
-            error: error.message,
-            errorData: 'error while invoking'
-        }
-        res.status(400).send(response_payload)
+        res.status(400).json({
+            message: error.message,
+            success: false,
+            status: 400
+        })
     }
 });
 
@@ -167,28 +166,25 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth,async (req, 
         CallQuery(req.query.fcn, req)
             .then((response) => {
                 console.log('response: ', response);
-                const response_payload = {
-                    result: response,
-                    error: null,
-                    errorData: null
-                }
-                res.status(200).send(response_payload);
+                res.status(200).json({
+                    message: response,
+                    success: true,
+                    status: 200
+                });
             }
         ).catch((error) => {
-            res.status(400).send({
-                    result: null,
-                    error: error.message,
-                    errorData: 'error while query'
-                }
-            );
+            res.status(400).json({
+                message: error.message,
+                success: false,
+                status: 400
+            });
         });
     } catch (error) {
-        const response_payload = {
-            result: null,
-            error: error.message,
-            errorData: 'error while query'
-        }
-        res.status(400).send(response_payload)
+        res.status(400).json({
+            message: error.message,
+            success: false,
+            status: 400
+        })
     }
 });
 module.exports = router;

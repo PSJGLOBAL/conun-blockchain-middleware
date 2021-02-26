@@ -9,19 +9,23 @@ router.post('/', async (req, res) => {
     console.log('req.body: ', req.body)
     const { error } = validate(req.body);
     if (error)
-        return res.status(400).send(error.details[0].message);
+        return res.status(400).json({message: error.details[0].message, success: false, status: 400 })
 
     let user = await User.findOne({ email: req.body.email });
     if (!user)
-        return res.status(400).send({error: 'Email or password is incorrect !', status: 400});
+        return res.status(400).json({message: 'Email or password is incorrect !', success: false, status: 400})
 
     const isValidPassword = await bcrypt.compare(req.body.password, user.password);
     if(!isValidPassword)
-        return res.status(400).send({error: 'Email or password is incorrect !', status: 400});
+        return res.status(400).json({message: 'Email or password is incorrect !', success: false, status: 400})
     const token = user.generateAuthToken(req.body.key);
-    res.header('x-auth-token', token).send({
-        'x-auth-token': token,
-        user: _.pick(user, ['_id', 'name', 'email', 'wallet_address'])
+    res.status(200).header('x-auth-token', token).json({
+        message: {
+            'x-auth-token': token,
+            user: _.pick(user, ['_id', 'name', 'email', 'wallet_address'])
+        },
+        success: false,
+        status: 200
     });
 });
 

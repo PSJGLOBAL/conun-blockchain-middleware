@@ -26,15 +26,14 @@ router.get('/checkKey', auth, async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    console.log('req body: ', req.body)
     const { error } = validate(req.body);
     if (error)
         return res.status(400).json({message: error.details[0].message, success: false, status: 400 })
     if (req.body.isAdmin)
-        return res.status(400).json({message: '', success: false, status: 400 })
+        return res.status(400).json({message: '-', success: false, status: 400 })
     let user = await User.findOne({ email: req.body.email });
-    // if (user)
-    //     return res.status(400).send({error: 'User already exist', status: 400});
+    if (user)
+        return res.status(400).json({message: 'User already exist', success: false, status: 400});
     try {
         let wallet_address = req.body.wallet_address;
         let orgName = req.body.orgName;
