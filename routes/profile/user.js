@@ -71,14 +71,57 @@ router.post('/create', async (req, res) => {
             res.status(400).json({payload: wallet, success: false, status: 400})
         }
     } catch (e) {
-        console.log('Exeption: ', e)
+        console.log('/create: ', e)
         res.status(400).json({payload: `${req.body.email} duplicate user error`, success: false, status: 400})
     }
 });
 
 
 router.post('/import', async (req, res) => {
-    // TODO import existing wallet
+    const { error } = validate(req.body);
+    if (error)
+        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
+    let user = await User.findOne({ email: req.body.email });
+    if (user)
+        return res.status(400).json({payload: 'User already exist', success: false, status: 400});
+    try {
+        let orgName = req.body.orgName;
+        // todo import wallet pk, return jsonKeyStore
+        // const account = await web3Handlers.CreateAccountAdvanced(req.body.password);
+
+        user = new User ({
+            name: req.body.name,
+            email: req.body.email,
+            orgName: orgName,
+            password: req.body.password,
+            walletType: req.body.walletType,
+            walletAddress: req.body.walletAddress,
+            isAdmin: false
+        });
+        console.log('>> user: ', user);
+        const salt = await bcrypt.genSalt();
+        user.password = await bcrypt.hash(user.password, salt);
+
+        let wallet = await helper.getRegisteredUser({
+            walletAddress: req.body.walletAddress,
+            orgName,
+            walletType: req.body.walletType,
+            privateKey: 'privateKey',
+            password: req.body.password
+        });
+        console.log('response from register: ', wallet);
+        if(wallet) await user.save();
+
+        if (typeof wallet !== 'string') {
+            wallet = crypto.AesEncrypt(JSON.stringify(wallet), req.body.password)
+            res.status(201).json({payload: {user: _.pick(user, ['_id', 'name', 'email', 'wallet_address']), wallet}, success: true, status: 201})
+        } else {
+            res.status(400).json({payload: wallet, success: false, status: 400})
+        }
+    } catch (e) {
+        console.log('/create: ', e)
+        res.status(400).json({payload: `${req.body.email} duplicate user error`, success: false, status: 400})
+    }
 })
 
 module.exports = router;
