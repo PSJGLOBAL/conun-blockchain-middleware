@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema({
         minlength: 3,
         maxlength: 100,
     },
-    wallet_address: {
+    walletAddress: {
         type: String,
         required: true,
         minlength: 3,
@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.generateAuthToken = function (key) {
-    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, wallet_address: this.wallet_address, key: key}, config.get('jwtPrivateKey'), { expiresIn: '365d' });
+    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, walletAddress: this.walletAddress}, config.get('jwtPrivateKey'), { expiresIn: '365d' });
 }
 
 const User = mongoose.model('User', userSchema);
@@ -58,8 +58,7 @@ function validateUser(user) {
         email: Joi.string().min(5).max(100).required().email(),
         orgName: Joi.string().min(3).max(50).required(),
         password: Joi.string().min(5).max(1024).required(),
-        wallet_address: Joi.string().min(5).max(1024).required(),
-        privateKey: Joi.string().min(5).max(1024).required(),
+        walletAddress: Joi.string().min(5).max(1024).required(),
         walletType: Joi.string().min(3).max(50).required(),
         isAdmin: Joi.boolean().required()
     });

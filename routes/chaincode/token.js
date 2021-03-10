@@ -135,7 +135,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, signIn, as
             .then((response) => {
                 console.log('>> response: ', response);
                     res.status(200).json({
-                            message: response,
+                            payload: response,
                             success: true,
                             status: 200
                         }
@@ -143,7 +143,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, signIn, as
             }
         ).catch((err) => {
             res.status(400).json({
-                    message: err.message,
+                    payload: err.message,
                     success: false,
                     status: 400
                 }
@@ -151,14 +151,14 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, signIn, as
         });
     } catch (error) {
         res.status(400).json({
-            message: error.message,
+            payload: error.message,
             success: false,
             status: 400
         })
     }
 });
 
-router.get('/channels/:channelName/chaincodes/:chainCodeName', auth,async (req, res) => {
+router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
     try {
         console.log('params: ', req.params);
         console.log('query: ', req.query);
@@ -167,21 +167,21 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth,async (req, 
             .then((response) => {
                 console.log('response: ', response);
                 res.status(200).json({
-                    message: response,
+                    payload: response,
                     success: true,
                     status: 200
                 });
             }
         ).catch((error) => {
             res.status(400).json({
-                message: error.message,
+                payload: error.message,
                 success: false,
                 status: 400
             });
         });
     } catch (error) {
         res.status(400).json({
-            message: error.message,
+            payload: error.message,
             success: false,
             status: 400
         })

@@ -37,7 +37,7 @@ logger.info("Logger is working")
 logger.error("Testing errors too!")
 
 process.on('uncaughtException', ex => {
-    logger.error('>> uncaughtException: ', ex.message);
+    logger.error('>> uncaughtException: ', ex);
 })
 
 module.exports = {logger}

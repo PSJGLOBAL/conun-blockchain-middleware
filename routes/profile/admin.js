@@ -9,21 +9,21 @@ const helper = require('../../app/helper');
 router.get('/me', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
-        res.status(200).json({message: user, success: true, status: 200})
+        res.status(200).json({payload: user, success: true, status: 200})
     } catch (e) {
-        res.status(400).json({message: e.message, success: false, status: 400 })
+        res.status(400).json({payload: e.message, success: false, status: 400 })
     }
 });
 
 router.post('/', async (req, res) => {
     const { error } = validate(req.body);
     if (error)
-        return res.status(400).json({message: error.details[0].message, success: false, status: 400 })
+        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
     if (!req.body.isAdmin)
-        return res.status(400).json({message: '-', success: false, status: 400 })
+        return res.status(400).json({payload: '-', success: false, status: 400 })
     let user = await User.findOne({ email: req.body.email });
     if (user)
-        return res.status(400).json({message: 'User already exist', success: false, status: 400});
+        return res.status(400).json({payload: 'User already exist', success: false, status: 400});
     try {
         var wallet_address = req.body.wallet_address;
         var orgName = req.body.orgName;
@@ -51,12 +51,12 @@ router.post('/', async (req, res) => {
         await user.save()
 
         if (typeof response !== 'string') {
-            res.status(201).json({message:  _.pick(user, ['_id', 'name', 'email', 'wallet_address']), success: true, status: 201})
+            res.status(201).json({payload:  _.pick(user, ['_id', 'name', 'email', 'wallet_address']), success: true, status: 201})
         } else {
-            res.status(400).json({message: response, success: false, status: 400})
+            res.status(400).json({payload: response, success: false, status: 400})
         }
     } catch (e) {
-        res.status(400).json({message: `${req.body.email} duplicate user error`, success: false, status: 400})
+        res.status(400).json({payload: `${req.body.email} duplicate user error`, success: false, status: 400})
     }
 });
 

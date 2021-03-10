@@ -1,9 +1,9 @@
 'use strict';
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require ('./swagger.json');
-const cors = require('cors');
 const bodyParser = require('body-parser');
 const constants = require('./config/constants.json');
 
@@ -32,25 +32,21 @@ require('./test/jMeter/routes.v1')(app);
 require('./startup/db')();
 require('./startup/config')();
 
-// if (process.env.NODE_ENV !== 'production') {
-//     this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-// }
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+if (process.env.NODE_ENV !== 'production') {
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+}
 
-// app.get('/swagger.json', function(req, res) {
-//     res.setHeader('Content-Type', 'application/json');
-//     res.send(swaggerDocument);
-// });
-
-
-const port = process.env.PORT || constants.port;
-const server = app.listen(port, () => {
-    console.log(`set ${port} port listening...`);
-});
-server.timeout = 240000
 
 app.get('/', async (req, res)  => {
     res.send({"msg": "server is working"})
 });
+
+
+const port = process.env.PORT || constants.port;
+
+const server = app.listen(port, () => {
+    console.log(`set ${port} port listening...`);
+});
+server.timeout = 240000
 
 module.exports = server;

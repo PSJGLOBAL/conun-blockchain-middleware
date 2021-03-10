@@ -13,9 +13,9 @@ const mapOrganizations = new Map();
 mapOrganizations.set('Org1', 'ca.org1.example.com')
 mapOrganizations.set('Org2', 'ca.org2.example.com')
 
-async function connectionOrg(wallet_address, org_name) {
+async function connectionOrg(walletAddress, org_name) {
     try {
-        console.log('connectionOrg: ', wallet_address, org_name);
+        console.log('connectionOrg: ', walletAddress, org_name);
         const ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org1.json');
         const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
         const ccp = JSON.parse(ccpJSON);
@@ -26,11 +26,11 @@ async function connectionOrg(wallet_address, org_name) {
         console.log(`connectionOrg Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        let identity = await wallet.get(wallet_address);
+        let identity = await wallet.get(walletAddress);
         if (!identity) return;
 
         const connectOptions = {
-            wallet, identity: wallet_address, discovery: { enabled: true, asLocalhost: true },
+            wallet, identity: walletAddress, discovery: { enabled: true, asLocalhost: true },
             eventHandlerOptions: {
                 commitTimeout: 100,
                 strategy: DefaultEventHandlerStrategies.NETWORK_SCOPE_ALLFORTX
@@ -49,12 +49,12 @@ const getUserIdentity = async (arg)  => {
     try {
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
-        let identity = await wallet.get(arg.wallet_address);
+        let identity = await wallet.get(arg.walletAddress);
         if (!identity) {
             return false
         }
 
-        const connection = await connectionOrg(arg.wallet_address, 'Org1');
+        const connection = await connectionOrg(arg.walletAddress, 'Org1');
         const gateway = new Gateway();
 
         await gateway.connect(connection.ccp, connection.connectOptions);
@@ -76,26 +76,25 @@ const getUserIdentity = async (arg)  => {
 
         const identityService = await ca.newIdentityService();
 
-        const retrieveIdentity = await identityService.getOne(arg.wallet_address, adminUser)
+        const retrieveIdentity = await identityService.getOne(arg.walletAddress, adminUser)
         let userWallet = retrieveIdentity.result.id
+
+        console.log('attrs: ', retrieveIdentity.result.attrs);
 
         return new Promise((resolve, reject) => {
             retrieveIdentity.result.attrs.forEach(obj => {
                 if(obj.name === arg.walletType) {
                     let privateKey = crypto.AESDecrypt(obj.value, arg.password)
-                    console.log('privateKey: ', privateKey)
                     if(privateKey)
                         resolve({
                             walletType: obj.name,
                             wallet: userWallet,
-                            privateKey: privateKey
+                            privateKey: JSON.parse(privateKey)
                         })
                 }
             });
             reject(false)
         })
-
-
     } catch (error) {
         console.log(`Getting error: ${error}`)
         return false
@@ -104,7 +103,7 @@ const getUserIdentity = async (arg)  => {
 
 
 const getRegisteredUser = async (arg) => {
-    console.log('getRegisteredUser wallet_address: ', arg.wallet_address);
+    console.log('getRegisteredUser walletAddress: ', arg.walletAddress);
     console.log('mapOrganizations: ', mapOrganizations.get(arg.orgName))
     // Create a new CA client for interacting with the CA.
     const caURL = ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)].url;
@@ -114,12 +113,12 @@ const getRegisteredUser = async (arg) => {
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
-    const userIdentity = await wallet.get(arg.wallet_address);
+    const userIdentity = await wallet.get(arg.walletAddress);
     if (userIdentity) {
-        console.log(`An identity for the user ${arg.wallet_address} already exists in the wallet`);
+        console.log(`An identity for the user ${arg.walletAddress} already exists in the wallet`);
         return {
             success: true,
-            message: arg.wallet_address + ' enrolled Successfully',
+            message: arg.walletAddress + ' enrolled Successfully',
         }
     }
 
@@ -139,9 +138,9 @@ const getRegisteredUser = async (arg) => {
     let privateKey = crypto.AesEncrypt(arg.privateKey, arg.password);
     if(!privateKey) return;
     // Register the user, enroll the user, and import the new identity into the wallet.
-    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: arg.wallet_address, role: 'client', attrs: [{ name: arg.walletType, value: privateKey, ecert: true }] }, adminUser);
+    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: arg.walletAddress, role: 'client', attrs: [{ name: arg.walletType, value: privateKey, ecert: true }] }, adminUser);
 
-    const enrollment = await ca.enroll({ enrollmentID: arg.wallet_address, enrollmentSecret: secret, attr_reqs: [{ name: arg.walletType, optional: true }] });
+    const enrollment = await ca.enroll({ enrollmentID: arg.walletAddress, enrollmentSecret: secret, attr_reqs: [{ name: arg.walletType, optional: true }] });
 
 
     const x509Identity = {
@@ -153,12 +152,12 @@ const getRegisteredUser = async (arg) => {
         type: 'X.509',
     };
 
-    await wallet.put(arg.wallet_address, x509Identity);
-    console.log(`Successfully registered and enrolled admin user ${arg.wallet_address} and imported it into the wallet`);
+    await wallet.put(arg.walletAddress, x509Identity);
+    console.log(`Successfully registered and enrolled admin user ${arg.walletAddress} and imported it into the wallet`);
 
     return {
         success: true,
-        message: arg.wallet_address + ' enrolled Successfully',
+        message: arg.walletAddress + ' enrolled Successfully',
     }
 }
 
