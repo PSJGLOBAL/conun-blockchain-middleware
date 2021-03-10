@@ -8,6 +8,8 @@ const auth = require('../../middleware/auth');
 const owner = require('../../middleware/auth');
 const web3Handlers = require('../../app/web3/eth.main');
 
+const crypto = require('../../utils/crypto/encryption.algorithm');
+
 router.get('/me', auth, owner, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
@@ -52,23 +54,24 @@ router.post('/create', async (req, res) => {
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
-        let response = await helper.getRegisteredUser({
+        let wallet = await helper.getRegisteredUser({
             walletAddress: account.walletAddress,
             orgName,
             walletType: req.body.walletType,
             privateKey: account.stringKeystore,
             password: req.body.password
         });
-        console.log('response from register: ', response);
+        console.log('response from register: ', wallet);
+        if(wallet) await user.save();
 
-        await user.save()
-
-        if (typeof response !== 'string') {
-            res.status(201).json({payload:  _.pick(user, ['_id', 'name', 'email', 'wallet_address']), success: true, status: 201})
+        if (typeof wallet !== 'string') {
+            wallet = crypto.AesEncrypt(JSON.stringify(wallet), req.body.password)
+            res.status(201).json({payload: {user: _.pick(user, ['_id', 'name', 'email', 'wallet_address']), wallet}, success: true, status: 201})
         } else {
-            res.status(400).json({payload: response, success: false, status: 400})
+            res.status(400).json({payload: wallet, success: false, status: 400})
         }
     } catch (e) {
+        console.log('Exeption: ', e)
         res.status(400).json({payload: `${req.body.email} duplicate user error`, success: false, status: 400})
     }
 });

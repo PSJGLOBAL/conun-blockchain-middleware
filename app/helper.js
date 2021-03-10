@@ -113,16 +113,7 @@ const getRegisteredUser = async (arg) => {
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
-    const userIdentity = await wallet.get(arg.walletAddress);
-    if (userIdentity) {
-        console.log(`An identity for the user ${arg.walletAddress} already exists in the wallet`);
-        return {
-            success: true,
-            message: arg.walletAddress + ' enrolled Successfully',
-        }
-    }
-
-    // Check to see if we've already enrolled the admin user.
+       // Check to see if we've already enrolled the admin user.
     let adminIdentity = await wallet.get('admin');
     if (!adminIdentity) {
         console.log('An identity for the admin user "admin" does not exist in the wallet');
@@ -135,7 +126,7 @@ const getRegisteredUser = async (arg) => {
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
 
-    let privateKey = crypto.AesEncrypt(arg.privateKey, arg.password);
+    let privateKey = crypto.AesEncrypt(JSON.stringify(arg.privateKey), arg.password);
     if(!privateKey) return;
     // Register the user, enroll the user, and import the new identity into the wallet.
     const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: arg.walletAddress, role: 'client', attrs: [{ name: arg.walletType, value: privateKey, ecert: true }] }, adminUser);
@@ -150,15 +141,13 @@ const getRegisteredUser = async (arg) => {
         },
         mspId: 'Org1MSP',
         type: 'X.509',
+        linked: arg.privateKey
     };
 
-    await wallet.put(arg.walletAddress, x509Identity);
+    // await wallet.put(arg.walletAddress, x509Identity);
     console.log(`Successfully registered and enrolled admin user ${arg.walletAddress} and imported it into the wallet`);
 
-    return {
-        success: true,
-        message: arg.walletAddress + ' enrolled Successfully',
-    }
+    return x509Identity
 }
 
 
