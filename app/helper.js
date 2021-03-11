@@ -47,20 +47,22 @@ async function connectionOrg(walletAddress, org_name) {
 
 const getUserIdentity = async (arg)  => {
     try {
+        console.log('arg : ', arg)
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
-        let identity = await wallet.get(arg.walletAddress);
-        if (!identity) {
-            return false
-        }
+        // let identity = await wallet.get(arg.walletAddress);
+        // console.log('identity: ', identity);
+        // if (!identity) {
+        //     return false
+        // }
 
-        const connection = await connectionOrg(arg.walletAddress, 'Org1');
+        const connection = await connectionOrg(arg.walletAddress, arg.orgName);
         const gateway = new Gateway();
 
         await gateway.connect(connection.ccp, connection.connectOptions);
 
 
-        const caInfo = ccp.certificateAuthorities['ca.org1.example.com'];
+        const caInfo = ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)];
         const caTLSCACerts = caInfo.tlsCACerts.pem;
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
 
@@ -104,7 +106,6 @@ const getUserIdentity = async (arg)  => {
 
 const getRegisteredUser = async (arg) => {
     console.log('getRegisteredUser walletAddress: ', arg.walletAddress);
-    console.log('mapOrganizations: ', mapOrganizations.get(arg.orgName))
     // Create a new CA client for interacting with the CA.
     const caURL = ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)].url;
     const ca = new FabricCAServices(caURL);

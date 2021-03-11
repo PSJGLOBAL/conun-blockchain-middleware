@@ -58,7 +58,8 @@ function validateUser(user) {
         email: Joi.string().min(5).max(100).required().email(),
         orgName: Joi.string().min(3).max(50).required(),
         password: Joi.string().min(5).max(1024).required(),
-        walletType: Joi.string().min(3).max(50).required()
+        walletType: Joi.string().min(3).max(50).required(),
+        privateKey: Joi.string().min(3).max(1024)
     });
     return schema.validate(user);
 }

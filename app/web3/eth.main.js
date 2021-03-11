@@ -215,6 +215,26 @@ module.exports = {
         )
     },
 
+
+    ImportAccountByPrivateKey : async ( privateKey, password ) => {
+        return new Promise(
+            (resolve, reject) => {
+                let getKeystore = web3.eth.accounts.encrypt(privateKey, password);
+                if (getKeystore) {
+                    let data = {
+                        walletAddress: getKeystore.address,
+                        privateKey: privateKey,
+                        password: password,
+                        stringKeystore: getKeystore
+                    }
+                    resolve(data)
+                } else {
+                    reject(getKeystore)
+                }
+            }
+        )
+    },
+
     keyStoreDecrypt : async (jsonKeystore, password) => {
         return new Promise(
             (resolve, reject) => {
