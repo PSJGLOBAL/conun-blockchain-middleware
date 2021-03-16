@@ -128,7 +128,7 @@ function CallQuery(event, req) {
 }
 
 
-router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
     console.log('>> req.body: ', req.body);
     try {
         CallInvoke(req.body.fcn, req)

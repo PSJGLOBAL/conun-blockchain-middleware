@@ -1,6 +1,6 @@
 'use strict';
 
-var { Gateway, Wallets, DefaultEventHandlerStrategies  } = require('fabric-network');
+const { Gateway, Wallets, DefaultEventHandlerStrategies  } = require('fabric-network');
 const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
@@ -27,6 +27,7 @@ async function connectionOrg(walletAddress, org_name) {
 
         // // Check to see if we've already enrolled the user.
         let identity = await wallet.get(walletAddress);
+        console.log('identity: ', identity)
         if (!identity) return;
 
         const connectOptions = {
@@ -88,7 +89,7 @@ const getUserIdentity = async (arg)  => {
                     if(privateKey)
                         resolve({
                             walletType: obj.name,
-                            wallet: userWallet,
+                            walletAddress: userWallet,
                             privateKey: JSON.parse(privateKey)
                         })
                 }
@@ -108,6 +109,7 @@ const importUserByWallet = async (arg)  => {
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(arg.walletAddress);
         if (!identity) {
+            console.log('>> wallet was created: ');
             await wallet.put(arg.walletAddress, arg.x509Identity);
         }
 
@@ -144,7 +146,7 @@ const importUserByWallet = async (arg)  => {
                     if(privateKey)
                         resolve({
                             walletType: obj.name,
-                            wallet: userWallet,
+                            walletAddress: userWallet,
                             privateKey: JSON.parse(privateKey)
                         })
                 }
@@ -197,7 +199,6 @@ const getRegisteredUser = async (arg) => {
         },
         mspId: 'Org1MSP',
         type: 'X.509',
-        version: 1,
         linked: arg.privateKey
     };
 
@@ -238,9 +239,6 @@ const enrollAdmin = async () => {
         };
         await wallet.put('admin', x509Identity);
         console.log('Successfully enrolled admin user "admin" and imported it into the wallet');
-        return;
-
-
     } catch (error) {
         console.error(`Failed to enroll admin user "admin": ${error}`);
     }
