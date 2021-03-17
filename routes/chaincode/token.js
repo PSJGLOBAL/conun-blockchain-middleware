@@ -4,8 +4,8 @@ const _ = require('lodash');
 const invokeHandler = require('../../app/invoke');
 const queryHandler = require('../../app/query');
 const auth = require('../../middleware/auth');
-const verify = require('../../middleware/verify');
-const signIn = require('../../middleware/signIn');
+const owner = require('../../middleware/owner');
+const x509 = require('../../middleware/x509');
 const events = require('events');
 
 function CallInvoke(event, req) {
@@ -32,7 +32,7 @@ function CallInvoke(event, req) {
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    wallet_address: req.body.wallet_address,
+                    walletAddress: req.body.walletAddress,
                 });
                 if(!result) reject(false);
                 resolve(result)
@@ -44,7 +44,7 @@ function CallInvoke(event, req) {
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    wallet_address: req.body.wallet_address,
+                    walletAddress: req.body.walletAddress,
                     amount: req.body.amount,
                 });
                 if(!result) reject(false);
@@ -57,7 +57,7 @@ function CallInvoke(event, req) {
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    wallet_address: req.body.wallet_address,
+                    walletAddress: req.body.walletAddress,
                     amount: req.body.amount,
                 });
                 if(!result) reject(false);
@@ -84,7 +84,7 @@ function CallQuery(event, req) {
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
-                    wallet_address: req.query.wallet_address,
+                    walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
                 });
                 if(!result) reject(false);
@@ -97,7 +97,7 @@ function CallQuery(event, req) {
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
-                    wallet_address: req.query.wallet_address,
+                    walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
                 });
                 if(!result) reject(false);
@@ -110,7 +110,7 @@ function CallQuery(event, req) {
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
-                    wallet_address: req.query.wallet_address,
+                    walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
                 });
                 if(!result) reject(false);
@@ -128,7 +128,7 @@ function CallQuery(event, req) {
 }
 
 
-router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x509.verify, async (req, res) => {
     console.log('>> req.body: ', req.body);
     try {
         CallInvoke(req.body.fcn, req)
@@ -187,4 +187,5 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req,
         })
     }
 });
+
 module.exports = router;

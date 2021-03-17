@@ -48,13 +48,11 @@ async function connectionOrg(walletAddress, org_name) {
 
 const getUserIdentity = async (arg)  => {
     try {
-        console.log('arg : ', arg)
+        console.log('arg : ', arg);
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(arg.walletAddress);
-        if (!identity) {
-            return false
-        }
+        if (!identity) return false
 
         const connection = await connectionOrg(arg.walletAddress, arg.orgName);
         console.log('connection: ', connection)

@@ -8,8 +8,6 @@ const auth = require('../../middleware/auth');
 const owner = require('../../middleware/owner');
 const web3Handlers = require('../../app/web3/eth.main');
 
-const crypto = require('../../utils/crypto/encryption.algorithm');
-
 router.get('/me', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');

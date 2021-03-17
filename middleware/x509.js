@@ -2,17 +2,29 @@ const path = require('path');
 const { Certificate, PrivateKey } = require('@fidm/x509')
 const { Wallets } = require('fabric-network');
 
-const verify = async (arg) => {
+const verify = async (req, res, next) => {
     try {
-        const walletPath = path.join(process.cwd(), 'wallet');
-        const wallet = await Wallets.newFileSystemWallet(walletPath);
-        let identity = await wallet.get(arg.walletAddress);
-        if (!identity) return false;
-        const ed25519Cert = Certificate.fromPEM(identity.credentials.certificate)
-        return ed25519Cert.publicKey.verify('', '', 'sha256')
+        // const walletPath = path.join(process.cwd(), 'wallet');
+        // const wallet = await Wallets.newFileSystemWallet(walletPath);
+        // let identity = await wallet.get(req.use.walletAddress);
+        // if (!identity) return false;
+        // const ed25519Cert = Certificate.fromPEM(identity.credentials.certificate);
+        // let signature = req.body.signature;
+        // delete req.body.signature;
+        // let verify = ed25519Cert.publicKey.verify(Buffer.from(JSON.stringify(req.body)), signature, 'sha256');
+        // if(!verify) return res.status(400).json({
+        //     payload: 'verification failed please try again',
+        //     success: false,
+        //     status: 400
+        // });
+        next();
     } catch (e) {
         console.log('>> signIn error: ', e);
-        return res.status(400);
+        res.status(400).json({
+            payload: 'invalid key pair',
+            success: false,
+            status: 400
+        });
     }
 }
 

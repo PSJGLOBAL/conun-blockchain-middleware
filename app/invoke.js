@@ -44,7 +44,7 @@ module.exports = {
     Burn: async (arg) => {
         try {
             console.log('>> Burn: ', arg);
-            const connection = await helper.connectionOrg(arg.wallet_address, arg.orgName);
+            const connection = await helper.connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);
@@ -57,9 +57,7 @@ module.exports = {
 
             await gateway.disconnect();
 
-            result = result.toString();
-
-            return result;
+            return JSON.parse(result.toString());
 
         } catch (error) {
             console.log(`Getting error: ${error}`)
@@ -70,7 +68,7 @@ module.exports = {
     Mint: async (arg) => {
         try {
             console.log('>> Mint: ', arg);
-            const connection = await helper.connectionOrg(arg.wallet_address, arg.orgName);
+            const connection = await helper.connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);
@@ -94,7 +92,7 @@ module.exports = {
     Init: async (arg) => {
         try {
             console.log('>> Init: ', arg);
-            const connection = await helper.connectionOrg(arg.wallet_address, arg.orgName);
+            const connection = await helper.connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);
@@ -103,7 +101,7 @@ module.exports = {
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
 
-            let result = await contract.submitTransaction(arg.fcn, arg.wallet_address);
+            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress);
             await gateway.disconnect();
 
             return JSON.parse(result.toString());

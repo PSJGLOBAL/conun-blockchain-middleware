@@ -11,13 +11,13 @@ function auth(req, res, next) {
     try {
         const token = req.header('x-auth-token');
             if(!token)
-                return res.status(401).json({message: 'auth key required', success: false,  status:  401 })
+                return res.status(401).json({payload: 'auth key required', success: false,  status:  401 })
             req.user = jwt.verify(token, config.get('jwtPrivateKey'));
             console.log('req.user: ', req.user)
             next();
     } catch (e) {
             console.log('auth: ', e)
-            return res.status(400).json({message: e.message, success: false,  status:  400 })
+            return res.status(400).json({payload: e.message, success: false,  status:  400 })
     }
 }
 module.exports = auth;

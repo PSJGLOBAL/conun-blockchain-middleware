@@ -6,9 +6,9 @@ const helper = require('./helper')
 const log4js = require('log4js');
 const logger = log4js.getLogger('BasicNetwork');
 
-async function connectionOrg(wallet_address, org_name) {
+async function connectionOrg(walletAddress, org_name) {
     try {
-        console.log('connectionOrg: ', wallet_address, org_name);
+        console.log('connectionOrg: ', walletAddress, org_name);
         // load the network configuration
         const ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org1.json');
         const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
@@ -20,11 +20,11 @@ async function connectionOrg(wallet_address, org_name) {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        let identity = await wallet.get(wallet_address);
+        let identity = await wallet.get(walletAddress);
         if (!identity) return;
 
         const connectOptions = {
-            wallet, identity: wallet_address, discovery: { enabled: true, asLocalhost: true }
+            wallet, identity: walletAddress, discovery: { enabled: true, asLocalhost: true }
         }
 
         return {
@@ -40,7 +40,7 @@ module.exports = {
     BalanceOf: async (arg) => {
         try {
             console.log('arg: ', arg);
-            const connection = await connectionOrg(arg.wallet_address, arg.orgName);
+            const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);
@@ -51,7 +51,7 @@ module.exports = {
             // Get the contract from the network.
             const contract = network.getContract(arg.chainCodeName);
 
-            let result = await contract.evaluateTransaction(arg.fcn, arg.wallet_address);
+            let result = await contract.evaluateTransaction(arg.fcn, arg.walletAddress);
             console.log(`Transaction has been evaluated, result is: ${result}`);
             return result.toString();
         } catch (error) {
@@ -63,7 +63,7 @@ module.exports = {
     GetDetails: async (arg) => {
         try {
             console.log('arg: ', arg);
-            const connection = await connectionOrg(arg.wallet_address, arg.orgName);
+            const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);
             const network = await gateway.getNetwork(arg.channelName);
@@ -80,7 +80,7 @@ module.exports = {
     ClientAccountID: async (arg) => {
         try {
             console.log('arg: ', arg);
-            const connection = await connectionOrg(arg.wallet_address, arg.orgName);
+            const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);
             const network = await gateway.getNetwork(arg.channelName);
@@ -97,7 +97,7 @@ module.exports = {
     _getTransactionByID: async (arg) => {
         try {
             console.log('arg: ', arg);
-            const connection = await connectionOrg(arg.wallet_address, arg.orgName);
+            const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);
