@@ -128,7 +128,7 @@ function CallQuery(event, req) {
 }
 
 
-router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x509.verify, async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName',auth,  async (req, res) => {
     console.log('>> req.body: ', req.body);
     try {
         CallInvoke(req.body.fcn, req)
@@ -137,7 +137,8 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x50
                     res.status(200).json({
                             payload: response,
                             success: true,
-                            status: 200
+                            status: 200,
+                            signature: x509.sign(req.user.walletAddress, response)
                         }
                     );
             }
