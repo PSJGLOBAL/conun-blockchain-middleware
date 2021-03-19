@@ -3,6 +3,14 @@ const { Certificate, PrivateKey } = require('@fidm/x509')
 const { Wallets } = require('fabric-network');
 const jwt = require('jsonwebtoken');
 
+/*
+* Features of x509 Signature:
+* sign to transaction with x509.
+* this signature making with owner`s private key.
+* making unique transaction.
+* lifetime, expired time.
+* */
+
 const verify = async (req, res, next) => {
     try {
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -43,6 +51,13 @@ const verify = async (req, res, next) => {
     }
 }
 
+exports.verify = verify
+
+/*
+       * get private key from your wallet ->  PrivateKey.fromPEM(credentials.privateKey)
+       * make signature with x509. Add your post request 'payload' data in  -> privateKey.sign(payload)
+       * make lifetime signature with jwt -> { expiresIn: '1000ms' }
+*/
 
 const sign = async (walletAddress,  payload) => {
     try {
@@ -56,6 +71,3 @@ const sign = async (walletAddress,  payload) => {
         console.log('>> signIn error: ', e);
     }
 }
-
-exports.verify = verify
-exports.sign = sign
