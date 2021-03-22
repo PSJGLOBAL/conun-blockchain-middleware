@@ -1,7 +1,7 @@
 const { Gateway, Wallets, Transaction } = require('fabric-network');
 const fs = require('fs');
 const path = require("path")
-const helper = require('./helper')
+const helper = require('./helper/token.helper')
 
 const log4js = require('log4js');
 const logger = log4js.getLogger('BasicNetwork');

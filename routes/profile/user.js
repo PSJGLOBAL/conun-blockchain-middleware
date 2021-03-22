@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
-const helper = require('../../app/helper');
+const helper = require('../../app/helper/token.helper');
 const auth = require('../../middleware/auth');
 const owner = require('../../middleware/owner');
 const web3Handlers = require('../../app/web3/eth.main');
@@ -139,7 +139,7 @@ router.post('/importWallet', async (req, res) => {
             orgName,
             password: req.body.password,
             walletType: req.body.walletType,
-            walletAddress: req.body.walletAddress,
+            walletAddress: req.body.x509Identity.walletAddress,
             x509Identity: req.body.x509Identity,
         });
 

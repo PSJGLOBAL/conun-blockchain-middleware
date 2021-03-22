@@ -4,7 +4,7 @@ const router = express.Router();
 const _ = require('lodash');
 const auth = require('../../middleware/auth');
 const {User, validate} = require('../../models/profile/user');
-const helper = require('../../app/helper');
+const helper = require('../../app/helper/token.helper');
 
 router.get('/me', auth, async (req, res) => {
     try {

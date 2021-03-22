@@ -13,11 +13,12 @@ const jwt = require('jsonwebtoken');
 
 const verify = async (req, res, next) => {
     try {
+        console.log('1 >> req: ', req.body)
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
-        let identity = await wallet.get(req.use.walletAddress);
+        let identity = await wallet.get(req.user.walletAddress);
         if (!identity) return res.status(400).json({
-            payload: `Your wallet with this address ${req.use.walletAddress} not active, please import and try again`,
+            payload: `Your wallet with this address ${req.user.walletAddress} not active, please import and try again`,
             success: false,
             status: 400
         });
@@ -27,20 +28,20 @@ const verify = async (req, res, next) => {
 
         jwt.verify(signToken, identity.credentials.privateKey, function (err, verify) {
             if(err) return res.status(401).json({
-                payload: 'one time signature has been expired, try again',
+                payload: `one time signature has been expired or ${err}, try again.`,
                 success: false,
                 status: 401
             });
 
-            console.log('verify: ', verify)
-            let status = ed25519Cert.publicKey.verify(Buffer.from(JSON.stringify(req.body)), verify.signature, 'sha256');
-            if(!status) return res.status(401).json({
-                payload: 'verification failed please try again',
-                success: false,
-                status: 401
-            });
+            let status = ed25519Cert.publicKey.verify(Buffer.from(JSON.stringify(req.body)), Buffer.from(verify.signature, 'base64'), 'sha256');
+            if(!status) {
+                return res.status(401).json({
+                    payload: 'verification failed please try again',
+                    success: false,
+                    status: 401
+                });
+            } else next();
         });
-        next();
     } catch (e) {
         console.log('>> signIn error: ', e);
         res.status(401).json({
@@ -64,9 +65,15 @@ const sign = async (walletAddress,  payload) => {
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(walletAddress);
-        const privateKey = PrivateKey.fromPEM(identity.credentials.privateKey)
-        const signature = privateKey.sign(Buffer.from(JSON.stringify(payload)), 'sha256')
-        return  jwt.sign({signature: signature.toString('base64')}, identity.credentials.privateKey, { expiresIn: '1000ms' });
+        console.log('identity.credentials.privateKey: ', identity.credentials.privateKey)
+        const privateKey = PrivateKey.fromPEM(identity.credentials.privateKey);
+        console.log('> privateKey: ', privateKey)
+        const signature = privateKey.sign(Buffer.from(JSON.stringify('payload')), 'sha256')
+        console.log('> signature: ', signature)
+        let sign = jwt.sign({signature: signature.toString('base64')}, identity.credentials.privateKey, { expiresIn: '1000ms' });
+
+        console.log('sign: ', sign)
+
     } catch (e) {
         console.log('>> signIn error: ', e);
     }

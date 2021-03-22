@@ -1,20 +1,6 @@
-const { Gateway, Wallets, TxEventHandler, GatewayOptions, DefaultEventHandlerStrategies, TxEventHandlerFactory } = require('fabric-network');
-const fs = require('fs');
-const path = require("path")
-const helper = require('./helper');
+const { Gateway } = require('fabric-network');
+const helper = require('./helper/token.helper');
 
-
-async function checkWalletAddress(wallet_address, org_name) {
-    console.log('connectionOrg: ', wallet_address, org_name);
-    const walletPath = path.join(process.cwd(), 'wallet');
-    const wallet = await Wallets.newFileSystemWallet(walletPath);
-    console.log(`connectionOrg Wallet path: ${walletPath}`);
-    let identity = await wallet.get(wallet_address);
-    if (!identity) {
-        return false
-    }
-    return true
-}
 
 module.exports = {
     Transfer: async (arg) => {

@@ -220,9 +220,11 @@ module.exports = {
         return new Promise(
             (resolve, reject) => {
                 let getKeystore = web3.eth.accounts.encrypt(privateKey, password);
+                let account = web3.eth.accounts.privateKeyToAccount(privateKey);
+                console.log('address: ', account)
                 if (getKeystore) {
                     let data = {
-                        walletAddress: getKeystore.address,
+                        walletAddress: account.address,
                         privateKey: privateKey,
                         password: password,
                         stringKeystore: getKeystore

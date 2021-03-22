@@ -3,7 +3,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const _ = require('lodash');
-const helper = require('../../app/helper')
+const helper = require('../../app/helper/token.helper')
 
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
