@@ -48,18 +48,6 @@ class InvokeDriveNetworkClass {
         }
     }
 
-
-    async allowance(fcn, ipfsHash, spender) {
-        try {
-            let result = await this.contract.submitTransaction(fcn, ipfsHash, spender);
-            return JSON.parse(result.toString());
-        } catch (error) {
-            console.log(`Getting error: ${error}`)
-            return false
-        }
-    }
-
-
     async likeContent(fcn, ipfsHash, walletAddress ) {
         try {
             let result = await this.contract.submitTransaction(fcn, ipfsHash, walletAddress);
