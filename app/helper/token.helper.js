@@ -1,50 +1,16 @@
 'use strict';
 
-const { Gateway, Wallets, DefaultEventHandlerStrategies  } = require('fabric-network');
-const path = require('path');
-const FabricCAServices = require('fabric-ca-client');
+const { Gateway, Wallets  } = require('fabric-network');
 const fs = require('fs');
+const path = require("path")
+const FabricCAServices = require('fabric-ca-client');
+const connectionOrg = require('../helper/conection')
 const crypto = require('../../utils/crypto/encryption.algorithm');
-const ccpPath = path.resolve(__dirname, '../../', 'config', 'connection-org1.json');
-const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
-const ccp = JSON.parse(ccpJSON);
 
 const mapOrganizations = new Map();
 mapOrganizations.set('Org1', 'ca.org1.example.com')
 mapOrganizations.set('Org2', 'ca.org2.example.com')
 
-async function connectionOrg(walletAddress, org_name) {
-    try {
-        console.log('connectionOrg: ', walletAddress, org_name);
-        const ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org1.json');
-        const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
-        const ccp = JSON.parse(ccpJSON);
-
-        // Create a new file system based wallet for managing identities.
-        const walletPath = path.join(process.cwd(), 'wallet');
-        const wallet = await Wallets.newFileSystemWallet(walletPath);
-        console.log(`connectionOrg Wallet path: ${walletPath}`);
-
-        // // Check to see if we've already enrolled the user.
-        let identity = await wallet.get(walletAddress);
-        console.log('identity: ', identity)
-        if (!identity) return;
-
-        const connectOptions = {
-            wallet, identity: walletAddress, discovery: { enabled: true, asLocalhost: true },
-            eventHandlerOptions: {
-                commitTimeout: 100,
-                strategy: DefaultEventHandlerStrategies.NETWORK_SCOPE_ALLFORTX
-            },
-        }
-        return  {
-            ccp,
-            connectOptions
-        };
-    } catch (e) {
-        console.log('connectionOrg Error: ', e);
-    }
-}
 
 const getUserIdentity = async (arg)  => {
     try {
@@ -59,7 +25,7 @@ const getUserIdentity = async (arg)  => {
         const gateway = new Gateway();
         await gateway.connect(connection.ccp, connection.connectOptions);
 
-        const caInfo = ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)];
+        const caInfo = connection.ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)];
         const caTLSCACerts = caInfo.tlsCACerts.pem;
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
 
@@ -116,7 +82,7 @@ const importUserByWallet = async (arg)  => {
         const gateway = new Gateway();
         await gateway.connect(connection.ccp, connection.connectOptions);
 
-        const caInfo = ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)];
+        const caInfo = connection.ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)];
         const caTLSCACerts = caInfo.tlsCACerts.pem;
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
 
@@ -157,9 +123,11 @@ const importUserByWallet = async (arg)  => {
     }
 }
 
-
 const getRegisteredUser = async (arg) => {
     console.log('getRegisteredUser walletAddress: ', arg.walletAddress);
+    const ccpPath = path.resolve(__dirname, '../../', 'config', 'connection-org1.json');
+    const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
+    const ccp = JSON.parse(ccpJSON);
     // Create a new CA client for interacting with the CA.
     const caURL = ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)].url;
     const ca = new FabricCAServices(caURL);
@@ -210,6 +178,10 @@ const getRegisteredUser = async (arg) => {
 
 const enrollAdmin = async () => {
     try {
+        const ccpPath = path.resolve(__dirname, '../../', 'config', 'connection-org1.json');
+        const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
+        const ccp = JSON.parse(ccpJSON);
+
         const caInfo = ccp.certificateAuthorities['ca.org1.example.com'];
         const caTLSCACerts = caInfo.tlsCACerts.pem;
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
@@ -248,4 +220,3 @@ const enrollAdmin = async () => {
 exports.getRegisteredUser = getRegisteredUser
 exports.importUserByWallet = importUserByWallet
 exports.getUserIdentity = getUserIdentity
-exports.connectionOrg = connectionOrg

@@ -28,7 +28,7 @@ const verify = async (req, res, next) => {
 
         jwt.verify(signToken, identity.credentials.privateKey, function (err, verify) {
             if(err) return res.status(401).json({
-                payload: `one time signature has been expired or ${err}, try again.`,
+                payload: `one time signature has been expired, try again`,
                 success: false,
                 status: 401
             });
