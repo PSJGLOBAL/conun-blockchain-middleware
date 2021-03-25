@@ -8,6 +8,16 @@ const auth = require('../../middleware/auth');
 const owner = require('../../middleware/owner');
 const web3Handlers = require('../../app/web3/eth.main');
 
+router.get('/check', async (req, res) => {
+    try {
+        const user = await User.findOne({email: req.query.email}).select('-password');
+        res.status(200).json({payload: user.email, success: true, status:  200  });
+    } catch (e) {
+        console.log('/check', e);
+        res.status(400).json({payload: e.message, success: false,  status:  400 });
+    }
+});
+
 router.get('/me', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
@@ -65,7 +75,7 @@ router.post('/create', async (req, res) => {
             walletAddress: account.walletAddress,
             orgName,
             walletType: req.body.walletType,
-            privateKey: account.stringKeystore,
+            keyStore: account.stringKeystore,
             password: req.body.password
         });
         if(x509Identity) await user.save();
@@ -108,7 +118,7 @@ router.post('/importEthPk', async (req, res) => {
             walletAddress: account.walletAddress,
             orgName,
             walletType: req.body.walletType,
-            privateKey: account.stringKeystore,
+            keyStore: account.stringKeystore,
             password: req.body.password
         });
 

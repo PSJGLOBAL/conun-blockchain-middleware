@@ -4,7 +4,7 @@ const { Wallets } = require('fabric-network');
 const jwt = require('jsonwebtoken');
 
 /*
-* Features of x509 Signature:
+* Features of x509 Signature: It is based on Hashed Timelock, user wallet that makes it a timebound transaction
 * sign to transaction with x509.
 * this signature making with owner`s private key.
 * making unique transaction.

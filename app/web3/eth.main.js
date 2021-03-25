@@ -7,6 +7,7 @@ var Tx = require('ethereumjs-tx').Transaction;
 
 const Web3 = require('web3');
 const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
+const ConContractAddress = config.get('ethereum.contract_address')
 const web3 = new Web3(provider);
 
 var abijson = require('./abi.json');
@@ -18,143 +19,6 @@ const fs = require('fs');
 apiurl = JSON.parse(apijson);
 
 //https://ethereum.stackexchange.com/questions/70832/signing-transactions-with-web3-js
-async function SendETH(object) {
-    if(object.type === 'default') {
-        // console.log('estimateGas: ', setEstimateGas);
-        object.gasLimit = await web3.eth.estimateGas({
-            from: object.from_address,
-            to: object.to_address
-        });
-        console.log('estimateGas: ', object.gasLimit);
-
-        await web3.eth.getGasPrice().then((result) => {
-            object.gasPrice = web3.utils.fromWei(result, 'gwei');
-            console.log('getGasPrice: ', object.gasPrice)
-        });
-
-    }
-
-
-    return  new Promise(
-        (resolve, reject) => {
-            web3.eth.defaultAccount = object.from_address;
-
-            if(object.private_key.includes('0x')) {
-                object.private_key = object.private_key.slice(2, object.private_key.length);
-                console.log('>> ', object.private_key);
-            }
-
-            object.private_key = Buffer.from(object.private_key, 'hex');
-
-
-            console.log('Get SendETH: ', object);
-            web3.eth.getTransactionCount(object.from_address, (err, txCount) => {
-                // // Build the transaction
-                const txObject = {
-                    nonce: web3.utils.toHex(txCount),
-                    to: object.to_address,
-                    value: web3.utils.toHex(web3.utils.toWei(object.value)),
-                    gasLimit: web3.utils.toHex(object.gasLimit),
-                    gasPrice: web3.utils.toHex(web3.utils.toWei(object.gasPrice, 'gwei')),
-                    // data: myData
-                };
-                console.log('txObject: ', txObject);
-                // Sign the transaction
-                const tx = new Tx(txObject, {chain: 'ropsten'});
-                tx.sign(object.private_key);
-
-                const serializedTx = tx.serialize();
-                const raw = '0x' + serializedTx.toString('hex');
-                console.log('RAW: ', raw);
-
-                // Broadcast the transaction
-                web3.eth.sendSignedTransaction(raw, (err, tx) => {
-                    console.log('Transaction: ', tx, err);
-                    if(tx)resolve(tx);
-                    else reject(err);
-                });
-
-            })
-        }
-    );
-}
-
-async function SendCON(object) {
-    try {
-        object.contract_address = config.get('ethereum.contract_address');
-        web3.eth.defaultAccount = object.from_address;
-
-        if(object.private_key.includes('0x')) {
-            object.private_key = object.private_key.slice(2, object.private_key.length);
-            console.log('>> ', object.private_key);
-        }
-
-        object.private_key = Buffer.from(object.private_key, 'hex');
-
-
-        console.log('Get SendCON: ', object);
-
-        var myContract = new web3.eth.Contract(abiarray, object.contract_address, {
-            from: object.from_address
-        });
-
-        var myData = myContract.methods.transfer(object.to_address, web3.utils.toWei(object.value)).encodeABI();
-
-        if(object.type === 'default') {
-            object.gasLimit = await EstimateGas(
-                web3.eth.defaultAccount, //from
-                object.to_address,                     //to
-                object.contract_address,        //contract
-                object.value);           //token
-
-            console.log('setEstimateGas CON: ', object.gasLimit);
-
-            await web3.eth.getGasPrice().then((result) => {
-                // let gasPrice = web3.utils.fromWei(result, 'gwei');
-                // object.gasPrice = web3.utils.toWei(gasPrice, 'ether');
-                object.gasPrice = result;
-                console.log('getGasPrice CON: ', object.gasPrice, result);
-            });
-
-        }
-
-        return  new Promise(
-            (resolve, reject) => {
-                web3.eth.getTransactionCount(object.from_address, (err, txCount) => {
-                    // // Build the transaction
-                    var txObject = {
-                        from: object.from_address,
-                        nonce: web3.utils.toHex(txCount),
-                        to: object.contract_address,
-                        value: '0x0',
-                        gasLimit: web3.utils.toHex( object.gasLimit),
-                        gasPrice: web3.utils.toHex(object.gasPrice),
-                        // gasLimit: "0x7458",
-                        // gasPrice: "0x04e3b29200",
-                        data: myData
-                    };
-                    console.log('txObject: ', txObject);
-                    // Sign the transaction
-                    const tx = new Tx(txObject, {chain: 'ropsten'});
-                    tx.sign(object.private_key);
-
-                    const serializedTx = tx.serialize();
-                    console.log('serializedTx: ', serializedTx);
-                    var raw = '0x' + serializedTx.toString('hex');
-                    console.log('RAW: ', raw);
-                    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
-                        .on('receipt', function (tx) {
-                            console.log('receipt: ', tx.transactionHash);
-                            if(tx)resolve(tx.transactionHash);
-                            else reject();
-                        });
-                });
-            }
-        );
-    }catch (e) {
-        console.log('>> Con transaction err: ',e)
-    }
-}
 
 module.exports = {
     privateToAccount : async (privateKey) => {
@@ -246,7 +110,7 @@ module.exports = {
                         wallet_address: data.address,
                         privateKey: data.privateKey,
                         password: password,
-                        stringKeystore: jsonKeystore
+                        jsonKeystore: jsonKeystore
                     })
                 }
                 else {
@@ -259,20 +123,13 @@ module.exports = {
         )
     },
 
-    getBalanceOfCon : async (from, contract_address) => {
+    getBalanceOfCon : async (from) => {
         return new Promise (
             (resolve, reject) => {
-                const contract = new web3.eth.Contract(abiarray, contract_address);
+                const contract = new web3.eth.Contract(abiarray, ConContractAddress);
                 contract.methods.balanceOf(from).call()
                     .then(res => {
-                        const token = web3.utils.fromWei(res);
-                        console.log(token + " CON");
-                        if(token) {
-                            resolve(token)
-                        }
-                        else {
-                            reject(token)
-                        }
+                        resolve(web3.utils.fromWei(res))
                     }).catch(error => {
                     reject(error)
                 });
@@ -281,19 +138,14 @@ module.exports = {
     },
 
     getBalanceOfEth : async (address) => {
-        await web3.eth.getBalance(address, (err, wei) => {
-            return new Promise (
+        return new Promise (
                 (resolve, reject) => {
-                    if (err) {
-                        console.log(err)
-                        reject(err);
-                    } else {
-                        console.log(web3.utils.fromWei(wei, "ether"));
+                    web3.eth.getBalance(address, (err, wei) => {
                         resolve(web3.utils.fromWei(wei, "ether"));
-                    }
+                        if(err) reject(err);
+                    })
                 }
             )
-        })
     },
 
     getTransactionFee: async (object) => {
@@ -303,8 +155,8 @@ module.exports = {
         };
 
         data.gasLimit = await web3.eth.estimateGas({
-            from: object.from_address,
-            to: object.to_address
+            from: object.fromAddress,
+            to: object.toAddress
         });
         console.log('estimateGas: ', data.gasLimit);
 
@@ -314,7 +166,6 @@ module.exports = {
         });
 
         return {
-            CMD: 'RES_ESTIMATE_NETWORK_FEE',
             slow: {
                 gas_price: String(data.gasPrice),
                 gas_limit: data.gasLimit,
@@ -330,6 +181,143 @@ module.exports = {
                 gas_limit: data.gasLimit,
                 total: ((data.gasPrice * 3) * data.gasLimit) / 1000000000
             }
+        }
+    },
+
+
+    SendETH: async (object) => {
+        console.log('Send ETH', object)
+        // if(object.type === 'default') {
+        //     // console.log('estimateGas: ', setEstimateGas);
+        //     object.gasLimit = await web3.eth.estimateGas({
+        //         from: object.fromAddress,
+        //         to: object.toAddress
+        //     });
+        //     console.log('estimateGas: ', object.gasLimit);
+        //
+        //     await web3.eth.getGasPrice().then((result) => {
+        //         object.gasPrice = web3.utils.fromWei(result, 'gwei');
+        //         console.log('getGasPrice: ', object.gasPrice)
+        //     });
+        // }
+        return  new Promise(
+            (resolve, reject) => {
+                web3.eth.defaultAccount = object.fromAddress;
+
+                if(object.privateKey.includes('0x')) {
+                    object.privateKey = object.privateKey.slice(2, object.privateKey.length);
+                    console.log('>> ', object.privateKey);
+                }
+
+                object.privateKey = Buffer.from(object.privateKey, 'hex');
+
+
+                console.log('Get SendETH: ', object);
+                web3.eth.getTransactionCount(object.fromAddress, (err, txCount) => {
+                    // // Build the transaction
+                    const txObject = {
+                        nonce: web3.utils.toHex(txCount),
+                        to: object.toAddress,
+                        value: web3.utils.toHex(web3.utils.toWei(object.value)),
+                        gasLimit: web3.utils.toHex(object.gasLimit),
+                        gasPrice: web3.utils.toHex(web3.utils.toWei(object.gasPrice, 'gwei')),
+                        // data: myData
+                    };
+                    console.log('txObject: ', txObject);
+                    // Sign the transaction
+                    const tx = new Tx(txObject, {chain: 'ropsten'});
+                    tx.sign(object.privateKey);
+
+                    const serializedTx = tx.serialize();
+                    const raw = '0x' + serializedTx.toString('hex');
+                    console.log('RAW: ', raw);
+
+                    // Broadcast the transaction
+                    web3.eth.sendSignedTransaction(raw, (err, tx) => {
+                        console.log('Transaction: ', tx, err);
+                        if(tx)resolve(tx);
+                        else reject(err);
+                    });
+
+                })
+            }
+        );
+    },
+
+    SendCON: async (object) => {
+        try {
+            object.contract_address = config.get('ethereum.contract_address');
+            web3.eth.defaultAccount = object.from_address;
+
+            if(object.privateKey.includes('0x')) {
+                object.privateKey = object.privateKey.slice(2, object.privateKey.length);
+                console.log('>> ', object.privateKey);
+            }
+
+            object.privateKey = Buffer.from(object.privateKey, 'hex');
+
+
+            console.log('Get SendCON: ', object);
+
+            var myContract = new web3.eth.Contract(abiarray, object.contract_address, {
+                from: object.from_address
+            });
+
+            var myData = myContract.methods.transfer(object.to_address, web3.utils.toWei(object.value)).encodeABI();
+
+            if(object.type === 'default') {
+                object.gasLimit = await EstimateGas(
+                    web3.eth.defaultAccount, //from
+                    object.to_address,                     //to
+                    object.contract_address,        //contract
+                    object.value);           //token
+
+                console.log('setEstimateGas CON: ', object.gasLimit);
+
+                await web3.eth.getGasPrice().then((result) => {
+                    // let gasPrice = web3.utils.fromWei(result, 'gwei');
+                    // object.gasPrice = web3.utils.toWei(gasPrice, 'ether');
+                    object.gasPrice = result;
+                    console.log('getGasPrice CON: ', object.gasPrice, result);
+                });
+
+            }
+
+            return  new Promise(
+                (resolve, reject) => {
+                    web3.eth.getTransactionCount(object.from_address, (err, txCount) => {
+                        // // Build the transaction
+                        var txObject = {
+                            from: object.from_address,
+                            nonce: web3.utils.toHex(txCount),
+                            to: object.contract_address,
+                            value: '0x0',
+                            gasLimit: web3.utils.toHex( object.gasLimit),
+                            gasPrice: web3.utils.toHex(object.gasPrice),
+                            // gasLimit: "0x7458",
+                            // gasPrice: "0x04e3b29200",
+                            data: myData
+                        };
+                        console.log('txObject: ', txObject);
+                        // Sign the transaction
+                        const tx = new Tx(txObject, {chain: 'ropsten'});
+                        tx.sign(object.privateKey);
+
+                        const serializedTx = tx.serialize();
+                        console.log('serializedTx: ', serializedTx);
+                        var raw = '0x' + serializedTx.toString('hex');
+                        console.log('RAW: ', raw);
+                        web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+                            .on('receipt', function (tx) {
+                                console.log('receipt: ', tx.transactionHash);
+                                if(tx)resolve(tx.transactionHash);
+                                else reject();
+                            });
+                    });
+                }
+            );
+        }catch (e) {
+            console.log('>> Con transaction err: ',e)
         }
     }
 }

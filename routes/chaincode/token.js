@@ -118,7 +118,6 @@ function CallQuery(event, req) {
             })
 
             let status = eventQuery.emit(event)
-            // console.log('>> status: ', status);
             if (!status) {
                 eventQuery.removeAllListeners();
                 reject(status);

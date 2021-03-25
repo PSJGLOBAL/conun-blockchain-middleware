@@ -84,7 +84,6 @@ module.exports = {
         }
     },
 
-
     GetTotalLikesFile: async (arg) => {
         try {
             const queryDrive = new QueryDriveNetworkClass();
@@ -105,7 +104,6 @@ module.exports = {
             return false
         }
     },
-
 
     GetTotalDownloads: async (arg) => {
         try {
