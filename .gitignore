@@ -9,3 +9,4 @@ config
 *.csv
 logs/
 *.log
+coverage

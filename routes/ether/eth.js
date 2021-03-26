@@ -23,7 +23,7 @@ router.post('/SendETH', async (req, res) => {
                 gasPrice: req.body.gasPrice,
                 privateKey: result.privateKey
             }).then((txHash) => {
-                    console.log('balance: ', txHash)
+                    console.log('txHash: ', txHash)
                     res.status(200).json({
                         payload: txHash,
                         success: true,
@@ -57,7 +57,7 @@ router.post('/SendCON', async (req, res) => {
                 gasPrice: req.body.gasPrice,
                 privateKey: result.privateKey
             }).then((txHash) => {
-                console.log('balance: ', txHash)
+                console.log('txHash: ', txHash)
                 res.status(200).json({
                     payload: txHash,
                     success: true,

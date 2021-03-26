@@ -247,7 +247,7 @@ module.exports = {
     SendCON: async (object) => {
         try {
             object.contract_address = config.get('ethereum.contract_address');
-            web3.eth.defaultAccount = object.from_address;
+            web3.eth.defaultAccount = object.fromAddress;
 
             if(object.privateKey.includes('0x')) {
                 object.privateKey = object.privateKey.slice(2, object.privateKey.length);
@@ -260,40 +260,25 @@ module.exports = {
             console.log('Get SendCON: ', object);
 
             var myContract = new web3.eth.Contract(abiarray, object.contract_address, {
-                from: object.from_address
+                from: object.fromAddress
             });
 
-            var myData = myContract.methods.transfer(object.to_address, web3.utils.toWei(object.value)).encodeABI();
+            var myData = myContract.methods.transfer(object.toAddress, web3.utils.toWei(object.value)).encodeABI();
 
-            if(object.type === 'default') {
-                object.gasLimit = await EstimateGas(
-                    web3.eth.defaultAccount, //from
-                    object.to_address,                     //to
-                    object.contract_address,        //contract
-                    object.value);           //token
-
-                console.log('setEstimateGas CON: ', object.gasLimit);
-
-                await web3.eth.getGasPrice().then((result) => {
-                    // let gasPrice = web3.utils.fromWei(result, 'gwei');
-                    // object.gasPrice = web3.utils.toWei(gasPrice, 'ether');
-                    object.gasPrice = result;
-                    console.log('getGasPrice CON: ', object.gasPrice, result);
-                });
-
-            }
 
             return  new Promise(
                 (resolve, reject) => {
-                    web3.eth.getTransactionCount(object.from_address, (err, txCount) => {
+                    web3.eth.getTransactionCount(object.fromAddress, (err, txCount) => {
                         // // Build the transaction
                         var txObject = {
-                            from: object.from_address,
+                            from: object.fromAddress,
                             nonce: web3.utils.toHex(txCount),
                             to: object.contract_address,
                             value: '0x0',
-                            gasLimit: web3.utils.toHex( object.gasLimit),
-                            gasPrice: web3.utils.toHex(object.gasPrice),
+                            // gasLimit: web3.utils.toHex( object.gasLimit),
+                            // gasPrice: web3.utils.toHex(object.gasPrice),
+                            gasLimit: web3.utils.toHex(object.gasLimit),
+                            gasPrice: web3.utils.toHex(web3.utils.toWei(object.gasPrice, 'gwei')),
                             // gasLimit: "0x7458",
                             // gasPrice: "0x04e3b29200",
                             data: myData
@@ -310,14 +295,15 @@ module.exports = {
                         web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
                             .on('receipt', function (tx) {
                                 console.log('receipt: ', tx.transactionHash);
-                                if(tx)resolve(tx.transactionHash);
-                                else reject();
+                                resolve(tx.transactionHash);
+                                if(err) reject(false);
                             });
                     });
                 }
             );
-        }catch (e) {
+        } catch (e) {
             console.log('>> Con transaction err: ',e)
+            return false
         }
     }
 }
