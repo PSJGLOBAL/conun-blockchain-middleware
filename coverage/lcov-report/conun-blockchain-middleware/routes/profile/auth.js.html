@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">38.1% </span>
+                <span class="strong">36.36% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/21</span>
+                <span class='fraction'>8/22</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">38.1% </span>
+                <span class="strong">36.36% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/21</span>
+                <span class='fraction'>8/22</span>
             </div>
         
             
@@ -93,7 +93,11 @@
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -104,9 +108,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -115,6 +116,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -129,7 +136,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">const express = require('express');
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const express = require('express');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const _ = require('lodash');
@@ -137,42 +145,46 @@ const {User} = require('../../models/profile/user');
 const router = express.Router();
 &nbsp;
 router.post('/', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
+<span class="cstat-no" title="statement not covered" >    console.log('req.body: ', req.body)</span>
     const { error } = <span class="cstat-no" title="statement not covered" >validate(req.body);</span>
 <span class="cstat-no" title="statement not covered" >    if (error)</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(400).send(error.details[0].message);</span>
+<span class="cstat-no" title="statement not covered" >        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })</span>
 &nbsp;
     let user = <span class="cstat-no" title="statement not covered" >await User.findOne({ email: req.body.email });</span>
 <span class="cstat-no" title="statement not covered" >    if (!user)</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(400).send({error: 'Email or password is incorrect !', status: 400});</span>
+<span class="cstat-no" title="statement not covered" >        return res.status(400).json({payload: 'Email or password is incorrect !', success: false, status: 400})</span>
 &nbsp;
     const isValidPassword = <span class="cstat-no" title="statement not covered" >await bcrypt.compare(req.body.password, user.password);</span>
 <span class="cstat-no" title="statement not covered" >    if(!isValidPassword)</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(400).send({error: 'Email or password is incorrect !', status: 400});</span>
-&nbsp;
-    const token = <span class="cstat-no" title="statement not covered" >user.generateAuthToken();</span>
-<span class="cstat-no" title="statement not covered" >    res.header('x-auth-token', token).send({</span>
-        'x-auth-token': token,
-        publicKey: '',
-        user: _.pick(user, ['_id', 'name', 'email', 'wallet_address'])
+<span class="cstat-no" title="statement not covered" >        return res.status(400).json({payload: 'Email or password is incorrect !', success: false, status: 400})</span>
+    const token = <span class="cstat-no" title="statement not covered" >user.generateAuthToken(req.body.key);</span>
+<span class="cstat-no" title="statement not covered" >    res.status(200).header('x-auth-token', token).json({</span>
+        payload: {
+            'x-auth-token': token,
+            user: _.pick(user, ['_id', 'name', 'email', 'wallet_address'])
+        },
+        success: false,
+        status: 200
     });
 });
 &nbsp;
 function <span class="fstat-no" title="function not covered" >validate(</span>req) {
     const schema = <span class="cstat-no" title="statement not covered" >Joi.object({</span>
         email: Joi.string().min(5).max(255).required().email(),
-        password: Joi.string().min(5).max(1024).required(),
+        password: Joi.string().min(5).max(1024).required()
     });
 <span class="cstat-no" title="statement not covered" >    return schema.validate(req);</span>
 }
 &nbsp;
-module.exports = router;</pre></td></tr></table></pre>
+module.exports = router;
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Wed Dec 23 2020 14:02:17 GMT+0900 (Korean Standard Time)
+                at Mon Mar 29 2021 16:59:12 GMT+0900 (Korean Standard Time)
             </div>
         </div>
         <script src="../../../prettify.js"></script>

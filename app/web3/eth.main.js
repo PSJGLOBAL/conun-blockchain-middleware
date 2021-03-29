@@ -41,6 +41,7 @@ module.exports = {
             }
         )
     },
+
     CreateAccount : (password) => {
         return new Promise(
             (resolve, reject) => {
@@ -78,7 +79,6 @@ module.exports = {
             }
         )
     },
-
 
     ImportAccountByPrivateKey : async ( privateKey, password ) => {
         return new Promise(
@@ -149,7 +149,7 @@ module.exports = {
     },
 
     getTransactionFee: async (object) => {
-        var data = {
+        let data = {
             gasLimit: null,
             gasPrice: null
         };
@@ -184,6 +184,50 @@ module.exports = {
         }
     },
 
+    TokenEstimateGasFee: async (object)  =>
+    {
+        let data = {
+            gasLimit: null,
+            gasPrice: null
+        };
+
+        var	myContract = new web3.eth.Contract(abiarray,ConContractAddress,{
+            from: object.fromAddress
+        });
+        console.log('?>?')
+        const myData = myContract.methods.transfer(object.toAddress, web3.utils.toWei(object.value)).encodeABI();
+
+        console.log("myData: ", myData)
+
+        data.gasLimit = await web3.eth.estimateGas({
+            from     : object.fromAddress,
+            to       : ConContractAddress,
+            data     : myData
+        });
+
+        await web3.eth.getGasPrice().then((result) => {
+            data.gasPrice = web3.utils.fromWei(result, 'gwei');
+            console.log('getGasPrice: ', typeof data.gasPrice)
+        });
+
+        return {
+            slow: {
+                gas_price: String(data.gasPrice),
+                gas_limit: data.gasLimit,
+                total: (data.gasPrice * data.gasLimit) / 1000000000
+            },
+            average: {
+                gas_price: String(2 * data.gasPrice),
+                gas_limit: data.gasLimit,
+                total: ((data.gasPrice * 2) * data.gasLimit) / 1000000000
+            },
+            fast: {
+                gas_price: String(3 * data.gasPrice),
+                gas_limit: data.gasLimit,
+                total: ((data.gasPrice * 3) * data.gasLimit) / 1000000000
+            }
+        }
+    },
 
     SendETH: async (object) => {
         console.log('Send ETH', object)
@@ -233,11 +277,20 @@ module.exports = {
                     console.log('RAW: ', raw);
 
                     // Broadcast the transaction
-                    web3.eth.sendSignedTransaction(raw, (err, tx) => {
-                        console.log('Transaction: ', tx, err);
-                        if(tx)resolve(tx);
-                        else reject(err);
-                    });
+                    web3.eth.sendSignedTransaction(raw)
+                        // .on('transactionHash', function(hash){
+                        //     console.log('1 transactionHash: ', hash)
+                        //     resolve(hash);
+                        // })
+                        .on('receipt', function (tx) {
+                            if(tx)resolve(tx.transactionHash);
+                            else reject();
+                        });
+
+                    // web3.eth.sendSignedTransaction(raw, (error, hash) => {
+                    //     if(error) reject(false);
+                    //     resolve(hash);
+                    // })
 
                 })
             }
@@ -292,12 +345,21 @@ module.exports = {
                         console.log('serializedTx: ', serializedTx);
                         var raw = '0x' + serializedTx.toString('hex');
                         console.log('RAW: ', raw);
-                        web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+
+                        web3.eth.sendSignedTransaction(raw)
+                            // .on('transactionHash', function(hash){
+                            //     console.log('1 transactionHash: ', hash)
+                            //     resolve(hash);
+                            // })
                             .on('receipt', function (tx) {
-                                console.log('receipt: ', tx.transactionHash);
-                                resolve(tx.transactionHash);
-                                if(err) reject(false);
+                                if(tx)resolve(tx.transactionHash);
+                                else reject();
                             });
+
+                        // web3.eth.sendSignedTransaction(raw, (error, hash) => {
+                        //     if(error) reject(false);
+                        //     resolve(hash);
+                        // })
                     });
                 }
             );

@@ -115,12 +115,34 @@ router.get('/getBalanceOfCon', async (req, res) => {
 router.get('/getTransactionFee', async (req, res) => {
     Eth.getTransactionFee({
         fromAddress: req.query.fromAddress,
-        toAddress: req.query.toAddress,
+        toAddress: req.query.toAddress
     })
-        .then((balance) => {
-            console.log('balance: ', balance)
+        .then((fee) => {
+            console.log('TxFee: ', fee)
             res.status(200).json({
-                payload: balance,
+                payload: fee,
+                success: true,
+                status: 200
+            });
+        }).catch((error) => {
+        res.status(400).json({
+            payload: error,
+            success: false,
+            status: 400
+        });
+    })
+})
+
+router.get('/TokenEstimateGasFee', async (req, res) => {
+    Eth.TokenEstimateGasFee({
+        fromAddress: req.query.fromAddress,
+        toAddress: req.query.toAddress,
+        value: req.query.value
+    })
+        .then((fee) => {
+            console.log('tx Fee: ', fee)
+            res.status(200).json({
+                payload: fee,
                 success: true,
                 status: 200
             });

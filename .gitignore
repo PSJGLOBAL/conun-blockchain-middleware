@@ -10,3 +10,4 @@ config
 logs/
 *.log
 coverage
+http_req
