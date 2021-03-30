@@ -112,7 +112,7 @@ router.get('/getBalanceOfCon', async (req, res) => {
     })
 })
 
-router.get('/getTransactionFee', async (req, res) => {
+router.get('/getTransactionFeeETH', async (req, res) => {
     Eth.getTransactionFee({
         fromAddress: req.query.fromAddress,
         toAddress: req.query.toAddress
@@ -133,7 +133,7 @@ router.get('/getTransactionFee', async (req, res) => {
     })
 })
 
-router.get('/TokenEstimateGasFee', async (req, res) => {
+router.get('/getTransactionFeeCON', async (req, res) => {
     Eth.TokenEstimateGasFee({
         fromAddress: req.query.fromAddress,
         toAddress: req.query.toAddress,

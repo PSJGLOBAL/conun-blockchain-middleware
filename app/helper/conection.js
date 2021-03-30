@@ -17,7 +17,7 @@ async function connectionOrg(walletAddress, orgName) {
 
         // // Check to see if we've already enrolled the user.
         let identity = await wallet.get(walletAddress);
-        console.log('identity: ', identity)
+        // console.log('identity: ', identity)
         if (!identity) return;
 
         const connectOptions = {

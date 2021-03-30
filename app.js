@@ -32,7 +32,7 @@ require('./test/jMeter/routes.v1')(app);
 require('./startup/db')();
 require('./startup/config')();
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV === 'development') {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 }
 
@@ -41,11 +41,16 @@ app.get('/', async (req, res)  => {
     res.send({"msg": "server is working"})
 });
 
+console.log('process.env.NODE_ENV:  ', process.env.NODE_ENV);
 
-const port = process.env.PORT || constants.port;
+if (process.env.NODE_ENV === 'development') {
+     process.env.PORT = "4040";
+} else {
+    process.env.PORT = constants.port;
+}
 
-const server = app.listen(port, () => {
-    console.log(`set ${port} port listening...`);
+const server = app.listen(process.env.PORT, () => {
+    console.log(`set ${process.env.PORT} port listening...`);
 });
 server.timeout = 240000
 

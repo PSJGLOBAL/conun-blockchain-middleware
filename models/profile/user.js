@@ -52,15 +52,13 @@ const User = mongoose.model('User', userSchema);
 
 
 function validateUser(user) {
-    console.log('validate: ', user);
     const schema = Joi.object({
         name: Joi.string().min(3).max(50).required(),
         email: Joi.string().min(5).max(100).required().email(),
-        orgName: Joi.string().min(3).max(50).required(),
+        orgName: Joi.string().valid('Org1', 'Org2', 'Org3').required(),
         password: Joi.string().min(5).max(50).required(),
         walletType: Joi.string().min(3).max(50).required(),
         privateKey: Joi.string().min(3).max(1024),
-        walletAddress: Joi.string().min(3).max(100),
         x509Identity: Joi.object()
     });
     return schema.validate(user);

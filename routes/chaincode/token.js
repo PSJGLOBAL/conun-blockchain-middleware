@@ -18,8 +18,8 @@ function CallInvoke(event, req) {
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body._from,
-                    to: req.body.to,
+                    walletAddress: req.body.fromAddress,
+                    to: req.body.toAddress,
                     value: req.body.value,
                 });
                 if(!result) reject(false);

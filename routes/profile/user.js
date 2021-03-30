@@ -67,7 +67,6 @@ router.post('/create', async (req, res) => {
             walletAddress: account.walletAddress,
             isAdmin: false
         });
-        console.log('>> user: ', user);
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
@@ -101,6 +100,15 @@ router.post('/importEthPk', async (req, res) => {
         let orgName = req.body.orgName;
         const account = await web3Handlers.ImportAccountByPrivateKey(req.body.privateKey, req.body.password);
 
+        let wallet = await User.findOne({ walletAddress: account.walletAddress });
+        if (wallet)
+            return res.status(400).json(
+                {
+                    payload: `User with this wallet address ${account.walletAddress} already exist, please import your wallet and try again`,
+                    success: false,
+                    status: 400
+                });
+
         user = new User({
             name: req.body.name,
             email: req.body.email,
@@ -110,7 +118,6 @@ router.post('/importEthPk', async (req, res) => {
             walletAddress: account.walletAddress,
             isAdmin: false
         });
-        console.log('>> user: ', user);
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
@@ -139,7 +146,6 @@ router.post('/importWallet', async (req, res) => {
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
     let user = await User.findOne({ email: req.body.email, walletAddress: req.body.x509Identity.walletAddress });
-    console.log('>> user: ', user);
     if (!user)
         return res.status(400).json({payload: `User with this email: ${req.body.email} or wallet: ${req.body.walletAddress} is not belongs to you`, success: false, status: 400});
     try {

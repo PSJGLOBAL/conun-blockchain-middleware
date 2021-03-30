@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">21.43% </span>
+                <span class="strong">71.43% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/14</span>
+                <span class='fraction'>10/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">21.43% </span>
+                <span class="strong">71.43% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/14</span>
+                <span class='fraction'>10/14</span>
             </div>
         
             
@@ -55,7 +55,7 @@
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -95,16 +95,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -122,17 +122,17 @@ const config = require('config')
 * return: {_id, isAdmin, wallet_address, key}
 */
 &nbsp;
-function <span class="fstat-no" title="function not covered" >auth(</span>req, res, next) {
-<span class="cstat-no" title="statement not covered" >    try {</span>
-        const token = <span class="cstat-no" title="statement not covered" >req.header('x-auth-token');</span>
-<span class="cstat-no" title="statement not covered" >            if(!token)</span>
+function auth(req, res, next) {
+    try {
+        const token = req.header('x-auth-token');
+            <span class="missing-if-branch" title="if path not taken" >I</span>if(!token)
 <span class="cstat-no" title="statement not covered" >                return res.status(401).json({payload: 'auth key required', success: false,  status:  401 });</span>
-<span class="cstat-no" title="statement not covered" >            jwt.verify(token, config.get('jwtPrivateKey'), <span class="fstat-no" title="function not covered" >fu</span>nction (err, verify) {</span>
-<span class="cstat-no" title="statement not covered" >                if(err) {</span>
+            jwt.verify(token, config.get('jwtPrivateKey'), function (err, verify) {
+                <span class="missing-if-branch" title="if path not taken" >I</span>if(err) {
 <span class="cstat-no" title="statement not covered" >                    return res.status(400).json({payload: {expiredAt: err.expiredAt}, success: false,  status:  400 });</span>
                 }
-<span class="cstat-no" title="statement not covered" >                req.user = verify;</span>
-<span class="cstat-no" title="statement not covered" >                next();</span>
+                req.user = verify;
+                next();
             });
     } catch (e) {
 <span class="cstat-no" title="statement not covered" >            console.log('auth: ', e)</span>
@@ -148,7 +148,7 @@ module.exports = auth;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Mon Mar 29 2021 16:59:12 GMT+0900 (Korean Standard Time)
+                at Tue Mar 30 2021 17:46:48 GMT+0900 (Korean Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>
