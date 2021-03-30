@@ -68,7 +68,7 @@ const sign = async (walletAddress,  payload) => {
         console.log('identity.credentials.privateKey: ', identity.credentials.privateKey)
         const privateKey = PrivateKey.fromPEM(identity.credentials.privateKey);
         console.log('> privateKey: ', privateKey)
-        const signature = privateKey.sign(Buffer.from(JSON.stringify('payload')), 'sha256')
+        const signature = privateKey.sign(Buffer.from(JSON.stringify(payload)), 'sha256')
         console.log('> signature: ', signature)
         let sign = jwt.sign({signature: signature.toString('base64')}, identity.credentials.privateKey, { expiresIn: '1000ms' });
 

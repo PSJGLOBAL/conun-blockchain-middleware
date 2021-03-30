@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.66% </span>
+                <span class="strong">26.42% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/53</span>
+                <span class='fraction'>14/53</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>1/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>1/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.77% </span>
+                <span class="strong">26.92% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/52</span>
+                <span class='fraction'>14/52</span>
             </div>
         
             
@@ -162,24 +162,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -260,25 +260,25 @@ const connectionOrg = require('./helper/conection')
 &nbsp;
 &nbsp;
 module.exports = {
-    Transfer: <span class="fstat-no" title="function not covered" >as</span>ync (arg) =&gt; {
-<span class="cstat-no" title="statement not covered" >        try {</span>
-<span class="cstat-no" title="statement not covered" >            console.log('&gt;&gt; Transfer: ', arg);</span>
-<span class="cstat-no" title="statement not covered" >            if(arg.walletAddress === arg.to) <span class="cstat-no" title="statement not covered" >return false</span></span>
-            const connection = <span class="cstat-no" title="statement not covered" >await connectionOrg(arg.walletAddress, arg.orgName);</span>
+    Transfer: async (arg) =&gt; {
+        try {
+            console.log('&gt;&gt; Transfer: ', arg);
+            <span class="missing-if-branch" title="if path not taken" >I</span>if(arg.walletAddress === arg.to) <span class="cstat-no" title="statement not covered" >return false</span>
+            const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
-            const gateway = <span class="cstat-no" title="statement not covered" >new Gateway();</span>
-<span class="cstat-no" title="statement not covered" >            await gateway.connect(connection.ccp, connection.connectOptions);</span>
+            const gateway = new Gateway();
+            await gateway.connect(connection.ccp, connection.connectOptions);
 &nbsp;
             // Get the network (channel) our contract is deployed to.
-            const network = <span class="cstat-no" title="statement not covered" >await gateway.getNetwork(arg.channelName);</span>
-            const contract = <span class="cstat-no" title="statement not covered" >network.getContract(arg.chainCodeName);</span>
+            const network = await gateway.getNetwork(arg.channelName);
+            const contract = network.getContract(arg.chainCodeName);
 &nbsp;
-            let result = <span class="cstat-no" title="statement not covered" >await contract.submitTransaction(arg.fcn, arg.walletAddress, arg.to, arg.value);</span>
+            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress, arg.to, arg.value);
 <span class="cstat-no" title="statement not covered" >            await gateway.disconnect();</span>
 <span class="cstat-no" title="statement not covered" >            return JSON.parse(result.toString());</span>
         } catch (error) {
-<span class="cstat-no" title="statement not covered" >            console.log(`Getting error: ${error}`)</span>
-<span class="cstat-no" title="statement not covered" >            return false</span>
+            console.log(`Getting error: ${error}`)
+            return false
         }
     },
 &nbsp;
@@ -361,7 +361,7 @@ module.exports = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Tue Mar 30 2021 17:46:48 GMT+0900 (Korean Standard Time)
+                at Tue Mar 30 2021 18:43:33 GMT+0900 (Korean Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

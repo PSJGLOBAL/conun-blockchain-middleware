@@ -24,7 +24,7 @@ function CallInvoke(event, req) {
                 });
                 if(!result) reject(false);
                 resolve(result);
-            })
+            });
 
             eventDeal.on('Init', async () => {
                 let result = await invokeHandler.Init({
@@ -36,7 +36,7 @@ function CallInvoke(event, req) {
                 });
                 if(!result) reject(false);
                 resolve(result)
-            })
+            });
 
             eventDeal.on('Mint', async () => {
                 let result = await invokeHandler.Mint({
@@ -49,7 +49,7 @@ function CallInvoke(event, req) {
                 });
                 if(!result) reject(false);
                 resolve(result)
-            })
+            });
 
             eventDeal.on('Burn', async () => {
                 let result = await invokeHandler.Burn({
@@ -62,7 +62,7 @@ function CallInvoke(event, req) {
                 });
                 if(!result) reject(false);
                 resolve(result)
-            })
+            });
 
 
             let status = eventDeal.emit(event)
@@ -115,7 +115,7 @@ function CallQuery(event, req) {
                 });
                 if(!result) reject(false);
                 resolve(result)
-            })
+            });
 
             let status = eventQuery.emit(event)
             if (!status) {
@@ -142,7 +142,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x50
             }
         ).catch((err) => {
             res.status(400).json({
-                    payload: err.message,
+                    payload: err,
                     success: false,
                     status: 400
                 }
