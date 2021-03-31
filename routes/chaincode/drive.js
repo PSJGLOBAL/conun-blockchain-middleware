@@ -3,9 +3,9 @@ const router = express.Router();
 const auth = require('../../middleware/auth');
 const owner = require('../../middleware/owner');
 const x509 = require('../../middleware/x509');
-const invokeDrive = require('../../app/drive/invoke')
-const queryDrive = require('../../app/drive/query')
-const events = require('events')
+const invokeDrive = require('../../app/drive/invoke');
+const queryDrive = require('../../app/drive/query');
+const events = require('events');
 
 function CallInvokeDrive(event, req) {
     const eventDeal = new events.EventEmitter();
@@ -19,10 +19,10 @@ function CallInvokeDrive(event, req) {
                     orgName: req.body.orgName,
                     walletAddress: req.body.authorWalletAddress,
                     ipfsHash : req.body.ipfsHash
-                })
+                });
                 if(!result) reject(false);
                 resolve(result);
-            })
+            });
 
             eventDeal.on('Approve', async () => {
                 let result = await invokeDrive.ApproveFile({
@@ -33,10 +33,10 @@ function CallInvokeDrive(event, req) {
                     author: req.body.author,
                     ipfsHash : req.body.ipfsHash,
                     spenders : req.body.spenders
-                })
+                });
                 if(!result) reject(false);
                 resolve(result);
-            })
+            });
 
 
             eventDeal.on('LikeContent', async () => {
@@ -47,10 +47,10 @@ function CallInvokeDrive(event, req) {
                     orgName: req.body.orgName,
                     walletAddress: req.body.walletAddress,
                     ipfsHash : req.body.ipfsHash
-                })
+                });
                 if(!result) reject(false);
                 resolve(result);
-            })
+            });
 
             eventDeal.on('CountDownloads', async () => {
                 let result = await invokeDrive.CountDownloadsFile({
@@ -60,13 +60,13 @@ function CallInvokeDrive(event, req) {
                     orgName: req.body.orgName,
                     walletAddress: req.body.walletAddress,
                     ipfsHash : req.body.ipfsHash
-                })
+                });
                 if(!result) reject(false);
                 resolve(result);
-            })
+            });
 
 
-            let status = eventDeal.emit(event)
+            let status = eventDeal.emit(event);
             if (!status) {
                 eventDeal.removeAllListeners();
                 reject(status);
@@ -88,10 +88,10 @@ function CallQueryDrive(event, req) {
                     orgName: req.query.orgName,
                     walletAddress: req.query.walletAddress,
                     ipfsHash : req.query.ipfsHash
-                })
+                });
                 if(!result) reject(false);
                 resolve(result);
-            })
+            });
             eventQuery.on('GetTotalLikes', async () => {
             let result = await queryDrive.GetTotalLikesFile({
                 channelName: req.params.channelName,
@@ -100,10 +100,10 @@ function CallQueryDrive(event, req) {
                 orgName: req.query.orgName,
                 walletAddress: req.query.walletAddress,
                 ipfsHash : req.query.ipfsHash
-            })
+            });
             if(!result) reject(false);
             resolve(result);
-            })
+            });
 
             eventQuery.on('GetTotalDownloads', async () => {
             let result = await queryDrive.GetTotalDownloads({
@@ -113,12 +113,12 @@ function CallQueryDrive(event, req) {
                 orgName: req.query.orgName,
                 walletAddress: req.query.walletAddress,
                 ipfsHash : req.query.ipfsHash
-            })
+            });
             if(!result) reject(false);
             resolve(result);
-            })
+            });
 
-            let status = eventQuery.emit(event)
+            let status = eventQuery.emit(event);
             if (!status) {
                 eventQuery.removeAllListeners();
                 reject(status);
@@ -140,7 +140,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
                     );
                 }
             ).catch((error) => {
-                console.log('1/channels: ', error)
+                console.log('1/channels: ', error);
             res.status(400).json({
                     payload: error.message,
                     success: false,
@@ -149,7 +149,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
             );
         });
     } catch (error) {
-        console.log('2/channels: ', error)
+        console.log('2/channels: ', error);
         res.status(400).json({
             payload: error.message,
             success: false,

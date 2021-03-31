@@ -230,7 +230,7 @@ module.exports = {
     },
 
     SendETH: async (object) => {
-        console.log('Send ETH', object)
+        console.log('Send ETH', object);
         // if(object.type === 'default') {
         //     // console.log('estimateGas: ', setEstimateGas);
         //     object.gasLimit = await web3.eth.estimateGas({

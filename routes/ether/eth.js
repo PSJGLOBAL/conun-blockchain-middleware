@@ -7,6 +7,7 @@ const Eth = require('../../app/web3/eth.main');
 const helper = require('../../app/helper/token.helper');
 
 router.post('/SendETH', async (req, res) => {
+    console.log('req ETH: ', req.body)
     helper.getUserIdentity({
         orgName: req.body.orgName,
         walletAddress: req.body.fromAddress,
@@ -17,7 +18,6 @@ router.post('/SendETH', async (req, res) => {
             Eth.SendETH({
                 fromAddress: req.body.fromAddress,
                 toAddress: req.body.toAddress,
-                type: req.body.type,
                 value: req.body.value,
                 gasLimit: req.body.gasLimit,
                 gasPrice: req.body.gasPrice,
@@ -51,13 +51,12 @@ router.post('/SendCON', async (req, res) => {
             Eth.SendCON({
                 fromAddress: req.body.fromAddress,
                 toAddress: req.body.toAddress,
-                type: req.body.type,
                 value: req.body.value,
                 gasLimit: req.body.gasLimit,
                 gasPrice: req.body.gasPrice,
                 privateKey: result.privateKey
             }).then((txHash) => {
-                console.log('txHash: ', txHash)
+                console.log('txHash: ', txHash);
                 res.status(200).json({
                     payload: txHash,
                     success: true,
