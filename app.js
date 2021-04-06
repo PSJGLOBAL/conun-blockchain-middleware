@@ -7,6 +7,11 @@ const swaggerDocument = require ('./swagger.json');
 const bodyParser = require('body-parser');
 const constants = require('./config/constants.json');
 
+const Helper = require('./common/helper');
+
+
+const logger =Helper.helper.getLogger('app')
+
 app.use((req, res,next) => {
     res.header('Access-Control-Allow-Origin', '*');
     next();
@@ -26,7 +31,6 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-require('./startup/logging');
 require('./startup/routes.v1')(app);
 require('./test/jMeter/routes.v1')(app);
 require('./startup/db')();
@@ -50,6 +54,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const server = app.listen(process.env.PORT, () => {
+    logger.info(`Server listening to ${process.env.PORT}`)
     console.log(`set ${process.env.PORT} port listening...`);
 });
 server.timeout = 240000

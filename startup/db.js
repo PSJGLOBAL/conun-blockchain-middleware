@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 const config = require('config');
+const Helper = require('../common/helper');
+
+const logger = Helper.helper.getLogger('MongoDB')
 
 module.exports = function () {
     mongoose.connect(config.get('db'), { useNewUrlParser: true, useUnifiedTopology: true })
         .then(() => {
-            console.log('Mongo DB is Connected!');
+            logger.info('Mongo DB is Connected!');
         });
     mongoose.set('useFindAndModify', false);
     mongoose.set('useCreateIndex', true);
