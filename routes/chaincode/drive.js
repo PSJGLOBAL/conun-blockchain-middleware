@@ -5,7 +5,10 @@ const owner = require('../../middleware/owner');
 const x509 = require('../../middleware/x509');
 const invokeDrive = require('../../app/drive/invoke');
 const queryDrive = require('../../app/drive/query');
+const Helper = require('../../common/helper');
 const events = require('events');
+
+const logger = Helper.helper.getLogger('DriveAPI')
 
 function CallInvokeDrive(event, req) {
     const eventDeal = new events.EventEmitter();
@@ -18,7 +21,7 @@ function CallInvokeDrive(event, req) {
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
                     walletAddress: req.body.authorWalletAddress,
-                    ipfsHash : req.body.ipfsHash
+                    ipfsHash : req.body.ipfsHash,
                 });
                 if(!result) reject(false);
                 resolve(result);
@@ -31,7 +34,7 @@ function CallInvokeDrive(event, req) {
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
                     author: req.body.author,
-                    ipfsHash : req.body.ipfsHash,
+                    ccid : req.body.ccid,
                     spenders : req.body.spenders
                 });
                 if(!result) reject(false);
@@ -46,7 +49,8 @@ function CallInvokeDrive(event, req) {
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
                     walletAddress: req.body.walletAddress,
-                    ipfsHash : req.body.ipfsHash
+                    ccid : req.body.ccid,
+                    args : req.body.args
                 });
                 if(!result) reject(false);
                 resolve(result);
@@ -59,7 +63,8 @@ function CallInvokeDrive(event, req) {
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
                     walletAddress: req.body.walletAddress,
-                    ipfsHash : req.body.ipfsHash
+                    ccid : req.body.ccid,
+                    args: req.body.args
                 });
                 if(!result) reject(false);
                 resolve(result);
@@ -131,7 +136,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
     try {
         CallInvokeDrive(req.body.fcn, req)
             .then((response) => {
-                    console.log('>> response: ', response);
+                    logger.info('>> response: ', response)
                     res.status(200).json({
                             payload: response,
                             success: true,
