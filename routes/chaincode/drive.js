@@ -260,7 +260,6 @@ function CallQueryDrive(event, req) {
 
 router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
     try {
-    logger.info('>> response: ', req)
         CallInvokeDrive(req.body.fcn, req)
             .then((response) => {
                     // logger.info('>> response: ', response)
