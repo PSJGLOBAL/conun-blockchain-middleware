@@ -1,6 +1,10 @@
 const { Gateway } = require('fabric-network');
 const connectionOrg = require('../helper/conection')
 
+const Helper = require("../../common/helper");
+const { reject } = require('lodash');
+
+const logger = Helper.helper.getLogger("QueryDrive")
 
 
 class QueryDriveNetworkClass {
@@ -26,9 +30,9 @@ class QueryDriveNetworkClass {
         await this.gateway.disconnect();
     }
 
-    async allowance(fcn, ipfsHash, walletAddress) {
+    async allowance(fcn, ccid, walletAddress) {
         try {
-            let result = await this.contract.evaluateTransaction(fcn, ipfsHash, walletAddress);
+            let result = await this.contract.evaluateTransaction(fcn, ccid, walletAddress);
             console.log('result: ', result.toString())
             return result.toString();
         } catch (error) {
@@ -37,25 +41,36 @@ class QueryDriveNetworkClass {
         }
     }
 
-    async getTotalLikes(fcn, ipfsHash ) {
+    async getTotalLikes(fcn, ccid ) {
         try {
-            let result = await this.contract.evaluateTransaction(fcn, ipfsHash);
-            console.log('result: ', result.toString())
+            let result = await this.contract.evaluateTransaction(fcn, ccid);
+            logger.info('result: ', result.toString())
             return JSON.parse(result.toString());
         } catch (error) {
-            console.log(`Getting error: ${error}`)
+            logger.error(`Getting error: ${error}`)
             return false
         }
     }
 
-    async getTotalDownloads(fcn, ipfsHash ) {
+    async getTotalDownloads(fcn, ccid ) {
         try {
-            let result = await this.contract.evaluateTransaction(fcn, ipfsHash);
-            console.log('result: ', result.toString())
+            let result = await this.contract.evaluateTransaction(fcn, ccid);
+            logger.info('result: ', result.toString())
             return JSON.parse(result.toString());
         } catch (error) {
-            console.log(`Getting error: ${error}`)
+            logger.error(`Getting error: ${error}`)
             return false
+        }
+    }
+
+    async getFile(fcn, ccid, walletAddress) {
+        try {
+            let result = await this.contract.evaluateTransaction(fcn, ccid, walletAddress);
+            logger.info('result: ', result.toString());
+            return JSON.parse(result.toString());
+        } catch (error) {
+            logger.error(`getting Error: ${error}`);
+            return false;
         }
     }
 
@@ -63,12 +78,18 @@ class QueryDriveNetworkClass {
 
 
 module.exports = {
+    /**
+     * 
+     * @param {*} arg 
+     * @returns
+     * @memberof DriveQuery 
+     */
     AllowanceFile: async (arg) => {
         try {
             const queryDrive = new QueryDriveNetworkClass();
             await queryDrive.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
             return new Promise((resolve, reject) => {
-                queryDrive.allowance(arg.fcn, arg.ipfsHash, arg.walletAddress)
+                queryDrive.allowance(arg.fcn, arg.ccid, arg.walletAddress)
                     .then((response) =>  {
                         resolve(response);
                     }).catch((err) =>  {
@@ -83,17 +104,22 @@ module.exports = {
             return false
         }
     },
-
+    /**
+     * 
+     * @param {*} arg 
+     * @returns
+     * @memberof DriveQuery 
+     */
     GetTotalLikesFile: async (arg) => {
         try {
             const queryDrive = new QueryDriveNetworkClass();
             await queryDrive.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
             return new Promise((resolve, reject) => {
-                queryDrive.getTotalLikes(arg.fcn, arg.ipfsHash)
+                queryDrive.getTotalLikes(arg.fcn, arg.ccid)
                     .then((response) =>  {
                         resolve(response);
                     }).catch((err) =>  {
-                    console.log('err', err)
+                    logger.error('err', err)
                     reject(false)
                 }).finally(() => {
                     queryDrive.disconnect()
@@ -104,24 +130,55 @@ module.exports = {
             return false
         }
     },
-
+    /**
+     * 
+     * @param {*} arg 
+     * @returns
+     * @memberof DriveQuery 
+     */
     GetTotalDownloads: async (arg) => {
         try {
             const queryDrive = new QueryDriveNetworkClass();
             await queryDrive.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
             return new Promise((resolve, reject) => {
-                queryDrive.getTotalDownloads(arg.fcn, arg.ipfsHash)
+                queryDrive.getTotalDownloads(arg.fcn, arg.ccid)
                     .then((response) =>  {
                         resolve(response);
                     }).catch((err) =>  {
-                    console.log('err', err)
+                    logger.error('err', err)
                     reject(false)
                 }).finally(() => {
                     queryDrive.disconnect()
                 })
             })
         } catch (e) {
-            console.log('CreateFile: ', e)
+            logger.error('CreateFile: ', e)
+            return false
+        }
+    },
+    /**
+     * 
+     * @param {*} arg 
+     * @returns
+     * @memberof DriveQuery 
+     */
+    GetFile: async (arg) => {
+        try {
+            const queryDrive = new QueryDriveNetworkClass();
+            await queryDrive.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
+            return new Promise((resolve, reject) => {
+                queryDrive.getFile(arg.fcn, arg.ccid, arg.walletAddress)
+                .then((response) => {
+                    resolve(response);
+                }).catch((error) => {
+                    logger.error('error', error)
+                    reject(false)
+                }).finally(() => {
+                    queryDrive.disconnect()
+                })
+            })
+        } catch (e) {
+            logger.error('GetFile ', e)
             return false
         }
     }

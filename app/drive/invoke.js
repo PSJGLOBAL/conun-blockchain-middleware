@@ -77,6 +77,12 @@ class InvokeDriveNetworkClass {
 
 
 module.exports = {
+    /**
+     * 
+     * @param {*} arg 
+     * @returns 
+     * @memberof InvokeDrive
+     */
     CreateFile: async (arg) => {
        try {
            const driveNetwork = new InvokeDriveNetworkClass();
@@ -97,7 +103,12 @@ module.exports = {
            return false
        }
     },
-
+    /**
+     * 
+     * @param {*} arg 
+     * @returns 
+     * @memberof InvokeDrive
+     */
     ApproveFile: async (arg) => {
         try {
             logger.info('ApproveFile arg: ', arg);
@@ -120,7 +131,12 @@ module.exports = {
             return false
         }
     },
-
+    /**
+     * 
+     * @param {*} arg 
+     * @returns 
+     * @memberof InvokeDrive
+     */
     LikeContentFile: async (arg)  => {
         try {
             logger.info('LikeContentFile arg: ', arg,);
@@ -144,7 +160,12 @@ module.exports = {
         }
     },
 
-
+    /**
+     * 
+     * @param {*} arg 
+     * @returns 
+     * @memberof InvokeDrive
+     */
     CountDownloadsFile: async (arg)  => {
         try {
             logger.info('CountDownloadsFile arg: ', arg);
