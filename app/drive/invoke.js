@@ -27,9 +27,9 @@ class InvokeDriveNetworkClass {
         await this.gateway.disconnect();
     }
 
-    async _create(fcn, ipfsHash, authorWalletAddress) {
+    async _create(fcn, content) {
         try {
-            let result = await this.contract.submitTransaction(fcn, authorWalletAddress,ipfsHash);
+            let result = await this.contract.submitTransaction(fcn, JSON.stringify(content));
             return JSON.parse(result.toString());
         } catch (error) {
             logger.error(`Getting error: ${error}`)
@@ -37,7 +37,7 @@ class InvokeDriveNetworkClass {
         }
     }
 
-    async approve(fcn, ccid, author, spenders ) {
+    async approve(fcn, ccid, author, spenders) {
         try {
             let objSpender = {};
             for (const spender of spenders) {
@@ -51,9 +51,9 @@ class InvokeDriveNetworkClass {
         }
     }
 
-    async likeContent(fcn, ccid, walletAddress, args) {
+    async likeContent(fcn, action) {
         try {
-            let result = await this.contract.submitTransaction(fcn, ccid, walletAddress,JSON.stringify(args));
+            let result = await this.contract.submitTransaction(fcn, JSON.stringify(action));
             
             return JSON.parse(result.toString());
         } catch (error) {
@@ -63,9 +63,9 @@ class InvokeDriveNetworkClass {
     }
 
 
-    async countDownloads(fcn, ccid, walletAddress, args ) {
+    async countDownloads(fcn, action) {
         try {
-            let result = await this.contract.submitTransaction(fcn, ccid, walletAddress, JSON.stringify(args));
+            let result = await this.contract.submitTransaction(fcn, JSON.stringify(action));
             return JSON.parse(result.toString());
         } catch (error) {
             logger.error(`Getting error: ${error}`)
@@ -85,10 +85,11 @@ module.exports = {
      */
     CreateFile: async (arg) => {
        try {
+           logger.info('CreateFile arg: ', arg);
            const driveNetwork = new InvokeDriveNetworkClass();
            await driveNetwork.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
            return new Promise((resolve, reject) => {
-               driveNetwork._create(arg.fcn, arg.ipfsHash, arg.walletAddress)
+               driveNetwork._create(arg.fcn, arg.content)
                .then((response) =>  {
                    resolve(response);
                }).catch((err) =>  {
@@ -143,7 +144,7 @@ module.exports = {
             const driveNetwork = new InvokeDriveNetworkClass();
             await driveNetwork.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
             return new Promise((resolve, reject) => {
-                driveNetwork.likeContent(arg.fcn, arg.ccid, arg.walletAddress, arg.args)
+                driveNetwork.likeContent(arg.fcn, arg.action)
                     .then((response) =>  {
                         logger.info('likeContent response: ', response)
                         resolve(response);
@@ -172,7 +173,7 @@ module.exports = {
             const driveNetwork = new InvokeDriveNetworkClass();
             await driveNetwork.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
             return new Promise((resolve, reject) => {
-                driveNetwork.countDownloads(arg.fcn, arg.ccid, arg.walletAddress, arg.args)
+                driveNetwork.countDownloads(arg.fcn, arg.action)
                     .then((response) =>  {
                         logger.info('countDownloads response: ', response)
                         resolve(response);

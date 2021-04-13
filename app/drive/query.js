@@ -33,10 +33,10 @@ class QueryDriveNetworkClass {
     async allowance(fcn, ccid, walletAddress) {
         try {
             let result = await this.contract.evaluateTransaction(fcn, ccid, walletAddress);
-            console.log('result: ', result.toString())
+            logger.info('result: ', result.toString())
             return result.toString();
         } catch (error) {
-            console.log(`Getting error: ${error}`)
+            logger.info(`Getting error: ${error}`)
             return false
         }
     }
@@ -93,14 +93,14 @@ module.exports = {
                     .then((response) =>  {
                         resolve(response);
                     }).catch((err) =>  {
-                    console.log('err', err)
+                    logger.error('err', err)
                     reject(false)
                 }).finally(() => {
                     queryDrive.disconnect()
                 })
             })
         } catch (e) {
-            console.log('CreateFile: ', e)
+            logger.error('CreateFile: ', e)
             return false
         }
     },
@@ -126,7 +126,7 @@ module.exports = {
                 })
             })
         } catch (e) {
-            console.log('CreateFile: ', e)
+            logger.error('CreateFile: ', e)
             return false
         }
     },

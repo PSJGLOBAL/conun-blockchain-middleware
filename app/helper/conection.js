@@ -4,18 +4,21 @@ const { Wallets, DefaultEventHandlerStrategies  } = require('fabric-network');
 
 const ccpPath = path.resolve(__dirname, '../../', 'config', 'connection-org1.json');
 const appConfig = require("config")
+const Helper = require("../../common/helper")
 const DiscoveryOption =  appConfig.get('discoveryOption');
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
 const ccp = JSON.parse(ccpJSON);
 
+const logger = Helper.helper.getLogger("ConnectionOrg")
+
 async function connectionOrg(walletAddress, orgName) {
     try {
-        console.log('connectionOrg: ', walletAddress, orgName);
+        logger.info('connectionOrg: ', walletAddress, orgName);
 
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
-        console.log(`connectionOrg Wallet path: ${walletPath}`);
+        logger.info(`connectionOrg Wallet path: ${walletPath}`);
 
         // // Check to see if we've already enrolled the user.
         let identity = await wallet.get(walletAddress);
@@ -41,7 +44,7 @@ async function connectionOrg(walletAddress, orgName) {
         };
 
     } catch (e) {
-        console.log('connectionOrg Error: ', e);
+        logger.error('connectionOrg Error: ', e);
     }
 }
 

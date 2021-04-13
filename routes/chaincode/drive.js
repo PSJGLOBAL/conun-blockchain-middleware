@@ -35,8 +35,8 @@ function CallInvokeDrive(event, req) {
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.authorWalletAddress,
-                    ipfsHash : req.body.ipfsHash,
+                    walletAddress: req.body.content.author,
+                    content: req.body.content,
                 });
                 if(!result) reject(false);
                 resolve(result);
@@ -92,9 +92,8 @@ function CallInvokeDrive(event, req) {
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.walletAddress,
-                    ccid : req.body.ccid,
-                    args : req.body.args
+                    walletAddress: req.body.action.wallet,
+                    action : req.body.action
                 });
                 if(!result) reject(false);
                 resolve(result);
@@ -121,9 +120,8 @@ function CallInvokeDrive(event, req) {
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.walletAddress,
-                    ccid : req.body.ccid,
-                    args: req.body.args
+                    walletAddress: req.body.action.wallet,
+                    action: req.body.action
                 });
                 if(!result) reject(false);
                 resolve(result);
