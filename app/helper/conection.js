@@ -3,6 +3,8 @@ const path = require("path")
 const { Wallets, DefaultEventHandlerStrategies  } = require('fabric-network');
 
 const ccpPath = path.resolve(__dirname, '../../', 'config', 'connection-org1.json');
+const appConfig = require("config")
+const DiscoveryOption =  appConfig.get('discoveryOption');
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
 const ccp = JSON.parse(ccpJSON);
 
@@ -21,7 +23,7 @@ async function connectionOrg(walletAddress, orgName) {
         if (!identity) return;
 
         const connectOptions = {
-            wallet, identity: walletAddress, discovery: { enabled: true, asLocalhost: true },
+            wallet, identity: walletAddress, discovery: { enabled: true, asLocalhost: DiscoveryOption },
             eventHandlerOptions: {
                 commitTimeout: 100,
                 strategy: DefaultEventHandlerStrategies.NETWORK_SCOPE_ALLFORTX
@@ -29,7 +31,7 @@ async function connectionOrg(walletAddress, orgName) {
         }
 
         const queryConnectOptions = {
-            wallet, identity: walletAddress, discovery: { enabled: true, asLocalhost: true }
+            wallet, identity: walletAddress, discovery: { enabled: true, asLocalhost: DiscoveryOption }
         }
 
         return {
