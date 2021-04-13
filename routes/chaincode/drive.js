@@ -35,8 +35,8 @@ function CallInvokeDrive(event, req) {
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.authorWalletAddress,
-                    ipfsHash : req.body.ipfsHash,
+                    walletAddress: req.b ody.authorWalletAddress,
+                    content: req.body.content,
                 });
                 if(!result) reject(false);
                 resolve(result);

@@ -27,9 +27,9 @@ class InvokeDriveNetworkClass {
         await this.gateway.disconnect();
     }
 
-    async _create(fcn, ipfsHash, authorWalletAddress) {
+    async _create(fcn, content) {
         try {
-            let result = await this.contract.submitTransaction(fcn, authorWalletAddress,ipfsHash);
+            let result = await this.contract.submitTransaction(fcn, JSON.stringify(content));
             return JSON.parse(result.toString());
         } catch (error) {
             logger.error(`Getting error: ${error}`)
@@ -88,7 +88,7 @@ module.exports = {
            const driveNetwork = new InvokeDriveNetworkClass();
            await driveNetwork.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
            return new Promise((resolve, reject) => {
-               driveNetwork._create(arg.fcn, arg.ipfsHash, arg.walletAddress)
+               driveNetwork._create(arg.fcn, arg.content)
                .then((response) =>  {
                    resolve(response);
                }).catch((err) =>  {
