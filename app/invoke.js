@@ -1,12 +1,16 @@
 const { Gateway } = require('fabric-network');
-const connectionOrg = require('./helper/conection')
-
+const connectionOrg = require('./helper/conection');
+const config = require('config');
+const Web3 = require('web3');
+const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
+const web3 = new Web3(provider);
 
 module.exports = {
     Transfer: async (arg) => {
         try {
             console.log('>> Transfer: ', arg);
-            if(arg.walletAddress === arg.to) return false
+            console.log('Wei: ', web3.utils.toWei(arg.value));
+            if(arg.walletAddress === arg.to) return false;
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -15,12 +19,15 @@ module.exports = {
             // Get the network (channel) our contract is deployed to.
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
-
-            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress, arg.to, arg.value);
+            let _value = web3.utils.toWei(arg.value, 'ether');
+            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress, arg.to, _value);
             await gateway.disconnect();
-            return JSON.parse(result.toString());
+
+            let payload = JSON.parse(result.toString());
+            payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
+            return payload;
         } catch (error) {
-            console.log(`Getting error: ${error}`)
+            console.log(`Getting error: ${error}`);
             return false
         }
     },
@@ -37,11 +44,15 @@ module.exports = {
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
 
-            let result = await contract.submitTransaction(arg.fcn, arg.amount);
-
+            let _amount = web3.utils.toWei(arg.amount, 'ether');
+            let result = await contract.submitTransaction(arg.fcn, _amount);
             await gateway.disconnect();
 
-            return JSON.parse(result.toString());
+
+            let payload = JSON.parse(result.toString());
+            payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
+            payload.Func.Total = web3.utils.fromWei(payload.Func.Total, "ether");
+            return payload;
 
         } catch (error) {
             console.log(`Getting error: ${error}`)
@@ -61,11 +72,15 @@ module.exports = {
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
 
-            let result = await contract.submitTransaction(arg.fcn, arg.amount);
+            let _amount = web3.utils.toWei(arg.amount, 'ether');
+            let result = await contract.submitTransaction(arg.fcn, _amount);
 
             await gateway.disconnect();
 
-            return JSON.parse(result.toString());
+            let payload = JSON.parse(result.toString());
+            payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
+            payload.Func.Total = web3.utils.fromWei(payload.Func.Total, "ether");
+            return payload;
 
         } catch (error) {
             console.log(`Getting error: ${error}`)
@@ -94,6 +109,6 @@ module.exports = {
             return false
         }
     }
-}
+};
 
 

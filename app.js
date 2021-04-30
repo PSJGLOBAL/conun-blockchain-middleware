@@ -9,8 +9,7 @@ const constants = require('./config/constants.json');
 
 const Helper = require('./common/helper');
 
-
-const logger =Helper.helper.getLogger('app')
+const logger = Helper.helper.getLogger('app');
 
 app.use((req, res,next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -22,7 +21,8 @@ const corsOptions = {
     credentials: true,
     methods: "POST, PUT, OPTIONS, DELETE, GET",
     allowedHeaders: "X-Requested-With, Content-Type, x-auth-token"
-}
+};
+
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
@@ -57,6 +57,6 @@ const server = app.listen(process.env.PORT, () => {
     logger.info(`Server listening to ${process.env.PORT}`)
     console.log(`set ${process.env.PORT} port listening...`);
 });
-server.timeout = 240000
+server.timeout = 240000;
 
 module.exports = server;

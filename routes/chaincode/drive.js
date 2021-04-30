@@ -8,27 +8,27 @@ const queryDrive = require('../../app/drive/query');
 const Helper = require('../../common/helper');
 const events = require('events');
 
-const logger = Helper.helper.getLogger('DriveAPI')
+const logger = Helper.helper.getLogger('DriveAPI');
 
 function CallInvokeDrive(event, req) {
     const eventDeal = new events.EventEmitter();
     return new Promise(
         (resolve, reject) => {
 
-              /**
-             * CreateFile Content
-             * POST /ConunDrive/approve/ -> /channels/<channelName>/chaincodes/        <chainCodeName>
+            /**
+            * CreateFile Content
+            * POST /ConunDrive/approve/ -> /channels/<channelName>/chaincodes/        <chainCodeName>
 	        * curl -i 'http://<host>:<port>/api/v2/<channels>/<chaincode>'
-            * 
-            * Response 
+            *
+            * Response
             * {
             *     "Fcn": "CreateFile"
             *     "Success": true/false
             *     "TXid":"txid"
-            *     "Timestamp": "txTimestamp"  
-            * } 
-            * 
-             */
+            *     "Timestamp": "txTimestamp"
+            * }
+            *
+            */
             eventDeal.on('CreateFile', async () => {
                 let result = await invokeDrive.CreateFile({
                     channelName: req.params.channelName,
@@ -41,20 +41,20 @@ function CallInvokeDrive(event, req) {
                 if(!result) reject(false);
                 resolve(result);
             });
-        
-          /**
+
+            /**
             * Approve Content
             * GET /ConunDrive/approve/ -> /channels/<channelName>/chaincodes/        <chainCodeName>
 	        * curl -i 'http://<host>:<port>/api/v2/<channels>/<chaincode>'
-            * 
-            * Response 
+            *
+            * Response
             * {
             *     "Fcn": "Approve"
             *     "Success": true/false
             *     "TXid":"txid"
-            *     "Timestamp": "txTimestamp"  
-            * } 
-            * 
+            *     "Timestamp": "txTimestamp"
+            * }
+            *
             */
             eventDeal.on('Approve', async () => {
                 let result = await invokeDrive.ApproveFile({
@@ -71,20 +71,20 @@ function CallInvokeDrive(event, req) {
             });
 
 
-            
-          /**
+
+            /**
             * LikeContent Content
             * POST /ConunDrive/approve/ -> /channels/<channelName>/chaincodes/        <chainCodeName>
 	        * curl -i 'http://<host>:<port>/api/v2/<channels>/<chaincode>'
-            * 
-            * Response 
+            *
+            * Response
             * {
             *     "Fcn": "LikeContent"
             *     "Success": true/false
             *     "TXid":"txid"
-            *     "Timestamp": "txTimestamp"  
-            * } 
-            * 
+            *     "Timestamp": "txTimestamp"
+            * }
+            *
             */
             eventDeal.on('LikeContent', async () => {
                 let result = await invokeDrive.LikeContentFile({
@@ -100,20 +100,20 @@ function CallInvokeDrive(event, req) {
             });
 
 
-          /**
+            /**
             * CountDownloads Content
             * POST /ConunDrive/approve/ -> /channels/<channelName>/chaincodes/        <chainCodeName>
 	        * curl -i 'http://<host>:<port>/api/v2/<channels>/<chaincode>'
-            * 
-            * Response 
+            *
+            * Response
             * {
             *     "Fcn": "CountDownloads"
             *     "Success": true/false
             *     "TXid":"txid"
-            *     "Timestamp": "txTimestamp"  
-            * } 
-            * 
-             */
+            *     "Timestamp": "txTimestamp"
+            * }
+            *
+            */
             eventDeal.on('CountDownloads', async () => {
                 let result = await invokeDrive.CountDownloadsFile({
                     channelName: req.params.channelName,
@@ -144,16 +144,16 @@ function CallQueryDrive(event, req) {
         (resolve, reject) => {
 
 
-          /**
+            /**
             * Allowance Content
             * GET /ConunDrive/approve/ -> /channels/<channelName>/chaincodes/        <chainCodeName>
 	        * curl -i 'http://<host>:<port>/api/v2/<channels>/<chaincode>'
-            * 
-            * Response 
+            *
+            * Response
             * {
-            *     "bool" true/false 
-            * } 
-            * 
+            *     "bool" true/false
+            * }
+            *
             */
             eventQuery.on('Allowance', async () => {
                 let result = await queryDrive.AllowanceFile({
@@ -168,18 +168,18 @@ function CallQueryDrive(event, req) {
                 resolve(result);
             });
 
-            
-            
-          /**
+
+
+            /**
             * GetTotalLikes Content
             * GET /ConunDrive/approve/ -> /channels/<channelName>/chaincodes/        <chainCodeName>
 	        * curl -i 'http://<host>:<port>/api/v2/<channels>/<chaincode>'
-            * 
-            * Response 
+            *
+            * Response
             * {
-            *     "Count" totalLikes 
-            * } 
-            * 
+            *     "Count" totalLikes
+            * }
+            *
             */
 
             eventQuery.on('GetTotalLikes', async () => {
@@ -200,12 +200,12 @@ function CallQueryDrive(event, req) {
             * GetTotalDownloads Content
             * GET /ConunDrive/approve/ -> /channels/<channelName>/chaincodes/        <chainCodeName>
 	        * curl -i 'http://<host>:<port>/api/v2/<channels>/<chaincode>'
-            * 
-            * Response 
+            *
+            * Response
             * {
-            *     "Count" totalDownloads 
-            * } 
-            * 
+            *     "Count" totalDownloads
+            * }
+            *
             */
 
             eventQuery.on('GetTotalDownloads', async () => {
@@ -222,16 +222,16 @@ function CallQueryDrive(event, req) {
             });
 
 
-                        /**
+            /**
             * GetFile Content
             * GET /ConunDrive/approve/ -> /channels/<channelName>/chaincodes/        <chainCodeName>
 	        * curl -i 'http://<host>:<port>/api/v2/<channels>/<chaincode>'
-            * 
-            * Response 
+            *
+            * Response
             * {
-            *     "file" hashFile 
-            * } 
-            * 
+            *     "file" hashFile
+            * }
+            *
             */
 
             eventQuery.on('GetFile', async () => {
@@ -256,11 +256,10 @@ function CallQueryDrive(event, req) {
     )
 }
 
-router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
+router.post('/:channelName/:chainCodeName', async (req, res) => {
     try {
         CallInvokeDrive(req.body.fcn, req)
             .then((response) => {
-                    // logger.info('>> response: ', response)
                     res.status(200).json({
                             payload: response,
                             success: true,
@@ -269,18 +268,18 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
                     );
                 }
             ).catch((error) => {
-                logger.error('1/channels: ', error);
+            logger.error('CallInvokeDrive: 1', error);
             res.status(400).json({
-                    payload: error.message,
+                    payload: `Not active wallet or ${error}`,
                     success: false,
                     status: 400
                 }
             );
         });
     } catch (error) {
-        logger.error('2/channels: ', error);
+        logger.error('CallInvokeDrive 2:', error);
         res.status(400).json({
-            payload: error.message,
+            payload: error,
             success: false,
             status: 400
         })
@@ -288,11 +287,10 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
 });
 
 
-router.get('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
+router.get('/:channelName/:chainCodeName', async (req, res) => {
     try {
         CallQueryDrive(req.query.fcn, req)
             .then((response) => {
-                    // console.log('response: ', response);
                     res.status(200).json({
                         payload: response,
                         success: true,
@@ -300,6 +298,7 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) 
                     });
                 }
             ).catch((error) => {
+            logger.error('CallQueryDrive: 1', error);
             res.status(400).json({
                 payload: error.message,
                 success: false,
@@ -307,6 +306,7 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) 
             });
         });
     } catch (error) {
+        logger.error('CallQueryDrive: 2', error);
         res.status(400).json({
             payload: error.message,
             success: false,

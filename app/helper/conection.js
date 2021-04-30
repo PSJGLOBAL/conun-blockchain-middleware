@@ -6,10 +6,10 @@ const ccpPath = path.resolve(__dirname, '../../', 'config', 'connection-org1.jso
 const appConfig = require("config")
 const Helper = require("../../common/helper")
 const DiscoveryOption =  appConfig.get('discoveryOption');
-const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
+const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
-const logger = Helper.helper.getLogger("ConnectionOrg")
+const logger = Helper.helper.getLogger("ConnectionOrg");
 
 async function connectionOrg(walletAddress, orgName) {
     try {
@@ -31,11 +31,11 @@ async function connectionOrg(walletAddress, orgName) {
                 commitTimeout: 100,
                 strategy: DefaultEventHandlerStrategies.NETWORK_SCOPE_ALLFORTX
             },
-        }
+        };
 
         const queryConnectOptions = {
             wallet, identity: walletAddress, discovery: { enabled: true, asLocalhost: DiscoveryOption }
-        }
+        };
 
         return {
             ccp,

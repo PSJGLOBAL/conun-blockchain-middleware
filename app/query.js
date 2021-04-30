@@ -1,5 +1,9 @@
 const { Gateway } = require('fabric-network');
 const connectionOrg = require('./helper/conection')
+const config = require('config');
+const Web3 = require('web3');
+const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
+const web3 = new Web3(provider);
 
 module.exports = {
     BalanceOf: async (arg) => {
@@ -18,7 +22,7 @@ module.exports = {
 
             let result = await contract.evaluateTransaction(arg.fcn, arg.walletAddress);
             console.log(`Transaction has been evaluated, result is: ${result}`);
-            return result.toString();
+            return web3.utils.fromWei(result.toString(), "ether");
         } catch (error) {
             console.error(`Failed to evaluate transaction: ${error}`);
             return false

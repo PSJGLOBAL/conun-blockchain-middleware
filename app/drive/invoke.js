@@ -30,6 +30,7 @@ class InvokeDriveNetworkClass {
     async _create(fcn, content) {
         try {
             let result = await this.contract.submitTransaction(fcn, JSON.stringify(content));
+            console.log('result: ', result);
             return JSON.parse(result.toString());
         } catch (error) {
             logger.error(`Getting error: ${error}`)
@@ -53,8 +54,9 @@ class InvokeDriveNetworkClass {
 
     async likeContent(fcn, action) {
         try {
+            logger.info(`Getting action: ${action}`);
             let result = await this.contract.submitTransaction(fcn, JSON.stringify(action));
-            
+
             return JSON.parse(result.toString());
         } catch (error) {
             logger.error(`Getting error: ${error}`)
@@ -78,9 +80,9 @@ class InvokeDriveNetworkClass {
 
 module.exports = {
     /**
-     * 
-     * @param {*} arg 
-     * @returns 
+     *
+     * @param {*} arg
+     * @returns
      * @memberof InvokeDrive
      */
     CreateFile: async (arg) => {
@@ -92,22 +94,22 @@ module.exports = {
                driveNetwork._create(arg.fcn, arg.content)
                .then((response) =>  {
                    resolve(response);
-               }).catch((err) =>  {
-                   logger.error('err', err)
+               }).catch((err) => {
+                   logger.error('err', err);
                    reject(false)
                }).finally(() => {
                    driveNetwork.disconnect()
                })
            })
        } catch (e) {
-           logger.error('CreateFile: ', e)
+           logger.error('CreateFile: ', e);
            return false
        }
     },
     /**
-     * 
-     * @param {*} arg 
-     * @returns 
+     *
+     * @param {*} arg
+     * @returns
      * @memberof InvokeDrive
      */
     ApproveFile: async (arg) => {
@@ -133,38 +135,38 @@ module.exports = {
         }
     },
     /**
-     * 
-     * @param {*} arg 
-     * @returns 
+     *
+     * @param {*} arg
+     * @returns
      * @memberof InvokeDrive
      */
     LikeContentFile: async (arg)  => {
         try {
-            logger.info('LikeContentFile arg: ', arg,);
+            logger.info('LikeContentFile arg: ', arg);
             const driveNetwork = new InvokeDriveNetworkClass();
             await driveNetwork.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
             return new Promise((resolve, reject) => {
                 driveNetwork.likeContent(arg.fcn, arg.action)
                     .then((response) =>  {
-                        logger.info('likeContent response: ', response)
+                        logger.info('likeContent response: ', response);
                         resolve(response);
                     }).catch((err) =>  {
-                        logger.error('err', err)
+                        logger.error('err', err);
                     reject(false)
                 }).finally(() => {
                     driveNetwork.disconnect()
                 })
             })
         } catch (e) {
-            logger.error('LikeContentFile: ', e)
+            logger.error('LikeContentFile: ', e);
             return false
         }
     },
 
     /**
-     * 
-     * @param {*} arg 
-     * @returns 
+     *
+     * @param {*} arg
+     * @returns
      * @memberof InvokeDrive
      */
     CountDownloadsFile: async (arg)  => {

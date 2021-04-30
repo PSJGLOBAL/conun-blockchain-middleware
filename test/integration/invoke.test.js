@@ -73,7 +73,6 @@ describe('INVOKE CONX', () => {
                 toAddress = '0x44DAdf6479eC63Ebdd830417212055899Ab28142';
                 value = 0;
         });
-
         it('1 - test Transfer', async () => {
             fcn = '';
             orgName = '';
@@ -89,8 +88,8 @@ describe('INVOKE CONX', () => {
             fcn = 'aaaa';
             orgName = 'Org1';
             fromAddress = '0xEcf8f747B9fE34f286EcdAB6E3C6B2D6070d54AA';
-            toAddress = ''
-            value = 0.1
+            toAddress = '';
+            value = 0.1;
             const res = await execute();
             console.log('2 - test Transfer: ', res.body);
             expect(res.status).toBe(400);

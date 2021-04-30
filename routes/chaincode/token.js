@@ -117,7 +117,7 @@ function CallQuery(event, req) {
                 resolve(result)
             });
 
-            let status = eventQuery.emit(event)
+            let status = eventQuery.emit(event);
             if (!status) {
                 eventQuery.removeAllListeners();
                 reject(status);
@@ -127,7 +127,8 @@ function CallQuery(event, req) {
 }
 
 
-router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x509.verify, async (req, res) => {
+// router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x509.verify, async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
     console.log('>> req.body: ', req.body);
     try {
         CallInvoke(req.body.fcn, req)

@@ -7,7 +7,7 @@ var Tx = require('ethereumjs-tx').Transaction;
 
 const Web3 = require('web3');
 const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
-const ConContractAddress = config.get('ethereum.contract_address')
+const ConContractAddress = config.get('ethereum.contract_address');
 const web3 = new Web3(provider);
 
 var abijson = require('./abi.json');
@@ -277,20 +277,20 @@ module.exports = {
                     console.log('RAW: ', raw);
 
                     // Broadcast the transaction
-                    web3.eth.sendSignedTransaction(raw)
-                        // .on('transactionHash', function(hash){
-                        //     console.log('1 transactionHash: ', hash)
-                        //     resolve(hash);
-                        // })
-                        .on('receipt', function (tx) {
-                            if(tx)resolve(tx.transactionHash);
-                            else reject();
-                        });
+                    // web3.eth.sendSignedTransaction(raw)
+                    //     // .on('transactionHash', function(hash){
+                    //     //     console.log('1 transactionHash: ', hash)
+                    //     //     resolve(hash);
+                    //     // })
+                    //     .on('receipt', function (tx) {
+                    //         if(tx)resolve(tx.transactionHash);
+                    //         else reject();
+                    //     });
 
-                    // web3.eth.sendSignedTransaction(raw, (error, hash) => {
-                    //     if(error) reject(false);
-                    //     resolve(hash);
-                    // })
+                    web3.eth.sendSignedTransaction(raw, (error, hash) => {
+                        if(error) reject(false);
+                        resolve(hash);
+                    })
 
                 })
             }
@@ -346,20 +346,20 @@ module.exports = {
                         var raw = '0x' + serializedTx.toString('hex');
                         console.log('RAW: ', raw);
 
-                        web3.eth.sendSignedTransaction(raw)
-                            // .on('transactionHash', function(hash){
-                            //     console.log('1 transactionHash: ', hash)
-                            //     resolve(hash);
-                            // })
-                            .on('receipt', function (tx) {
-                                if(tx)resolve(tx.transactionHash);
-                                else reject();
-                            });
+                        // web3.eth.sendSignedTransaction(raw)
+                        //     // .on('transactionHash', function(hash){
+                        //     //     console.log('1 transactionHash: ', hash)
+                        //     //     resolve(hash);
+                        //     // })
+                        //     .on('receipt', function (tx) {
+                        //         if(tx)resolve(tx.transactionHash);
+                        //         else reject();
+                        //     });
 
-                        // web3.eth.sendSignedTransaction(raw, (error, hash) => {
-                        //     if(error) reject(false);
-                        //     resolve(hash);
-                        // })
+                        web3.eth.sendSignedTransaction(raw, (error, hash) => {
+                            if(error) reject(false);
+                            resolve(hash);
+                        })
                     });
                 }
             );
