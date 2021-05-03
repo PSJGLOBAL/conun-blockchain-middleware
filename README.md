@@ -97,3 +97,19 @@
         npm install
 
         node app.js
+
+4. Production Host gateway available:
+
+        sudo vim /etc/hosts
+
+
+        [blockchain_ip] peer0.org1.example.com
+        [blockchain_ip] peer1.org1.example.com
+        [blockchain_ip] orderer.example.com
+        [blockchain_ip] peer0.org2.example.com
+        [blockchain_ip] peer1.org2.example.com
+        [blockchain_ip] orderer2.example.com
+        [blockchain_ip] orderer3.example.com
+        [blockchain_ip] ca.org1.example.com
+        [blockchain_ip] ca.org2.example.com
+        [blockchain_ip] ca_orderer       

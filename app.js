@@ -8,7 +8,6 @@ const bodyParser = require('body-parser');
 const constants = require('./config/constants.json');
 
 const Helper = require('./common/helper');
-
 const logger = Helper.helper.getLogger('app');
 
 app.use((req, res,next) => {
@@ -45,7 +44,7 @@ app.get('/', async (req, res)  => {
     res.send({"msg": "server is working"})
 });
 
-console.log('process.env.NODE_ENV:  ', process.env.NODE_ENV);
+logger.info('process.env.NODE_ENV:  ', process.env.NODE_ENV);
 
 if (process.env.NODE_ENV === 'development') {
      process.env.PORT = "4040";
@@ -55,7 +54,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const server = app.listen(process.env.PORT, () => {
     logger.info(`Server listening to ${process.env.PORT}`)
-    console.log(`set ${process.env.PORT} port listening...`);
+    logger.info(`set ${process.env.PORT} port listening...`);
 });
 server.timeout = 240000;
 

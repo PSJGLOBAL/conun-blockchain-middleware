@@ -8,6 +8,9 @@ const owner = require('../../middleware/owner');
 const x509 = require('../../middleware/x509');
 const events = require('events');
 
+const Helper = require('../../common/helper');
+const logger = Helper.helper.getLogger('app');
+
 function CallInvoke(event, req) {
     const eventDeal = new events.EventEmitter();
     return new Promise(
@@ -141,7 +144,8 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
                         }
                     );
             }
-        ).catch((err) => {
+        ).catch((error) => {
+            logger.error('Token Post CallInvoke 1: ', error)
             res.status(400).json({
                     payload: err,
                     success: false,
@@ -150,6 +154,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
             );
         });
     } catch (error) {
+        logger.error('Token Post CallInvoke 2: ', err)
         res.status(400).json({
             payload: error.message,
             success: false,
@@ -160,12 +165,8 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
 
 router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
     try {
-        console.log('params: ', req.params);
-        console.log('query: ', req.query);
-        console.log('body: ', req.body);
         CallQuery(req.query.fcn, req)
             .then((response) => {
-                console.log('response: ', response);
                 res.status(200).json({
                     payload: response,
                     success: true,
@@ -173,6 +174,7 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req,
                 });
             }
         ).catch((error) => {
+            logger.error('Token Post CallQuery 1: ', error)
             res.status(400).json({
                 payload: error.message,
                 success: false,
@@ -180,6 +182,7 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req,
             });
         });
     } catch (error) {
+        logger.error('Token Post CallQuery 2: ', error)
         res.status(400).json({
             payload: error.message,
             success: false,
