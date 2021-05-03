@@ -12,7 +12,8 @@ function getKey(password) {
 module.exports = {
     AesEncrypt : (data, password) => {
         try {
-            let _getKey = getKey(password)
+            console.log('AesEn: ', data, password);
+            let _getKey = getKey(password);
             let cipher = crypto.createCipheriv('aes-256-cbc', _getKey.ENC_KEY, _getKey.IV);
             let encrypted = cipher.update(data, 'utf8', 'base64');
             encrypted += cipher.final('base64');

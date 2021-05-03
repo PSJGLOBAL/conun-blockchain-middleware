@@ -139,13 +139,14 @@ router.post('/importEthPk', async (req, res) => {
         console.log('/importEthPk: ', e);
         res.status(400).json({payload: `wallet error`, success: false, status: 400})
     }
-})
+});
 
 router.post('/importWallet', async (req, res) => {
     const { error } = validate(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
     let user = await User.findOne({ email: req.body.email, walletAddress: req.body.x509Identity.walletAddress });
+    console.log('user: ', user);
     if (!user)
         return res.status(400).json({payload: `User with this email: ${req.body.email} or wallet: ${req.body.walletAddress} is not belongs to you`, success: false, status: 400});
     try {

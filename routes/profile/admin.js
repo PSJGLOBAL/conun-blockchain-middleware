@@ -5,6 +5,7 @@ const _ = require('lodash');
 const auth = require('../../middleware/auth');
 const {User, validate} = require('../../models/profile/user');
 const helper = require('../../app/helper/token.helper');
+const web3Handlers = require('../../app/web3/eth.main');
 
 router.get('/me', auth, async (req, res) => {
     try {
@@ -19,8 +20,6 @@ router.post('/create', async (req, res) => {
     const { error } = validate(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
-    if (!req.body.isAdmin)
-        return res.status(400).json({payload: '-', success: false, status: 400 })
     let user = await User.findOne({ email: req.body.email });
     if (user)
         return res.status(400).json({payload: 'User already exist', success: false, status: 400});
@@ -28,17 +27,18 @@ router.post('/create', async (req, res) => {
         let orgName = req.body.orgName;
 
         const account = await web3Handlers.CreateAccountAdvanced(req.body.password);
+        console.log('web3Handlers account: ', account);
 
-        user = new User ({
+        user = new User({
             name: req.body.name,
             email: req.body.email,
             orgName: orgName,
             password: req.body.password,
             walletType: req.body.walletType,
             walletAddress: account.walletAddress,
-            isAdmin:  req.body.isAdmin
+            isAdmin:  true
         });
-        console.log('>> user: ', user);
+
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
@@ -46,11 +46,10 @@ router.post('/create', async (req, res) => {
             walletAddress: account.walletAddress,
             orgName,
             walletType: req.body.walletType,
-            privateKey: account.stringKeystore,
+            keyStore: account.stringKeystore,
             password: req.body.password
         });
         if(x509Identity) await user.save();
-
         if (typeof x509Identity !== 'string') {
             res.status(201).json({payload: {user: _.pick(user, ['_id', 'name', 'email', 'walletAddress']), x509Identity}, success: true, status: 201})
         } else {
@@ -66,15 +65,22 @@ router.post('/create', async (req, res) => {
 router.post('/importEthPk', async (req, res) => {
     const { error } = validate(req.body);
     if (error)
-        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
-    if (!req.body.isAdmin)
-        return res.status(400).json({payload: '-', success: false, status: 400 })
+        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
     let user = await User.findOne({ email: req.body.email });
     if (user)
         return res.status(400).json({payload: 'User already exist', success: false, status: 400});
     try {
         let orgName = req.body.orgName;
         const account = await web3Handlers.ImportAccountByPrivateKey(req.body.privateKey, req.body.password);
+
+        let wallet = await User.findOne({ walletAddress: account.walletAddress });
+        if (wallet)
+            return res.status(400).json(
+                {
+                    payload: `User with this wallet address ${account.walletAddress} already exist, please import your wallet and try again`,
+                    success: false,
+                    status: 400
+                });
 
         user = new User({
             name: req.body.name,
@@ -83,9 +89,8 @@ router.post('/importEthPk', async (req, res) => {
             password: req.body.password,
             walletType: req.body.walletType,
             walletAddress: account.walletAddress,
-            isAdmin:  req.body.isAdmin
+            isAdmin: true
         });
-        console.log('>> user: ', user);
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
@@ -93,7 +98,7 @@ router.post('/importEthPk', async (req, res) => {
             walletAddress: account.walletAddress,
             orgName,
             walletType: req.body.walletType,
-            privateKey: account.stringKeystore,
+            keyStore: account.stringKeystore,
             password: req.body.password
         });
 
@@ -124,7 +129,7 @@ router.post('/importWallet', async (req, res) => {
             orgName,
             password: req.body.password,
             walletType: req.body.walletType,
-            walletAddress: req.body.walletAddress,
+            walletAddress: req.body.x509Identity.walletAddress,
             x509Identity: req.body.x509Identity,
         });
 
