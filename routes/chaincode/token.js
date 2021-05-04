@@ -9,7 +9,7 @@ const x509 = require('../../middleware/x509');
 const events = require('events');
 
 const Helper = require('../../common/helper');
-const logger = Helper.helper.getLogger('app');
+const logger = Helper.helper.getLogger('TokenAPI');
 
 function CallInvoke(event, req) {
     const eventDeal = new events.EventEmitter();
@@ -132,7 +132,6 @@ function CallQuery(event, req) {
 
 // router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x509.verify, async (req, res) => {
 router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
-    console.log('>> req.body: ', req.body);
     try {
         CallInvoke(req.body.fcn, req)
             .then((response) => {
@@ -145,7 +144,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
                     );
             }
         ).catch((error) => {
-            logger.error('Token Post CallInvoke 1: ', error)
+            logger.error(`Token Post CallInvoke 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
             res.status(400).json({
                     payload: err,
                     success: false,
@@ -154,7 +153,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
             );
         });
     } catch (error) {
-        logger.error('Token Post CallInvoke 2: ', err)
+        logger.error(`Token Post CallInvoke 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
         res.status(400).json({
             payload: error.message,
             success: false,
@@ -174,7 +173,7 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req,
                 });
             }
         ).catch((error) => {
-            logger.error('Token Post CallQuery 1: ', error)
+            logger.error(`Token Post CallQuery 1: Type: ${req.query.fcn} Reqeest: ${req.query}`, error)
             res.status(400).json({
                 payload: error.message,
                 success: false,
@@ -182,7 +181,7 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req,
             });
         });
     } catch (error) {
-        logger.error('Token Post CallQuery 2: ', error)
+        logger.error(`Token Post CallQuery 2: Type: ${req.query.fcn} Reqeest: ${req.query}`, error)
         res.status(400).json({
             payload: error.message,
             success: false,

@@ -1,7 +1,7 @@
 const { Gateway } = require('fabric-network');
 const connectionOrg = require('../helper/conection');
-const Helper = require("../../common/helper");
 
+const Helper = require("../../common/helper");
 const logger = Helper.helper.getLogger("InvokeDrive")
 
 class InvokeDriveNetworkClass {
@@ -33,7 +33,7 @@ class InvokeDriveNetworkClass {
             console.log('result: ', result);
             return JSON.parse(result.toString());
         } catch (error) {
-            logger.error(`Getting error: ${error}`)
+            logger.error(`_create error: ${error}, Function: ${fcn}, Action: ${action}`);
             return false
         }
     }
@@ -46,8 +46,8 @@ class InvokeDriveNetworkClass {
                 objSpender[spender] = JSON.parse(result.toString());
             }
             return objSpender
-        } catch (e) {
-            logger.error(`Getting error: ${error}`)
+        } catch (error) {
+            logger.error(`approve error: ${error}, Function: ${fcn}, Action: ${action}`);
             return false
         }
     }
@@ -59,7 +59,7 @@ class InvokeDriveNetworkClass {
 
             return JSON.parse(result.toString());
         } catch (error) {
-            logger.error(`Getting error: ${error}`)
+            logger.error(`likeContent error: ${error}, Function: ${fcn}, Action: ${action}`);
             return false
         }
     }
@@ -70,7 +70,7 @@ class InvokeDriveNetworkClass {
             let result = await this.contract.submitTransaction(fcn, JSON.stringify(action));
             return JSON.parse(result.toString());
         } catch (error) {
-            logger.error(`Getting error: ${error}`)
+            logger.error(`countDownloads error: ${error}, Function: ${fcn}, Action: ${action}`);
             return false
         }
     }
@@ -87,23 +87,22 @@ module.exports = {
      */
     CreateFile: async (arg) => {
        try {
-           logger.info('CreateFile arg: ', arg);
            const driveNetwork = new InvokeDriveNetworkClass();
            await driveNetwork.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
            return new Promise((resolve, reject) => {
                driveNetwork._create(arg.fcn, arg.content)
                .then((response) =>  {
                    resolve(response);
-               }).catch((err) => {
-                   logger.error('err', err);
+               }).catch((error) => {
+                   logger.error(`CreateFile 1: ${error}`, arg);
                    reject(false)
                }).finally(() => {
                    driveNetwork.disconnect()
                })
            })
-       } catch (e) {
-           logger.error('CreateFile: ', e);
-           return false
+       } catch (error) {
+            logger.error(`CreateFile: Failed to evaluate transaction 2: ${error}`, arg);
+            return false
        }
     },
     /**
@@ -114,7 +113,6 @@ module.exports = {
      */
     ApproveFile: async (arg) => {
         try {
-            logger.info('ApproveFile arg: ', arg);
             const driveNetwork = new InvokeDriveNetworkClass();
             await driveNetwork.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.author);
             return new Promise((resolve, reject) => {
@@ -122,15 +120,15 @@ module.exports = {
                     .then((response) =>  {
                         logger.info('approve response: ', response)
                         resolve(response);
-                    }).catch((err) =>  {
-                        logger.error('err', err)
+                    }).catch((error) =>  {
+                        logger.error(`ApproveFile 1: ${error}`, arg);
                     reject(false)
                 }).finally(() => {
                     driveNetwork.disconnect()
                 })
             })
-        } catch (e) {
-            logger.error('CreateFile: ', e)
+        } catch (error) {
+            logger.error(`ApproveFile: Failed to evaluate transaction 2: ${error}`, arg);
             return false
         }
     },
@@ -142,23 +140,21 @@ module.exports = {
      */
     LikeContentFile: async (arg)  => {
         try {
-            logger.info('LikeContentFile arg: ', arg);
             const driveNetwork = new InvokeDriveNetworkClass();
             await driveNetwork.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
             return new Promise((resolve, reject) => {
                 driveNetwork.likeContent(arg.fcn, arg.action)
                     .then((response) =>  {
-                        logger.info('likeContent response: ', response);
                         resolve(response);
-                    }).catch((err) =>  {
-                        logger.error('err', err);
+                    }).catch((error) =>  {
+                        logger.error(`LikeContentFile 1: ${error}`, arg);
                     reject(false)
                 }).finally(() => {
                     driveNetwork.disconnect()
                 })
             })
-        } catch (e) {
-            logger.error('LikeContentFile: ', e);
+        } catch (error) {
+            logger.error(`LikeContentFile: Failed to evaluate transaction 2: ${error}`, arg);
             return false
         }
     },
@@ -171,23 +167,21 @@ module.exports = {
      */
     CountDownloadsFile: async (arg)  => {
         try {
-            logger.info('CountDownloadsFile arg: ', arg);
             const driveNetwork = new InvokeDriveNetworkClass();
             await driveNetwork.connect(arg.orgName, arg.channelName, arg.chainCodeName, arg.walletAddress);
             return new Promise((resolve, reject) => {
                 driveNetwork.countDownloads(arg.fcn, arg.action)
                     .then((response) =>  {
-                        logger.info('countDownloads response: ', response)
                         resolve(response);
-                    }).catch((err) =>  {
-                        logger.error('err', err)
-                    reject(false)
+                    }).catch((error) =>  {
+                        logger.error(`CountDownloadsFile 1: ${error}`, arg);
+                        reject(false)
                 }).finally(() => {
                     driveNetwork.disconnect()
                 })
             })
-        } catch (e) {
-            logger.error('CountDownloadsFile: ', e)
+        } catch (error) {
+            logger.error(`CountDownloadsFile: Failed to evaluate transaction 2: ${error}`, arg);
             return false
         }
     }

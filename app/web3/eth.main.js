@@ -85,7 +85,7 @@ module.exports = {
             (resolve, reject) => {
                 let getKeystore = web3.eth.accounts.encrypt(privateKey, password);
                 let account = web3.eth.accounts.privateKeyToAccount(privateKey);
-                console.log('address: ', account)
+                logger.info(`ImportAccountByPrivateKey: privateKey: ${privateKey}, password: ${password} `, account);
                 if (getKeystore) {
                     let data = {
                         walletAddress: account.address,

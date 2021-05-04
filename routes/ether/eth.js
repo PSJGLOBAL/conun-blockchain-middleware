@@ -6,8 +6,10 @@ const x509 = require('../../middleware/x509');
 const Eth = require('../../app/web3/eth.main');
 const helper = require('../../app/helper/token.helper');
 
+const Helper = require("../../common/helper");
+const logger = Helper.helper.getLogger("EtherAPI")
+
 router.post('/SendETH', async (req, res) => {
-    console.log('req ETH: ', req.body)
     helper.getUserIdentity({
         orgName: req.body.orgName,
         walletAddress: req.body.fromAddress,
@@ -23,18 +25,18 @@ router.post('/SendETH', async (req, res) => {
                 gasPrice: req.body.gasPrice,
                 privateKey: result.privateKey
             }).then((txHash) => {
-                    console.log('txHash: ', txHash)
                     res.status(200).json({
                         payload: txHash,
                         success: true,
                         status: 200
                     });
                 }).catch((error) => {
-                res.status(400).json({
-                    payload: error,
-                    success: false,
-                    status: 400
-                });
+                    logger.error(`SendETH: Reqeest: ${req.body} `, error);    
+                    res.status(400).json({
+                        payload: error,
+                        success: false,
+                        status: 400
+                    });
             })
         })
     })
@@ -56,13 +58,13 @@ router.post('/SendCON', async (req, res) => {
                 gasPrice: req.body.gasPrice,
                 privateKey: result.privateKey
             }).then((txHash) => {
-                console.log('txHash: ', txHash);
                 res.status(200).json({
                     payload: txHash,
                     success: true,
                     status: 200
                 });
             }).catch((error) => {
+                logger.error(`SendCON: Reqeest: ${req.body} `, error);
                 res.status(400).json({
                     payload: error,
                     success: false,
@@ -77,13 +79,13 @@ router.post('/SendCON', async (req, res) => {
 router.get('/getBalanceOfEth', async (req, res) => {
     Eth.getBalanceOfEth(req.query.walletAddress)
         .then((balance) => {
-          console.log('balance: ', balance)
           res.status(200).json({
               payload: balance,
               success: true,
               status: 200
           });
       }).catch((error) => {
+          logger.error(`getBalanceOfEth: Reqeest: ${req.query} `, error);
           res.status(400).json({
               payload: error,
               success: false,
@@ -96,18 +98,18 @@ router.get('/getBalanceOfEth', async (req, res) => {
 router.get('/getBalanceOfCon', async (req, res) => {
     Eth.getBalanceOfCon(req.query.walletAddress)
         .then((balance) => {
-            console.log('balance: ', balance)
             res.status(200).json({
                 payload: balance,
                 success: true,
                 status: 200
             });
         }).catch((error) => {
-        res.status(400).json({
-            payload: error,
-            success: false,
-            status: 400
-        });
+            logger.error(`getBalanceOfEth: Reqeest: ${req.query} `, error);    
+            res.status(400).json({
+                payload: error,
+                success: false,
+                status: 400
+            });
     })
 })
 
@@ -117,18 +119,18 @@ router.get('/getTransactionFeeETH', async (req, res) => {
         toAddress: req.query.toAddress
     })
         .then((fee) => {
-            console.log('TxFee: ', fee)
             res.status(200).json({
                 payload: fee,
                 success: true,
                 status: 200
             });
         }).catch((error) => {
-        res.status(400).json({
-            payload: error,
-            success: false,
-            status: 400
-        });
+            logger.error(`getTransactionFeeETH: Reqeest: ${req.query} `, error);   
+            res.status(400).json({
+                payload: error,
+                success: false,
+                status: 400
+            });
     })
 })
 
@@ -139,18 +141,18 @@ router.get('/getTransactionFeeCON', async (req, res) => {
         value: req.query.value
     })
         .then((fee) => {
-            console.log('tx Fee: ', fee)
             res.status(200).json({
                 payload: fee,
                 success: true,
                 status: 200
             });
         }).catch((error) => {
-        res.status(400).json({
-            payload: error,
-            success: false,
-            status: 400
-        });
+            logger.error(`getTransactionFeeCON: Reqeest: ${req.query} `, error);
+            res.status(400).json({
+                payload: error,
+                success: false,
+                status: 400
+            });
     })
 })
 

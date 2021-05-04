@@ -11,8 +11,6 @@ const logger = Helper.helper.getLogger('app');
 module.exports = {
     Transfer: async (arg) => {
         try {
-            logger.info('>> Transfer: ', arg);
-            logger.info('Wei: ', web3.utils.toWei(arg.value));
             if(arg.walletAddress === arg.to) return false;
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
@@ -30,7 +28,7 @@ module.exports = {
             payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
             return payload;
         } catch (error) {
-            logger.error(`Getting error: ${error}`);
+            logger.error(`Transfer - Getting error: ${error}`, arg);
             return false
         }
     },
@@ -58,7 +56,7 @@ module.exports = {
             return payload;
 
         } catch (error) {
-            logger.error(`Getting error: ${error}`)
+            logger.error(`Burn - Getting error: ${error}`, arg)
             return false
         }
     },
@@ -86,7 +84,7 @@ module.exports = {
             return payload;
 
         } catch (error) {
-            logger.error(`Getting error: ${error}`)
+            logger.error(`Mint - Getting error: ${error}`, arg)
             return false
         }
     },
@@ -109,7 +107,7 @@ module.exports = {
             logger.info('>> Init result: ', JSON.parse(result.toString()));    
             return JSON.parse(result.toString());
         } catch (error) {
-            logger.error(`Getting error: ${error}`)
+            logger.error(`Init - Getting error: ${error}`, arg)
             return false
         }
     }

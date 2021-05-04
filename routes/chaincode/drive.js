@@ -5,9 +5,9 @@ const owner = require('../../middleware/owner');
 const x509 = require('../../middleware/x509');
 const invokeDrive = require('../../app/drive/invoke');
 const queryDrive = require('../../app/drive/query');
-const Helper = require('../../common/helper');
 const events = require('events');
 
+const Helper = require('../../common/helper');
 const logger = Helper.helper.getLogger('DriveAPI');
 
 function CallInvokeDrive(event, req) {
@@ -268,7 +268,7 @@ router.post('/:channelName/:chainCodeName', async (req, res) => {
                     );
                 }
             ).catch((error) => {
-            logger.error('CallInvokeDrive: 1', error);
+            logger.error(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
             res.status(400).json({
                     payload: `Not active wallet or ${error}`,
                     success: false,
@@ -277,7 +277,7 @@ router.post('/:channelName/:chainCodeName', async (req, res) => {
             );
         });
     } catch (error) {
-        logger.error('CallInvokeDrive 2:', error);
+        logger.error(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
         res.status(400).json({
             payload: error,
             success: false,
@@ -298,7 +298,7 @@ router.get('/:channelName/:chainCodeName', async (req, res) => {
                     });
                 }
             ).catch((error) => {
-            logger.error('CallQueryDrive: 1', error);
+            logger.error(`Drive Post CallQueryDrive 1: Type: ${req.query.fcn} Reqeest: ${req.query} `, error);
             res.status(400).json({
                 payload: error.message,
                 success: false,
@@ -306,7 +306,7 @@ router.get('/:channelName/:chainCodeName', async (req, res) => {
             });
         });
     } catch (error) {
-        logger.error('CallQueryDrive: 2', error);
+        logger.error(`Drive Post CallQueryDrive 2: Type: ${req.query.fcn} Reqeest: ${req.query} `, error);
         res.status(400).json({
             payload: error.message,
             success: false,

@@ -1,8 +1,6 @@
 // logger impl
 const log4js = require('log4js');
 
-
-
 class helper {
     static getLogger(modulName) {
         const logger = log4js.getLogger(modulName);
@@ -48,4 +46,11 @@ class helper {
         return logger;
     }
 }
+
+const logger = helper.getLogger('uncaughtException');
+
+process.on('uncaughtException', ex => {
+    logger.error('>> uncaughtException: ', ex);
+})
+
 exports.helper = helper;
