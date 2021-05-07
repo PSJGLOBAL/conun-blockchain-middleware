@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
             'x-auth-token': token,
             user: _.pick(user, ['_id', 'name', 'email', 'wallet_address'])
         },
-        success: false,
+        success: true,
         status: 200
     });
 });

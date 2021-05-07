@@ -9,7 +9,7 @@ const DiscoveryOption =  appConfig.get('discoveryOption');
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
-const logger = Helper.helper.getLogger("ConnectionOrg");
+const logger = Helper.getLogger("ConnectionOrg");
 
 async function connectionOrg(walletAddress, orgName) {
     try {

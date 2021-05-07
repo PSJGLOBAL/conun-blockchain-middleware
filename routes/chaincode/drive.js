@@ -8,7 +8,7 @@ const queryDrive = require('../../app/drive/query');
 const events = require('events');
 
 const Helper = require('../../common/helper');
-const logger = Helper.helper.getLogger('DriveAPI');
+const logger = Helper.getLogger('DriveAPI');
 
 function CallInvokeDrive(event, req) {
     const eventDeal = new events.EventEmitter();
@@ -38,8 +38,8 @@ function CallInvokeDrive(event, req) {
                     walletAddress: req.body.content.author,
                     content: req.body.content,
                 });
-                if(!result) reject(false);
-                resolve(result);
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
             /**
@@ -66,8 +66,8 @@ function CallInvokeDrive(event, req) {
                     ccid : req.body.ccid,
                     spenders : req.body.spenders
                 });
-                if(!result) reject(false);
-                resolve(result);
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
 
@@ -95,8 +95,9 @@ function CallInvokeDrive(event, req) {
                     walletAddress: req.body.action.wallet,
                     action : req.body.action
                 });
-                if(!result) reject(false);
-                resolve(result);
+                console.log('LikeContent result: ', result);
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
 
@@ -123,15 +124,15 @@ function CallInvokeDrive(event, req) {
                     walletAddress: req.body.action.wallet,
                     action: req.body.action
                 });
-                if(!result) reject(false);
-                resolve(result);
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
 
             let status = eventDeal.emit(event);
             if (!status) {
                 eventDeal.removeAllListeners();
-                reject(status);
+                reject('not valid request to chain-code');
             }
         }
     )
@@ -164,8 +165,8 @@ function CallQueryDrive(event, req) {
                     walletAddress: req.query.walletAddress,
                     ccid : req.query.ccid
                 });
-                if(!result) reject(false);
-                resolve(result);
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
 
@@ -191,8 +192,8 @@ function CallQueryDrive(event, req) {
                 walletAddress: req.query.walletAddress,
                 ccid : req.query.ccid
             });
-            if(!result) reject(false);
-            resolve(result);
+            if(!result.status) reject(result.message);
+            resolve(result.message);
             });
 
 
@@ -217,8 +218,8 @@ function CallQueryDrive(event, req) {
                 walletAddress: req.query.walletAddress,
                 ccid : req.query.ccid
             });
-            if(!result) reject(false);
-            resolve(result);
+            if(!result.status) reject(result.message);
+            resolve(result.message);
             });
 
 
@@ -243,14 +244,14 @@ function CallQueryDrive(event, req) {
                 walletAddress: req.query.walletAddress,
                 ccid : req.query.ccid
             });
-            if(!result) reject(false);
-            resolve(result);
+            if(!result.status) reject(result.message);
+            resolve(result.message);
             });
 
             let status = eventQuery.emit(event);
             if (!status) {
                 eventQuery.removeAllListeners();
-                reject(status);
+                reject('not valid request to chain-code');
             }
         }
     )
@@ -268,18 +269,20 @@ router.post('/:channelName/:chainCodeName', async (req, res) => {
                     );
                 }
             ).catch((error) => {
+            console.log(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
             logger.error(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
             res.status(400).json({
-                    payload: `Not active wallet or ${error}`,
+                    payload: error,
                     success: false,
                     status: 400
                 }
             );
         });
     } catch (error) {
+        console.log(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
         logger.error(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
         res.status(400).json({
-            payload: error,
+            payload: error.message,
             success: false,
             status: 400
         })
@@ -300,7 +303,7 @@ router.get('/:channelName/:chainCodeName', async (req, res) => {
             ).catch((error) => {
             logger.error(`Drive Post CallQueryDrive 1: Type: ${req.query.fcn} Reqeest: ${req.query} `, error);
             res.status(400).json({
-                payload: error.message,
+                payload: error,
                 success: false,
                 status: 400
             });

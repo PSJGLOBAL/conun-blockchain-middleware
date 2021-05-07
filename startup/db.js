@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const config = require('config');
 const Helper = require('../common/helper');
 
-const logger = Helper.helper.getLogger('MongoDB')
+const logger = Helper.getLogger('MongoDB')
 
 module.exports = function () {
     mongoose.connect(config.get('db'), { useNewUrlParser: true, useUnifiedTopology: true })

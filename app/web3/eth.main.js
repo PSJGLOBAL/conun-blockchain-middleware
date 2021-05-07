@@ -18,6 +18,9 @@ var apijson = JSON.stringify(jsonload);
 const fs = require('fs');
 apiurl = JSON.parse(apijson);
 
+const Helper = require('../../common/helper');
+const logger = Helper.getLogger('app');
+
 //https://ethereum.stackexchange.com/questions/70832/signing-transactions-with-web3-js
 
 module.exports = {
@@ -162,7 +165,7 @@ module.exports = {
 
         await web3.eth.getGasPrice().then((result) => {
             data.gasPrice = web3.utils.fromWei(result, 'gwei');
-            console.log('getGasPrice: ', typeof data.gasPrice)
+            console.log('getGasPrice: ', data.gasPrice)
         });
 
         return {

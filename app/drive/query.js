@@ -4,7 +4,19 @@ const connectionOrg = require('../helper/conection')
 const Helper = require("../../common/helper");
 const { reject } = require('lodash');
 
-const logger = Helper.helper.getLogger("QueryDrive")
+const logger = Helper.getLogger("QueryDrive");
+
+function splitString(msg) {
+    try {
+        const [name, error] = msg.split('\n');
+        const [peer, status, message] = error.split(', ');
+        console.log('name + message: ', name + message)
+        return name + message
+    } catch (e) {
+        console.log('splitString err: ', e);
+        return msg
+    }
+}
 
 
 class QueryDriveNetworkClass {
@@ -34,10 +46,16 @@ class QueryDriveNetworkClass {
         try {
             let result = await this.contract.evaluateTransaction(fcn, ccid, walletAddress);
             logger.info('result: ', result.toString())
-            return result.toString();
+            return {
+                status: true,
+                message: result.toString()
+            }
         } catch (error) {
-            logger.info(`Getting error: ${error}`)
-            return false
+            logger.error(`allowance error: ${error.message}, fcn: ${fcn}, ccid: ${ccid}, walletAddress: ${walletAddress} `);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 
@@ -45,10 +63,16 @@ class QueryDriveNetworkClass {
         try {
             let result = await this.contract.evaluateTransaction(fcn, ccid);
             logger.info('result: ', result.toString())
-            return JSON.parse(result.toString());
+            return {
+                status: true,
+                message: JSON.parse(result.toString())
+            }
         } catch (error) {
-            logger.error(`Getting error: ${error}`)
-            return false
+            logger.error(`getTotalLikes error: ${error.message}, fcn: ${fcn}, ccid: ${ccid}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 
@@ -56,10 +80,16 @@ class QueryDriveNetworkClass {
         try {
             let result = await this.contract.evaluateTransaction(fcn, ccid);
             logger.info('result: ', result.toString())
-            return JSON.parse(result.toString());
+            return {
+                status: true,
+                message: JSON.parse(result.toString())
+            }
         } catch (error) {
-            logger.error(`Getting error: ${error}`)
-            return false
+            logger.error(`getTotalDownloads error: ${error.message}, fcn: ${fcn}, ccid: ${ccid}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 
@@ -67,10 +97,16 @@ class QueryDriveNetworkClass {
         try {
             let result = await this.contract.evaluateTransaction(fcn, ccid, walletAddress);
             logger.info('result: ', result.toString());
-            return JSON.parse(result.toString());
+            return {
+                status: true,
+                message: JSON.parse(result.toString())
+            }
         } catch (error) {
-            logger.error(`getting Error: ${error}`);
-            return false;
+            logger.error(`getFile error: ${error.message}, fcn: ${fcn}, ccid: ${ccid}, walletAddress: ${walletAddress}` );
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 
@@ -79,10 +115,10 @@ class QueryDriveNetworkClass {
 
 module.exports = {
     /**
-     * 
-     * @param {*} arg 
+     *
+     * @param {*} arg
      * @returns
-     * @memberof DriveQuery 
+     * @memberof DriveQuery
      */
     AllowanceFile: async (arg) => {
         try {
@@ -92,23 +128,26 @@ module.exports = {
                 queryDrive.allowance(arg.fcn, arg.ccid, arg.walletAddress)
                     .then((response) =>  {
                         resolve(response);
-                    }).catch((err) =>  {
-                    logger.error('err', err)
-                    reject(false)
+                    }).catch((error) =>  {
+                    logger.error(`AllowanceFile 1: ${error}`, arg);
+                    reject(error)
                 }).finally(() => {
                     queryDrive.disconnect()
                 })
             })
-        } catch (e) {
-            logger.error('CreateFile: ', e)
-            return false
+        } catch (error) {
+            logger.error(`AllowanceFile 2: ${error}`, arg);
+            return {
+                status: false,
+                message: error
+            }
         }
     },
     /**
-     * 
-     * @param {*} arg 
+     *
+     * @param {*} arg
      * @returns
-     * @memberof DriveQuery 
+     * @memberof DriveQuery
      */
     GetTotalLikesFile: async (arg) => {
         try {
@@ -118,23 +157,26 @@ module.exports = {
                 queryDrive.getTotalLikes(arg.fcn, arg.ccid)
                     .then((response) =>  {
                         resolve(response);
-                    }).catch((err) =>  {
-                    logger.error('err', err)
-                    reject(false)
+                    }).catch((error) =>  {
+                    logger.error(`AllowanceFile 1: ${error}`, arg);
+                    reject(error)
                 }).finally(() => {
                     queryDrive.disconnect()
                 })
             })
-        } catch (e) {
-            logger.error('CreateFile: ', e)
-            return false
+        } catch (error) {
+            logger.error(`AllowanceFile 2: ${error}`, arg);
+            return {
+                status: false,
+                message: error
+            }
         }
     },
     /**
-     * 
-     * @param {*} arg 
+     *
+     * @param {*} arg
      * @returns
-     * @memberof DriveQuery 
+     * @memberof DriveQuery
      */
     GetTotalDownloads: async (arg) => {
         try {
@@ -144,23 +186,26 @@ module.exports = {
                 queryDrive.getTotalDownloads(arg.fcn, arg.ccid)
                     .then((response) =>  {
                         resolve(response);
-                    }).catch((err) =>  {
-                    logger.error('err', err)
-                    reject(false)
+                    }).catch((error) =>  {
+                    logger.error(`GetTotalDownloads 1: ${error}`, arg);
+                    reject(error)
                 }).finally(() => {
                     queryDrive.disconnect()
                 })
             })
-        } catch (e) {
-            logger.error('CreateFile: ', e)
-            return false
+        } catch (error) {
+            logger.error(`GetTotalDownloads 2: ${error}`, arg);
+            return {
+                status: false,
+                message: error
+            }
         }
     },
     /**
-     * 
-     * @param {*} arg 
+     *
+     * @param {*} arg
      * @returns
-     * @memberof DriveQuery 
+     * @memberof DriveQuery
      */
     GetFile: async (arg) => {
         try {
@@ -171,15 +216,18 @@ module.exports = {
                 .then((response) => {
                     resolve(response);
                 }).catch((error) => {
-                    logger.error('error', error)
-                    reject(false)
+                    logger.error(`GetFile 1: ${error}`, arg);
+                    reject(error)
                 }).finally(() => {
                     queryDrive.disconnect()
                 })
             })
-        } catch (e) {
-            logger.error('GetFile ', e)
-            return false
+        } catch (error) {
+            logger.error(`GetFile 2: ${error}`, arg);
+            return {
+                status: false,
+                message: error
+            }
         }
     }
 }

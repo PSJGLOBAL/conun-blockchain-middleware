@@ -6,7 +6,18 @@ const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvid
 const web3 = new Web3(provider);
 
 const Helper = require('../common/helper');
-const logger = Helper.helper.getLogger('app');
+const logger = Helper.getLogger('app');
+
+function splitString(msg) {
+    try {
+        const [name, error] = msg.split('\n');
+        const [peer, status, message] = error.split(', ');
+        return name + message
+    } catch (e) {
+        console.log('splitString err: ', e);
+        return msg
+    }
+}
 
 module.exports = {
     Transfer: async (arg) => {
@@ -26,10 +37,16 @@ module.exports = {
 
             let payload = JSON.parse(result.toString());
             payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
-            return payload;
+            return {
+                status: true,
+                message: payload
+            }
         } catch (error) {
-            logger.error(`Transfer - Getting error: ${error}`, arg);
-            return false
+            logger.error(`Transfer error: ${error.message}, arg: ${arg}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     },
 
@@ -53,11 +70,17 @@ module.exports = {
             let payload = JSON.parse(result.toString());
             payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
             payload.Func.Total = web3.utils.fromWei(payload.Func.Total, "ether");
-            return payload;
+            return {
+                status: true,
+                message: payload
+            };
 
         } catch (error) {
-            logger.error(`Burn - Getting error: ${error}`, arg)
-            return false
+            logger.error(`Burn error: ${error.message}, arg: ${arg}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     },
 
@@ -81,11 +104,17 @@ module.exports = {
             let payload = JSON.parse(result.toString());
             payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
             payload.Func.Total = web3.utils.fromWei(payload.Func.Total, "ether");
-            return payload;
+            return {
+                status: true,
+                message: payload
+            };
 
         } catch (error) {
-            logger.error(`Mint - Getting error: ${error}`, arg)
-            return false
+            logger.error(`Mint error: ${error.message}, arg: ${arg}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     },
 
@@ -104,11 +133,18 @@ module.exports = {
             let result = await contract.submitTransaction(arg.fcn, arg.walletAddress);
             await gateway.disconnect();
 
-            logger.info('>> Init result: ', JSON.parse(result.toString()));    
-            return JSON.parse(result.toString());
+            logger.info('>> Init result: ', JSON.parse(result.toString()));
+
+            return {
+                status: true,
+                message: JSON.parse(result.toString())
+            }
         } catch (error) {
-            logger.error(`Init - Getting error: ${error}`, arg)
-            return false
+            logger.error(`Init error: ${error.message}, arg: ${arg}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 };

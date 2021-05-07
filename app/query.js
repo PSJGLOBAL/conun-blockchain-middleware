@@ -6,7 +6,18 @@ const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvid
 const web3 = new Web3(provider);
 
 const Helper = require('../common/helper');
-const logger = Helper.helper.getLogger('app');
+const logger = Helper.getLogger('app');
+
+function splitString(msg) {
+    try {
+        const [name, error] = msg.split('\n');
+        const [peer, status, message] = error.split(', ');
+        return name + message
+    } catch (e) {
+        return msg
+    }
+}
+
 
 module.exports = {
     BalanceOf: async (arg) => {
@@ -25,10 +36,16 @@ module.exports = {
 
             let result = await contract.evaluateTransaction(arg.fcn, arg.walletAddress);
             // console.log(`Transaction has been evaluated, result is: ${result}`);
-            return web3.utils.fromWei(result.toString(), "ether");
+            return {
+                status: true,
+                message: web3.utils.fromWei(result.toString(), "ether")
+            }
         } catch (error) {
-            logger.error(`BalanceOf: Failed to evaluate transaction: ${error}`, arg);
-            return false
+            logger.error(`BalanceOf error: ${error.message}, arg: ${arg}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     },
 
@@ -42,10 +59,16 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
             let result = await contract.evaluateTransaction(arg.fcn);
             // console.log(`Transaction has been evaluated, result is: ${result}`);
-            return JSON.parse(result.toString());
+            return {
+                status: true,
+                message: JSON.parse(result.toString())
+            }
         } catch (error) {
-            logger.error(`GetDetails: Failed to evaluate transaction: ${error}`, arg);
-            return false
+            logger.error(`GetDetails error: ${error.message}, arg: ${arg}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     },
 
@@ -59,10 +82,16 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
             let result = await contract.evaluateTransaction(arg.fcn);
             // console.log(`Transaction has been evaluated, result is: ${result}`);
-            return result.toString();
+            return {
+                status: true,
+                message: result.toString()
+            }
         } catch (error) {
-            logger.error(`ClientAccountID: Failed to evaluate transaction: ${error}`, arg);
-            return false
+            logger.error(`ClientAccountID error: ${error.message}, arg: ${arg}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     },
 
@@ -90,10 +119,16 @@ module.exports = {
             let result = await network.queryTransaction('b2d4920bb653cced5622e7a51dc90f3c23df83172eaee670605e4be1d1b1f6e5', 'peer0.org1.example.com')
 
             // console.log(`Transaction has been evaluated, result is: ${result}`);
-            return JSON.parse(result.toString());
+            return {
+                status: true,
+                message: JSON.parse(result.toString())
+            }
         } catch (error) {
-            logger.error(`_getTransactionByID: Failed to evaluate transaction: ${error}`, arg);
-            return false
+            logger.error(`_getTransactionByID error: ${error.message}, arg: ${arg}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 }

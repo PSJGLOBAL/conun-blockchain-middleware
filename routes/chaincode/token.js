@@ -9,7 +9,7 @@ const x509 = require('../../middleware/x509');
 const events = require('events');
 
 const Helper = require('../../common/helper');
-const logger = Helper.helper.getLogger('TokenAPI');
+const logger = Helper.getLogger('TokenAPI');
 
 function CallInvoke(event, req) {
     const eventDeal = new events.EventEmitter();
@@ -25,8 +25,8 @@ function CallInvoke(event, req) {
                     to: req.body.toAddress,
                     value: req.body.value,
                 });
-                if(!result) reject(false);
-                resolve(result);
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
             eventDeal.on('Init', async () => {
@@ -37,8 +37,8 @@ function CallInvoke(event, req) {
                     orgName: req.body.orgName,
                     walletAddress: req.body.walletAddress,
                 });
-                if(!result) reject(false);
-                resolve(result)
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
             eventDeal.on('Mint', async () => {
@@ -50,8 +50,8 @@ function CallInvoke(event, req) {
                     walletAddress: req.body.walletAddress,
                     amount: req.body.amount,
                 });
-                if(!result) reject(false);
-                resolve(result)
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
             eventDeal.on('Burn', async () => {
@@ -63,15 +63,15 @@ function CallInvoke(event, req) {
                     walletAddress: req.body.walletAddress,
                     amount: req.body.amount,
                 });
-                if(!result) reject(false);
-                resolve(result)
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
 
             let status = eventDeal.emit(event)
             if (!status) {
                 eventDeal.removeAllListeners();
-                reject(status);
+                reject('not valid request to chain-code');
             }
         }
     )
@@ -82,7 +82,6 @@ function CallQuery(event, req) {
     return new Promise (
         (resolve, reject) => {
             eventQuery.on('BalanceOf', async () => {
-                console.log('event: ', event);
                 let result = await queryHandler.BalanceOf({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -90,12 +89,11 @@ function CallQuery(event, req) {
                     walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
                 });
-                if(!result) reject(false);
-                resolve(result)
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             })
 
             eventQuery.on('GetDetails', async () => {
-                console.log('event: ', event);
                 let result = await queryHandler.GetDetails({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -103,12 +101,11 @@ function CallQuery(event, req) {
                     walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
                 });
-                if(!result) reject(false);
-                resolve(result)
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             })
 
             eventQuery.on('ClientAccountID', async () => {
-                console.log('event: ', event);
                 let result = await queryHandler.ClientAccountID({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -116,14 +113,14 @@ function CallQuery(event, req) {
                     walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
                 });
-                if(!result) reject(false);
-                resolve(result)
+                if(!result.status) reject(result.message);
+                resolve(result.message);
             });
 
             let status = eventQuery.emit(event);
             if (!status) {
                 eventQuery.removeAllListeners();
-                reject(status);
+                reject('not valid request to chain-code');
             }
         }
     )
@@ -131,11 +128,10 @@ function CallQuery(event, req) {
 
 
 // router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x509.verify, async (req, res) => {
-router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, async (req, res) => {
     try {
         CallInvoke(req.body.fcn, req)
             .then((response) => {
-                console.log('>> response: ', response);
                     res.status(200).json({
                             payload: response,
                             success: true,
@@ -146,7 +142,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
         ).catch((error) => {
             logger.error(`Token Post CallInvoke 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
             res.status(400).json({
-                    payload: err,
+                    payload: error,
                     success: false,
                     status: 400
                 }
@@ -173,15 +169,15 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req,
                 });
             }
         ).catch((error) => {
-            logger.error(`Token Post CallQuery 1: Type: ${req.query.fcn} Reqeest: ${req.query}`, error)
+            logger.error(`Token Post CallQuery 1: Type: ${req.query.fcn} `, error);
             res.status(400).json({
-                payload: error.message,
+                payload: error,
                 success: false,
                 status: 400
             });
         });
     } catch (error) {
-        logger.error(`Token Post CallQuery 2: Type: ${req.query.fcn} Reqeest: ${req.query}`, error)
+        logger.error(`Token Post CallQuery 2: Type: ${req.query.fcn}`, error)
         res.status(400).json({
             payload: error.message,
             success: false,

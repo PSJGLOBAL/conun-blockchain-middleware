@@ -17,6 +17,7 @@ router.get('/me', auth, async (req, res) => {
 });
 
 router.post('/create', async (req, res) => {
+    console.log('crete req: ', req.body);
     const { error } = validate(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })

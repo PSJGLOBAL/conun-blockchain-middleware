@@ -2,7 +2,20 @@ const { Gateway } = require('fabric-network');
 const connectionOrg = require('../helper/conection');
 
 const Helper = require("../../common/helper");
-const logger = Helper.helper.getLogger("InvokeDrive")
+const logger = Helper.getLogger("InvokeDrive")
+
+function splitString(msg) {
+    try {
+        const [name, error] = msg.split('\n');
+        const [peer, status, message] = error.split(', ');
+        console.log('name + message: ', name + message)
+        return name + message
+    } catch (e) {
+        console.log('splitString err: ', e);
+        return msg
+    }
+}
+
 
 class InvokeDriveNetworkClass {
 
@@ -31,10 +44,16 @@ class InvokeDriveNetworkClass {
         try {
             let result = await this.contract.submitTransaction(fcn, JSON.stringify(content));
             console.log('result: ', result);
-            return JSON.parse(result.toString());
+            return {
+                status: true,
+                message: JSON.parse(result.toString())
+            }
         } catch (error) {
-            logger.error(`_create error: ${error}, Function: ${fcn}, Action: ${action}`);
-            return false
+            logger.error(`_create error: ${error}, Function: ${fcn}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 
@@ -45,10 +64,16 @@ class InvokeDriveNetworkClass {
                 let result = await this.contract.submitTransaction(fcn, ccid, author, spender);
                 objSpender[spender] = JSON.parse(result.toString());
             }
-            return objSpender
+            return {
+                status: true,
+                message: objSpender
+            }
         } catch (error) {
-            logger.error(`approve error: ${error}, Function: ${fcn}, Action: ${action}`);
-            return false
+            logger.error(`approve error: ${error}, Function: ${fcn}, author: ${author}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 
@@ -56,11 +81,17 @@ class InvokeDriveNetworkClass {
         try {
             logger.info(`Getting action: ${action}`);
             let result = await this.contract.submitTransaction(fcn, JSON.stringify(action));
+            return {
+                status: true,
+                message: JSON.parse(result.toString())
+            }
 
-            return JSON.parse(result.toString());
         } catch (error) {
-            logger.error(`likeContent error: ${error}, Function: ${fcn}, Action: ${action}`);
-            return false
+            logger.error(`likeContent error: ${error.message}, Function: ${fcn}, Action: ${action}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 
@@ -68,10 +99,16 @@ class InvokeDriveNetworkClass {
     async countDownloads(fcn, action) {
         try {
             let result = await this.contract.submitTransaction(fcn, JSON.stringify(action));
-            return JSON.parse(result.toString());
+            return {
+                status: true,
+                message: JSON.parse(result.toString())
+            }
         } catch (error) {
             logger.error(`countDownloads error: ${error}, Function: ${fcn}, Action: ${action}`);
-            return false
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
         }
     }
 
@@ -95,14 +132,17 @@ module.exports = {
                    resolve(response);
                }).catch((error) => {
                    logger.error(`CreateFile 1: ${error}`, arg);
-                   reject(false)
+                   reject(error)
                }).finally(() => {
                    driveNetwork.disconnect()
                })
            })
        } catch (error) {
             logger.error(`CreateFile: Failed to evaluate transaction 2: ${error}`, arg);
-            return false
+           return {
+               status: false,
+               message: error
+           }
        }
     },
     /**
@@ -122,14 +162,17 @@ module.exports = {
                         resolve(response);
                     }).catch((error) =>  {
                         logger.error(`ApproveFile 1: ${error}`, arg);
-                    reject(false)
+                    reject(error)
                 }).finally(() => {
                     driveNetwork.disconnect()
                 })
             })
         } catch (error) {
             logger.error(`ApproveFile: Failed to evaluate transaction 2: ${error}`, arg);
-            return false
+            return {
+                status: false,
+                message: error
+            }
         }
     },
     /**
@@ -147,15 +190,19 @@ module.exports = {
                     .then((response) =>  {
                         resolve(response);
                     }).catch((error) =>  {
-                        logger.error(`LikeContentFile 1: ${error}`, arg);
-                    reject(false)
+                    logger.error(`LikeContentFile 1: ${error}`, arg);
+                    reject(error)
                 }).finally(() => {
                     driveNetwork.disconnect()
                 })
             })
         } catch (error) {
+            console.log(`LikeContentFile: Failed to evaluate transaction 2: ${error}`, arg);
             logger.error(`LikeContentFile: Failed to evaluate transaction 2: ${error}`, arg);
-            return false
+            return {
+                status: false,
+                message: error
+            }
         }
     },
 
@@ -175,14 +222,17 @@ module.exports = {
                         resolve(response);
                     }).catch((error) =>  {
                         logger.error(`CountDownloadsFile 1: ${error}`, arg);
-                        reject(false)
+                        reject(error)
                 }).finally(() => {
                     driveNetwork.disconnect()
                 })
             })
         } catch (error) {
             logger.error(`CountDownloadsFile: Failed to evaluate transaction 2: ${error}`, arg);
-            return false
+            return {
+                status: false,
+                message: error
+            }
         }
     }
 }

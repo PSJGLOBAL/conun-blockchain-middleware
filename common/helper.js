@@ -14,7 +14,7 @@ class helper {
             appLevel = process.env.LOG_LEVEL_APP;
         }
 
-          
+
         if (process.env.LOG_LEVEL_DB) {
             dbLog = process.env.LOG_LEVEL_DB;
         }
@@ -47,10 +47,11 @@ class helper {
     }
 }
 
-const logger = helper.getLogger('uncaughtException');
+// const logger = helper.getLogger('uncaughtException');
+//
+// process.on('uncaughtException', ex => {
+//     logger.error('>> uncaughtException: ', ex);
+// });
 
-process.on('uncaughtException', ex => {
-    logger.error('>> uncaughtException: ', ex);
-})
-
-exports.helper = helper;
+// exports.helper = helper
+module.exports = helper;

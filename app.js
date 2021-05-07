@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const constants = require('./config/constants.json');
 
 const Helper = require('./common/helper');
-const logger = Helper.helper.getLogger('app');
+const logger = Helper.getLogger('app');
 
 app.use((req, res,next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -53,7 +53,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const server = app.listen(process.env.PORT, () => {
-    logger.info(`Server listening to ${process.env.PORT}`)
+    logger.info(`Server listening to ${process.env.PORT}`);
     logger.info(`set ${process.env.PORT} port listening...`);
 });
 server.timeout = 240000;

@@ -1,23 +1,25 @@
-const {User, validate} = require('../../models/profile/user');
 const express = require('express');
 const router = express.Router();
+const {User, validate} = require('../../models/profile/user');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
+const Helper = require('../../common/helper');
+const _logger = Helper.getLogger("UserAPI");
+
 const helper = require('../../app/helper/token.helper');
 const auth = require('../../middleware/auth');
 const owner = require('../../middleware/owner');
 const web3Handlers = require('../../app/web3/eth.main');
 
-const Helper = require("../../common/helper");
-const logger = Helper.helper.getLogger("UserAPI")
 
 router.get('/check', async (req, res) => {
     try {
         const user = await User.findOne({email: req.query.email}).select('-password');
+        console.log('user: ', user);
         res.status(200).json({payload: user.email, success: true, status:  200  });
     } catch (error) {
-        logger.error(`/check: Reqeest: ${req.query} `, error);
-        res.status(400).json({payload: e.message, success: false,  status:  400 });
+        _logger.error(`/check: Reqeest: ${req.query} `, error);
+        res.status(400).json({payload: error.message, success: false,  status:  400 });
     }
 });
 
@@ -25,9 +27,9 @@ router.get('/me', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
         res.status(200).json({payload: user, success: true, status: 200})
-    } catch (e) {
-        logger.error(`/me: Reqeest: ${req.user._id} `, error);
-        res.status(400).json({payload: e.message, success: false, status: 400 })
+    } catch (error) {
+        _logger.error(`/me: Reqeest: ${req.user._id} `, error);
+        res.status(400).json({payload: error.message, success: false, status: 400 })
     }
 });
 
@@ -38,15 +40,15 @@ router.get('/checkKey', auth, async (req, res) => {
             walletAddress: req.user.walletAddress,
             walletType: req.query.walletType,
             password: req.query.password
-        })
+        });
         if (user) {
             res.status(200).json({payload: user, success: true, status: 200})
         } else {
             res.status(400).json({payload: user, success: false, status: 400})
         }
     } catch (error) {
-        logger.error(`/checkKey: Reqeest: ${req.query}, check your wallet: ${req.user.walletAddress} `, error);
-        res.status(400).json({payload: `check your wallet: ${req.user.walletAddress} password`, success: false, status: 400 })
+        _logger.error(`/checkKey check your wallet: ${req.user.walletAddress} `, error);
+        res.status(400).json({payload: `check your wallet: ${req.user.walletAddress} password or ${error.message}`, success: false, status: 400 })
     }
 });
 
@@ -88,13 +90,12 @@ router.post('/create', async (req, res) => {
             res.status(400).json({payload: x509Identity, success: false, status: 400})
         }
     } catch (error) {
-        logger.error(`/create: Reqeest: ${req.body}, email: ${req.body.email} `, error);
+        _logger.error(`/create email: ${req.body.email} `, error);
         res.status(400).json({payload: `${req.body.email} user error`, success: false, status: 400})
     }
 });
 
 router.post('/importEthPk', async (req, res) => {
-    logger.info(`/importEthPk: Reqeest: ${req.body} `);
     const { error } = validate(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
@@ -140,9 +141,9 @@ router.post('/importEthPk', async (req, res) => {
         } else {
             res.status(400).json({payload: x509Identity, success: false, status: 400})
         }
-    } catch (e) {
-        logger.error(`/importEthPk: Reqeest: ${req.body} `, error);
-        res.status(400).json({payload: `wallet error`, success: false, status: 400})
+    } catch (error) {
+        _logger.error(`/importEthPk error: ${error} `);
+        res.status(400).json({payload: `wallet error, ${error.message}`, success: false, status: 400})
     }
 });
 
@@ -151,7 +152,6 @@ router.post('/importWallet', async (req, res) => {
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
     let user = await User.findOne({ email: req.body.email, walletAddress: req.body.x509Identity.walletAddress });
-    console.log('user: ', user);
     if (!user)
         return res.status(400).json({payload: `User with this email: ${req.body.email} or wallet: ${req.body.walletAddress} is not belongs to you`, success: false, status: 400});
     try {
@@ -170,10 +170,10 @@ router.post('/importWallet', async (req, res) => {
         } else {
             res.status(400).json({payload: x509Identity, success: false, status: 400})
         }
-    } catch (e) {
-        logger.error(`/importWallet: Reqeest: ${req.body} `, error);
-        res.status(400).json({payload: `duplicate user or wallet error`, success: false, status: 400})
+    } catch (error) {
+        _logger.error(`/importWallet error: ${error} `);
+        res.status(400).json({payload: `duplicate user or ${error.message}`, success: false, status: 400})
     }
-})
+});
 
 module.exports = router;

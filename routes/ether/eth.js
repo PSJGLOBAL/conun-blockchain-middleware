@@ -7,7 +7,7 @@ const Eth = require('../../app/web3/eth.main');
 const helper = require('../../app/helper/token.helper');
 
 const Helper = require("../../common/helper");
-const logger = Helper.helper.getLogger("EtherAPI")
+const logger = Helper.getLogger("EtherAPI");
 
 router.post('/SendETH', async (req, res) => {
     helper.getUserIdentity({
@@ -31,7 +31,7 @@ router.post('/SendETH', async (req, res) => {
                         status: 200
                     });
                 }).catch((error) => {
-                    logger.error(`SendETH: Reqeest: ${req.body} `, error);    
+                    logger.error(`SendETH: Reqeest: ${req.body} `, error);
                     res.status(400).json({
                         payload: error,
                         success: false,
@@ -40,7 +40,7 @@ router.post('/SendETH', async (req, res) => {
             })
         })
     })
-})
+});
 
 router.post('/SendCON', async (req, res) => {
     helper.getUserIdentity({
@@ -73,7 +73,7 @@ router.post('/SendCON', async (req, res) => {
             })
         })
     })
-})
+});
 
 
 router.get('/getBalanceOfEth', async (req, res) => {
@@ -92,7 +92,7 @@ router.get('/getBalanceOfEth', async (req, res) => {
               status: 400
           });
     })
-})
+});
 
 
 router.get('/getBalanceOfCon', async (req, res) => {
@@ -104,14 +104,14 @@ router.get('/getBalanceOfCon', async (req, res) => {
                 status: 200
             });
         }).catch((error) => {
-            logger.error(`getBalanceOfEth: Reqeest: ${req.query} `, error);    
+            logger.error(`getBalanceOfEth: Reqeest: ${req.query} `, error);
             res.status(400).json({
                 payload: error,
                 success: false,
                 status: 400
             });
     })
-})
+});
 
 router.get('/getTransactionFeeETH', async (req, res) => {
     Eth.getTransactionFee({
@@ -125,14 +125,14 @@ router.get('/getTransactionFeeETH', async (req, res) => {
                 status: 200
             });
         }).catch((error) => {
-            logger.error(`getTransactionFeeETH: Reqeest: ${req.query} `, error);   
+            logger.error(`getTransactionFeeETH: Reqeest: ${req.query} `, error);
             res.status(400).json({
                 payload: error,
                 success: false,
                 status: 400
             });
     })
-})
+});
 
 router.get('/getTransactionFeeCON', async (req, res) => {
     Eth.TokenEstimateGasFee({
@@ -154,7 +154,7 @@ router.get('/getTransactionFeeCON', async (req, res) => {
                 status: 400
             });
     })
-})
+});
 
 
 module.exports = router;
