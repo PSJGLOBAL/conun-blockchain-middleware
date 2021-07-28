@@ -3,14 +3,14 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require ('./swagger.json');
+const swaggerDocument = require('./swagger.json');
 const bodyParser = require('body-parser');
 const constants = require('./config/constants.json');
 
 const Helper = require('./common/helper');
 const logger = Helper.getLogger('app');
 
-app.use((req, res,next) => {
+app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     next();
 });
@@ -56,6 +56,6 @@ const server = app.listen(process.env.PORT, () => {
     logger.info(`Server listening to ${process.env.PORT}`);
     logger.info(`set ${process.env.PORT} port listening...`);
 });
-server.timeout = 240000;
 
+server.timeout = 240000;
 module.exports = server;

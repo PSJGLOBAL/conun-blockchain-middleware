@@ -1,5 +1,5 @@
 {
-  "name": "conun-blockchain-middleware-api-2.0",
+  "name": "conun-blockchain-middleware-api-3.0",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -7,7 +7,7 @@
     "test": "export NODE_ENV=development && jest --watchAll --coverage",
     "win-test": "set NODE_ENV=development && jest --watchAll --coverage",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "export NODE_ENV=development && nodemon app.js"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +25,7 @@
     "express-jwt": "^5.3.3",
     "fabric-ca-client": "^2.1.0",
     "fabric-client": "^1.4.8",
-    "fabric-network": "^",
+    "fabric-network": "^2.1.0",
     "http": "0.0.1-security",
     "joi": "^17.3.0",
     "js-yaml": "^3.13.1",
