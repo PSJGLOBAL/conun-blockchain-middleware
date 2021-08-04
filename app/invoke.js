@@ -24,6 +24,7 @@ module.exports = {
         try {
             if(arg.walletAddress === arg.to) return false;
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
+            console.log('transfer -> connection: ', connection.connectOptions.identity);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);
@@ -32,10 +33,13 @@ module.exports = {
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
             let _value = web3.utils.toWei(arg.value, 'ether');
-            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress, arg.to, _value);
+
+            //  submitTransaction(func, wallet-address)
+            let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity, arg.to, _value);
             await gateway.disconnect();
 
             let payload = JSON.parse(result.toString());
+            console.log('transfer -> payload: ', payload);
             payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
             return {
                 status: true,
@@ -129,8 +133,9 @@ module.exports = {
             // Get the network (channel) our contract is deployed to.
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
-
-            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress);
+            
+            // submitTransaction(func, wallet-address)
+            let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity);
             await gateway.disconnect();
 
             logger.info('>> Init result: ', JSON.parse(result.toString()));
