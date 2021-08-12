@@ -102,6 +102,7 @@
 
         sudo vim /etc/hosts
 
+        ex: 192.168.0.0 peer0.org1.example.com
 
         [blockchain_ip] peer0.org1.example.com
         [blockchain_ip] peer1.org1.example.com

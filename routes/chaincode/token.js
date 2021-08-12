@@ -128,7 +128,7 @@ function CallQuery(event, req) {
 
 
 // router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x509.verify, async (req, res) => {
-router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
     try {
         CallInvoke(req.body.fcn, req)
             .then((response) => {
