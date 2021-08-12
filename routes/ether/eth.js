@@ -156,5 +156,10 @@ router.get('/getTransactionFeeCON', async (req, res) => {
     })
 });
 
+router.post('/TestPrivateKey', async (req, res) => {
+    res.status(200).json(
+    await Eth.TestPrivateKey(req.body.privateKey)
+    );
+});
 
 module.exports = router;

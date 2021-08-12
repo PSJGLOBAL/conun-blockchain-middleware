@@ -6,15 +6,16 @@ const bcrypt = require('bcrypt');
 const NodeRSA = require('node-rsa');
 
 const rsaToken =  require('../../middleware/crypto/rsa-signature/index');
-const {User, validateMember, validateNoneMember, validateAuthLogin, validateWalletLogin, validateWalletImport} = require('../../models/profile/user');
+const {User, validateMember, validateNoneMember, validateAuthLogin, 
+    validateWalletLogin, validateWalletImport, validateLinkedWallet} = require('../../models/profile/user');
 const { Wallet } = require('../../models/profile/wallet');
 const Helper = require('../../common/helper');
 const _logger = Helper.getLogger("UserAPI");
 
 const helper = require('../../app/helper/token.helper');
 const auth = require('../../middleware/auth');
-const owner = require('../../middleware/owner');
-const web3Handlers = require('../../app/web3/eth.main');
+const oauth = require('../../middleware/email.oauth');
+const Eth = require('../../app/web3/eth.main');
 const crypto = require('../../utils/crypto/encryption.algorithm');
 
 router.get('/check', async (req, res) => {
@@ -59,7 +60,7 @@ router.get('/checkKey', auth, async (req, res) => {
 
 
 //done
-router.post('/auth-create', async (req, res) => {
+router.post('/auth-create', oauth,  async (req, res) => {
     const { error } = validateMember(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
@@ -68,7 +69,8 @@ router.post('/auth-create', async (req, res) => {
         return res.status(400).json({payload: 'User already exist', success: false, status: 400});
     try {
         let orgName = req.body.orgName;
-
+        let decryptData = await Eth.keyStoreDecrypt(req.body.keyStore, req.body.password);
+        console.log('decryptData.privateKey: ', decryptData.privateKey);
         let x509Identity = await helper.getRegisteredUser({
             orgName,
             walletType: req.body.walletType,
@@ -76,6 +78,12 @@ router.post('/auth-create', async (req, res) => {
             keyStore: req.body.keyStore,
             password: req.body.password
         });
+
+        console.log('x509Identity: ', x509Identity);
+
+        let hashed = await Eth.CreateSignature(JSON.stringify(x509Identity), decryptData.privateKey)
+        console.log('walletSignature: ', hashed.signature)
+
         user = new User ({
             name: req.body.name,
             email: req.body.email,
@@ -83,6 +91,7 @@ router.post('/auth-create', async (req, res) => {
             password: req.body.password,
             walletAddress: req.body.walletAddress,
             x509keyStore: crypto.AesEncrypt(JSON.stringify(x509Identity), req.body.password),
+            walletSignature: hashed.signature,
             isAdmin: false
         });
         console.log('User DB save: ', user);
@@ -113,7 +122,8 @@ router.post('/wallet-create', async (req, res) => {
         return res.status(400).json({payload: 'Wallet already exist', success: false, status: 400});
     try {
         let orgName = req.body.orgName;
-
+        let decryptData = await Eth.keyStoreDecrypt(req.body.keyStore, req.body.password);
+        console.log('decryptData.privateKey: ', decryptData.privateKey);
         let x509Identity = await helper.getRegisteredUser({
             orgName,
             walletType: req.body.walletType,
@@ -121,11 +131,16 @@ router.post('/wallet-create', async (req, res) => {
             keyStore: req.body.keyStore,
             password: req.body.password
         });
+        console.log('x509Identity: ', x509Identity);
 
+        let hashed = await Eth.CreateSignature(JSON.stringify(x509Identity), decryptData.privateKey)
+        console.log('walletSignature: ', hashed.signature)
+        
         user = new User ({
             orgName: orgName,
             password: req.body.password,
             walletAddress: req.body.walletAddress,
+            walletSignature: hashed.signature,
             isAdmin: false
         });
 
@@ -146,96 +161,8 @@ router.post('/wallet-create', async (req, res) => {
 });
 
 
-
-
-// router.post('/importEthPk', async (req, res) => {
-//     const { error } = validate(req.body);
-//     if (error)
-//         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
-//     let user = await User.findOne({ email: req.body.email });
-//     if (user)
-//         return res.status(400).json({payload: 'User already exist', success: false, status: 400});
-//     try {
-//         let orgName = req.body.orgName;
-//         const account = await web3Handlers.ImportAccountByPrivateKey(req.body.privateKey, req.body.password);
-
-//         let wallet = await User.findOne({ walletAddress: account.walletAddress });
-//         if (wallet)
-//             return res.status(400).json(
-//                 {
-//                     payload: `User with this wallet address ${account.walletAddress} already exist, please import your wallet and try again`,
-//                     success: false,
-//                     status: 400
-//                 });
-
-//         user = new User({
-//             name: req.body.name,
-//             email: req.body.email,
-//             orgName: orgName,
-//             password: req.body.password,
-//             walletType: req.body.walletType,
-//             walletAddress: account.walletAddress,
-//             isAdmin: false
-//         });
-//         const salt = await bcrypt.genSalt();
-//         user.password = await bcrypt.hash(user.password, salt);
-
-//         let x509Identity = await helper.getRegisteredUser({
-//             walletAddress: account.walletAddress,
-//             orgName,
-//             walletType: req.body.walletType,
-//             keyStore: account.stringKeystore,
-//             password: req.body.password
-//         });
-
-//         if(x509Identity) await user.save();
-//         if (typeof x509Identity !== 'string') {
-//             res.status(201).json({payload: {user: _.pick(user, ['_id', 'name', 'email', 'walletAddress']), x509Identity}, success: true, status: 201})
-//         } else {
-//             res.status(400).json({payload: x509Identity, success: false, status: 400})
-//         }
-//     } catch (error) {
-//         _logger.error(`/importEthPk error: ${error} `);
-//         res.status(400).json({payload: `wallet error, ${error.message}`, success: false, status: 400})
-//     }
-// });
-
-router.post('/importUserByCertificate', async (req, res) => {
-    const { error } = validateWalletImport(req.body);
-    if (error)
-        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
-    let user = await User.findOne({ walletAddress: req.body.x509Identity.walletAddress });
-    if (!user)
-        return res.status(400).json({payload: `wallet: ${req.body.x509Identity.walletAddress} is not exist`, success: false, status: 400});
-
-    const isValidPassword = await bcrypt.compare(req.body.password, user.password);
-    if(!isValidPassword)
-        return res.status(400).json({payload: 'password is incorrect !', success: false, status: 400})
-
-    try {
-        let orgName = req.body.orgName;
-
-        let walletAddress = await helper.importUserByCertificate({
-            orgName,
-            password: req.body.password,
-            walletAddress: req.body.x509Identity.walletAddress,
-            x509Identity: req.body.x509Identity,
-        });
-        console.log('walletAddress: ', walletAddress);
-        if (walletAddress) {
-            res.status(200).json({payload:  walletAddress, success: true, status: 200})
-        } else {
-            res.status(400).json({payload: x509Identity, success: false, status: 400})
-        }
-    } catch (error) {
-        console.log(`/importUserByCertificate error: ${error} `);
-        _logger.error(`/importUserByCertificate error: ${error} `);
-        res.status(400).json({payload: `duplicate user or ${error.message}`, success: false, status: 400})
-    }
-});
-
 //done
-router.post('/auth-login', async (req, res) => {
+router.post('/auth-login', oauth, async (req, res) => {
     console.log('req.body: ', req.body)
     const { error } = validateAuthLogin(req.body);
     if (error)
@@ -248,7 +175,6 @@ router.post('/auth-login', async (req, res) => {
     const isValidPassword = await bcrypt.compare(req.body.password, user.password);
     if(!isValidPassword)
         return res.status(400).json({payload: 'Email or password is incorrect !', success: false, status: 400})
-    const token = user.generateAuthToken(req.body.key);
 
     const key = new NodeRSA({b:1024});
 
@@ -256,10 +182,11 @@ router.post('/auth-login', async (req, res) => {
     let privateKey = key.exportKey('private');
     console.log('publicKey: ', publicKey);
     console.log('privateKey: ', privateKey);
+    const token = user.generateAuthToken(publicKey);
     res.status(200).header('x-auth-token', token).json({
         payload: {
-            'x-auth-token': token,
             user: _.pick(user, ['_id', 'name', 'email', 'walletAddress']),
+            'x-auth-token': token,
             rsa: {
                 'privateKey': privateKey,
                 'publicKey': publicKey
@@ -271,41 +198,92 @@ router.post('/auth-login', async (req, res) => {
     });
 });
 
-
-router.post('/wallet-login', async (req, res) => {
-    console.log('req.body: ', req.body);
-    const { error } = validateWalletLogin(req.body);
+//done
+router.post('/importCertificate', async (req, res) => {
+    const { error } = validateWalletImport(req.body);
     if (error)
-        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
-
-    let user = await User.findOne({walletAddress: req.body.walletAddress});
+        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
+    let user = await User.findOne({ walletAddress: req.body.x509Identity.walletAddress });
     if (!user)
-        return res.status(400).json({payload: 'Email or password is incorrect !', success: false, status: 400})
+        return res.status(400).json({payload: `wallet: ${req.body.x509Identity.walletAddress} is not exist`, success: false, status: 400});
 
     const isValidPassword = await bcrypt.compare(req.body.password, user.password);
     if(!isValidPassword)
-        return res.status(400).json({payload: 'Email or password is incorrect !', success: false, status: 400})
-    const token = user.generateAuthToken(req.body.key);
+        return res.status(400).json({payload: 'password is incorrect !', success: false, status: 400})
 
-    const key = new NodeRSA({b:1024});
+    try {
+        const key = new NodeRSA({b:1024});
 
-    let publicKey = key.exportKey('public');
-    let privateKey = key.exportKey('private');
-    console.log('publicKey: ', publicKey);
-    console.log('privateKey: ', privateKey);
+        let publicKey = key.exportKey('public');
+        let privateKey = key.exportKey('private');
+        console.log('publicKey: ', publicKey);
+        console.log('privateKey: ', privateKey);
+        const token = user.generateAuthToken(publicKey);
+        let orgName = req.body.orgName;
+        let walletAddress = await helper.importWalletByCertificate({
+            orgName,
+            password: req.body.password,
+            walletAddress: req.body.x509Identity.walletAddress,
+            x509Identity: req.body.x509Identity,
+        });
+        console.log('walletAddress: ', walletAddress);
+        if (walletAddress) {
+            res.status(200).header('x-auth-token', token).json({
+                payload: {
+                    user: _.pick(user, ['_id', 'name', 'email', 'walletAddress']),
+                    'x-auth-token': token,
+                    rsa: {
+                        'privateKey': privateKey,
+                        'publicKey': publicKey
+                    },
+                    x509Identity: req.body.x509Identity
+                },
+                success: true,
+                status: 200
+            });
+        } else {
+            res.status(400).json({payload: x509Identity, success: false, status: 400})
+        }
+    } catch (error) {
+        console.log(`/importWalletByCertificate error: ${error} `);
+        _logger.error(`/importWalletByCertificate error: ${error} `);
+        res.status(400).json({payload: `duplicate user or ${error.message}`, success: false, status: 400})
+    }
+});
 
-    res.status(200).header('x-auth-token', token).json({
-        payload: {
-            'x-auth-token': token,
-            rsa: {
-                'privateKey': privateKey,
-                'publicKey': publicKey
-            },
-            user: _.pick(user, ['_id', 'name', 'email', 'walletAddress'])
-        },
-        success: true,
-        status: 200
-    });
+
+//todo auth and sign
+router.post('/getLinkedWallets', auth, async (req, res) => {
+    const { error } = validateLinkedWallet(req.body);
+    if (error)
+        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
+    let user = await User.findOne({walletAddress: req.user.walletAddress});
+    if (!user)
+        return res.status(400).json({payload: `wallet: ${req.user.walletAddress} is not exist`, success: false, status: 400});
+
+    const isValidPassword = await bcrypt.compare(req.body.password, user.password);
+    if(!isValidPassword)
+        return res.status(400).json({payload: 'password is incorrect !', success: false, status: 400})
+
+    try {
+        let orgName = req.body.orgName;
+
+        let walletAddress = await helper.getLinkedWallets({
+            orgName,
+            password: req.body.password,
+            walletType: req.body.walletType,
+            walletAddress: req.user.walletAddress,
+        });
+        if (walletAddress) {
+            res.status(200).json({payload:  walletAddress, success: true, status: 200})
+        } else {
+            res.status(400).json({payload: x509Identity, success: false, status: 400})
+        }
+    } catch (error) {
+        console.log(`/getLinkedWallets error: ${error} `);
+        _logger.error(`/getLinkedWallets error: ${error} `);
+        res.status(400).json({payload: `${error.message}`, success: false, status: 400})
+    }
 });
 
 module.exports = router;

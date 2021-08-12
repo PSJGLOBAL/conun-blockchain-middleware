@@ -22,6 +22,7 @@ function splitString(msg) {
 module.exports = {
     Transfer: async (arg) => {
         try {
+            console.log('Transfer>> :', arg);
             if(arg.walletAddress === arg.to) return false;
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             console.log('transfer -> connection: ', connection.connectOptions.identity);
@@ -36,6 +37,7 @@ module.exports = {
 
             //  submitTransaction(func, wallet-address)
             let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity, arg.to, _value);
+            console.log('result>> :', result);
             await gateway.disconnect();
 
             let payload = JSON.parse(result.toString());
@@ -46,6 +48,7 @@ module.exports = {
                 message: payload
             }
         } catch (error) {
+            console.log('Transfer-error: ', error)
             logger.error(`Transfer error: ${error.message}, arg: ${arg}`);
             return {
                 status: false,

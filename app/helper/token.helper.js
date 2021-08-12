@@ -67,7 +67,7 @@ const getUserIdentity = async (arg)  => {
 }
 
 
-const importUserByCertificate = async (arg)  => {
+const importWalletByCertificate = async (arg)  => {
     try {
         console.log('arg : ', arg)
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -110,14 +110,14 @@ const importUserByCertificate = async (arg)  => {
 }
 
 // todo get linked wallets
-const importUserByWallet = async (arg)  => {
+const getLinkedWallets = async (arg)  => {
     try {
         console.log('arg : ', arg)
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(arg.walletAddress);
         if (!identity) {
-            await wallet.put(arg.walletAddress, arg.x509Identity);
+            return 'Please Import Certificate First'
         }
 
         const connection = await connectionOrg(arg.walletAddress, arg.orgName);
@@ -207,8 +207,7 @@ const getRegisteredUser = async (arg) => {
             privateKey: enrollment.key.toBytes(),
         },
         mspId: 'Org1MSP',
-        type: 'X.509',
-        linked: [arg.keyStore]
+        type: 'X.509'
     };
 
     await wallet.put(arg.walletAddress, x509Identity);
@@ -260,6 +259,6 @@ const enrollAdmin = async () => {
 }
 
 exports.getRegisteredUser = getRegisteredUser
-exports.importUserByWallet = importUserByWallet
+exports.getLinkedWallets = getLinkedWallets
 exports.getUserIdentity = getUserIdentity
-exports.importUserByCertificate = importUserByCertificate
+exports.importWalletByCertificate = importWalletByCertificate
