@@ -55,7 +55,7 @@ describe('INVOKE CONX', () => {
             });
             return await request(server)
                 .post('/api/v1/con-token/channels/mychannel/chaincodes/conos')
-                .set('x-auth-token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDYyYzE2ZmNhYzY5YjM2MTM4MGM2OWYiLCJpc0FkbWluIjpmYWxzZSwid2FsbGV0QWRkcmVzcyI6IjB4RWNmOGY3NDdCOWZFMzRmMjg2RWNkQUI2RTNDNkIyRDYwNzBkNTRBQSIsImlhdCI6MTYxNzA5MzcwNywiZXhwIjoxNjQ4NjI5NzA3fQ.gPuKm3XQ8yJvlyF_VVM7RgV2TiWPayVPswA4DLrn5GE')
+                .set('jwtAuthToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDYyYzE2ZmNhYzY5YjM2MTM4MGM2OWYiLCJpc0FkbWluIjpmYWxzZSwid2FsbGV0QWRkcmVzcyI6IjB4RWNmOGY3NDdCOWZFMzRmMjg2RWNkQUI2RTNDNkIyRDYwNzBkNTRBQSIsImlhdCI6MTYxNzA5MzcwNywiZXhwIjoxNjQ4NjI5NzA3fQ.gPuKm3XQ8yJvlyF_VVM7RgV2TiWPayVPswA4DLrn5GE')
                 .send({
                     fcn,
                     orgName,
@@ -131,7 +131,7 @@ describe('INVOKE CONX', () => {
             });
             return await request(server)
                 .post('/api/v1/con-token/channels/mychannel/chaincodes/conos')
-                .set('x-auth-token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDUxODZkY2VlZjExMzU5NmI3OWM1YjkiLCJpc0FkbWluIjpmYWxzZSwid2FsbGV0QWRkcmVzcyI6IjB4MDdBRUZlNDE0MjgxNDZEMDFkNTk1MzYyNkZDYTQwOEEyYmI1ODc5MiIsImlhdCI6MTYxNTk1NTY5MSwiZXhwIjoxNjQ3NDkxNjkxfQ.W-VdPOsZXtXd1PgL0H8aW-HcNFnqhxOV2N1eJSR0GIE')
+                .set('jwtAuthToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDUxODZkY2VlZjExMzU5NmI3OWM1YjkiLCJpc0FkbWluIjpmYWxzZSwid2FsbGV0QWRkcmVzcyI6IjB4MDdBRUZlNDE0MjgxNDZEMDFkNTk1MzYyNkZDYTQwOEEyYmI1ODc5MiIsImlhdCI6MTYxNTk1NTY5MSwiZXhwIjoxNjQ3NDkxNjkxfQ.W-VdPOsZXtXd1PgL0H8aW-HcNFnqhxOV2N1eJSR0GIE')
                 .send({
                     fcn,
                     orgName,
@@ -202,7 +202,7 @@ describe('INVOKE CONX', () => {
             });
             return await request(server)
                 .post('/api/v1/con-token/channels/mychannel/chaincodes/conos')
-                .set('x-auth-token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDUxODZkY2VlZjExMzU5NmI3OWM1YjkiLCJpc0FkbWluIjpmYWxzZSwid2FsbGV0QWRkcmVzcyI6IjB4MDdBRUZlNDE0MjgxNDZEMDFkNTk1MzYyNkZDYTQwOEEyYmI1ODc5MiIsImlhdCI6MTYxNTk1NTY5MSwiZXhwIjoxNjQ3NDkxNjkxfQ.W-VdPOsZXtXd1PgL0H8aW-HcNFnqhxOV2N1eJSR0GIE')
+                .set('jwtAuthToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDUxODZkY2VlZjExMzU5NmI3OWM1YjkiLCJpc0FkbWluIjpmYWxzZSwid2FsbGV0QWRkcmVzcyI6IjB4MDdBRUZlNDE0MjgxNDZEMDFkNTk1MzYyNkZDYTQwOEEyYmI1ODc5MiIsImlhdCI6MTYxNTk1NTY5MSwiZXhwIjoxNjQ3NDkxNjkxfQ.W-VdPOsZXtXd1PgL0H8aW-HcNFnqhxOV2N1eJSR0GIE')
                 .send({
                     fcn,
                     orgName,

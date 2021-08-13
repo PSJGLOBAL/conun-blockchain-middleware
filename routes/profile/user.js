@@ -15,6 +15,7 @@ const _logger = Helper.getLogger("UserAPI");
 const helper = require('../../app/helper/token.helper');
 const auth = require('../../middleware/auth');
 const oauth = require('../../middleware/email.oauth');
+const rsaVerify = require('../../middleware/rsa.auth');
 const Eth = require('../../app/web3/eth.main');
 const crypto = require('../../utils/crypto/encryption.algorithm');
 
@@ -183,10 +184,10 @@ router.post('/auth-login', oauth, async (req, res) => {
     console.log('publicKey: ', publicKey);
     console.log('privateKey: ', privateKey);
     const token = user.generateAuthToken(publicKey);
-    res.status(200).header('x-auth-token', token).json({
+    res.status(200).header('jwtAuthToken', token).json({
         payload: {
             user: _.pick(user, ['_id', 'name', 'email', 'walletAddress']),
-            'x-auth-token': token,
+            'jwtAuthToken': token,
             rsa: {
                 'privateKey': privateKey,
                 'publicKey': publicKey
@@ -228,10 +229,10 @@ router.post('/importCertificate', async (req, res) => {
         });
         console.log('walletAddress: ', walletAddress);
         if (walletAddress) {
-            res.status(200).header('x-auth-token', token).json({
+            res.status(200).header('jwtAuthToken', token).json({
                 payload: {
                     user: _.pick(user, ['_id', 'name', 'email', 'walletAddress']),
-                    'x-auth-token': token,
+                    'jwtAuthToken': token,
                     rsa: {
                         'privateKey': privateKey,
                         'publicKey': publicKey
@@ -253,7 +254,7 @@ router.post('/importCertificate', async (req, res) => {
 
 
 //todo auth and sign
-router.post('/getLinkedWallets', auth, async (req, res) => {
+router.post('/getLinkedWallets', auth, rsaVerify, async (req, res) => {
     const { error } = validateLinkedWallet(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
