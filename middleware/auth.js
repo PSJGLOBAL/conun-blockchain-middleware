@@ -9,7 +9,7 @@ const config = require('config')
 
 function auth(req, res, next) {
     try {
-        const token = req.header('x-auth-token');
+        const token = req.header('jwtAuthToken');
             if(!token)
                 return res.status(401).json({payload: 'auth key required', success: false,  status:  401 });
             jwt.verify(token, config.get('jwtPrivateKey'), function (err, verify) {
@@ -17,6 +17,7 @@ function auth(req, res, next) {
                     return res.status(400).json({payload: {expiredAt: err.expiredAt}, success: false,  status:  400 });
                 }
                 req.user = verify;
+                console.log('req.user: ', req.user)
                 next();
             });
     } catch (e) {

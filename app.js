@@ -19,7 +19,7 @@ const corsOptions = {
     origin: ["*"],
     credentials: true,
     methods: "POST, PUT, OPTIONS, DELETE, GET",
-    allowedHeaders: "X-Requested-With, Content-Type, x-auth-token"
+    allowedHeaders: "X-Requested-With, Content-Type, jwtAuthToken"
 };
 
 app.use(cors(corsOptions));

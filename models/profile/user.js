@@ -122,8 +122,9 @@ function validateWalletImport(req) {
 function validateLinkedWallet(req) {
     const schema = Joi.object({
         orgName: Joi.string().valid('Org1', 'Org2', 'Org3').required(),
-        password: Joi.string().min(5).max(1024).required(),
+        password: Joi.string().min(5).max(100).required(),
         walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
+        signature: Joi.string().min(5).max(500).required(),
     });
     return schema.validate(req);
 }

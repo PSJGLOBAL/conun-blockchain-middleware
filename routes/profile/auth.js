@@ -19,9 +19,9 @@ router.post('/', async (req, res) => {
     if(!isValidPassword)
         return res.status(400).json({payload: 'Email or password is incorrect !', success: false, status: 400})
     const token = user.generateAuthToken(req.body.key);
-    res.status(200).header('x-auth-token', token).json({
+    res.status(200).header('jwtAuthToken', token).json({
         payload: {
-            'x-auth-token': token,
+            'jwtAuthToken': token,
             user: _.pick(user, ['_id', 'name', 'email', 'wallet_address'])
         },
         success: true,
