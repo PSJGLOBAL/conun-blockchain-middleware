@@ -52,8 +52,8 @@ const userSchema = new mongoose.Schema({
     isAdmin: Boolean
 });
 
-userSchema.methods.generateAuthToken = function (publicKey) {
-    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, walletAddress: this.walletAddress, walletSignature: this.walletSignature, publicKey: publicKey}, config.get('jwtPrivateKey'), { expiresIn: '365d' });
+userSchema.methods.generateAuthToken = function () {
+    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, walletAddress: this.walletAddress, walletSignature: this.walletSignature}, config.get('jwtPrivateKey'), { expiresIn: '365d' });
 }
 
 const User = mongoose.model('User', userSchema);
@@ -124,7 +124,12 @@ function validateLinkedWallet(req) {
         orgName: Joi.string().valid('Org1', 'Org2', 'Org3').required(),
         password: Joi.string().min(5).max(100).required(),
         walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
-        signature: Joi.string().min(5).max(500).required(),
+        x509Identity: Joi.object({
+            walletAddress: Joi.string().min(5).max(300).required(),
+            credentials: Joi.object().required(),
+            mspId: Joi.string().valid('Org1MSP', 'Org2MSP', 'Org3MSP').required(),
+            type: Joi.string().required(),
+        }).required()
     });
     return schema.validate(req);
 }

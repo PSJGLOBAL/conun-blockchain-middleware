@@ -3,9 +3,7 @@ const router = express.Router();
 const Joi = require('joi');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
-const NodeRSA = require('node-rsa');
 
-const rsaToken =  require('../../middleware/crypto/rsa-signature/index');
 const {User, validateMember, validateNoneMember, validateAuthLogin, 
     validateWalletLogin, validateWalletImport, validateLinkedWallet} = require('../../models/profile/user');
 const { Wallet } = require('../../models/profile/wallet');
@@ -15,16 +13,23 @@ const _logger = Helper.getLogger("UserAPI");
 const helper = require('../../app/helper/token.helper');
 const auth = require('../../middleware/auth');
 const oauth = require('../../middleware/email.oauth');
-const rsaVerify = require('../../middleware/rsa.auth');
 const Eth = require('../../app/web3/eth.main');
 const crypto = require('../../utils/crypto/encryption.algorithm');
 
 router.get('/check', async (req, res) => {
     try {
-        const user = await User.findOne({email: req.query.email}).select('-password');
-        console.log('user: ', user);
-        res.status(200).json({payload: user.email, success: true, status:  200  });
+        if(req.query.email) {
+            let user = await User.findOne({email: req.query.email}).select(['-password', '-x509keyStore', '-walletSignature']);
+            console.log('user: ', user);
+            res.status(200).json({payload: user.email, success: true, status:  200  });
+        }
+        else if(req.query.walletAddress) {
+            let user = await User.findOne({walletAddress: req.query.walletAddress}).select(['-password', '-x509keyStore', '-walletSignature']);
+            console.log('user: ', user);
+            res.status(200).json({payload: user.walletAddress, success: true, status:  200 });
+        }
     } catch (error) {
+        console.log('/check: ', error)
         _logger.error(`/check: Reqeest: ${req.query} `, error);
         res.status(400).json({payload: error.message, success: false,  status:  400 });
     }
@@ -32,30 +37,11 @@ router.get('/check', async (req, res) => {
 
 router.get('/me', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).select('-password');
+        const user = await User.findById(req.user._id).select(['-password', '-x509keyStore', '-walletSignature']);
         res.status(200).json({payload: user, success: true, status: 200})
     } catch (error) {
         _logger.error(`/me: Reqeest: ${req.user._id} `, error);
         res.status(400).json({payload: error.message, success: false, status: 400 })
-    }
-});
-
-router.get('/checkKey', auth, async (req, res) => {
-    try {
-        let user = await helper.getUserIdentity({
-            orgName: req.query.orgName,
-            walletAddress: req.user.walletAddress,
-            walletType: req.query.walletType,
-            password: req.query.password
-        });
-        if (user) {
-            res.status(200).json({payload: user, success: true, status: 200})
-        } else {
-            res.status(400).json({payload: user, success: false, status: 400})
-        }
-    } catch (error) {
-        _logger.error(`/checkKey check your wallet: ${req.user.walletAddress} `, error);
-        res.status(400).json({payload: `check your wallet: ${req.user.walletAddress} password or ${error.message}`, success: false, status: 400 })
     }
 });
 
@@ -75,7 +61,7 @@ router.post('/auth-create', oauth,  async (req, res) => {
         let x509Identity = await helper.getRegisteredUser({
             orgName,
             walletType: req.body.walletType,
-            walletAddress: req.body.walletAddress,
+            walletAddress: req.body.walletAddress.toLowerCase(),
             keyStore: req.body.keyStore,
             password: req.body.password
         });
@@ -90,7 +76,7 @@ router.post('/auth-create', oauth,  async (req, res) => {
             email: req.body.email,
             orgName: orgName,
             password: req.body.password,
-            walletAddress: req.body.walletAddress,
+            walletAddress: req.body.walletAddress.toLowerCase(),
             x509keyStore: crypto.AesEncrypt(JSON.stringify(x509Identity), req.body.password),
             walletSignature: hashed.signature,
             isAdmin: false
@@ -117,7 +103,7 @@ router.post('/wallet-create', async (req, res) => {
     const { error } = validateNoneMember(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
-    let user = await User.findOne({walletAddress: req.body.walletAddress});
+    let user = await User.findOne({walletAddress: req.body.walletAddress.toLowerCase()});
     console.log('user: ', user);
     if (user)
         return res.status(400).json({payload: 'Wallet already exist', success: false, status: 400});
@@ -128,7 +114,7 @@ router.post('/wallet-create', async (req, res) => {
         let x509Identity = await helper.getRegisteredUser({
             orgName,
             walletType: req.body.walletType,
-            walletAddress: req.body.walletAddress,
+            walletAddress: req.body.walletAddress.toLowerCase(),
             keyStore: req.body.keyStore,
             password: req.body.password
         });
@@ -140,7 +126,7 @@ router.post('/wallet-create', async (req, res) => {
         user = new User ({
             orgName: orgName,
             password: req.body.password,
-            walletAddress: req.body.walletAddress,
+            walletAddress: req.body.walletAddress.toLowerCase(),
             walletSignature: hashed.signature,
             isAdmin: false
         });
@@ -177,21 +163,11 @@ router.post('/auth-login', oauth, async (req, res) => {
     if(!isValidPassword)
         return res.status(400).json({payload: 'Email or password is incorrect !', success: false, status: 400})
 
-    const key = new NodeRSA({b:1024});
-
-    let publicKey = key.exportKey('public');
-    let privateKey = key.exportKey('private');
-    console.log('publicKey: ', publicKey);
-    console.log('privateKey: ', privateKey);
-    const token = user.generateAuthToken(publicKey);
+    const token = user.generateAuthToken();
     res.status(200).header('jwtAuthToken', token).json({
         payload: {
             user: _.pick(user, ['_id', 'name', 'email', 'walletAddress']),
             'jwtAuthToken': token,
-            rsa: {
-                'privateKey': privateKey,
-                'publicKey': publicKey
-            },
             x509Identity: JSON.parse(crypto.AESDecrypt(user.x509keyStore, req.body.password))
         },
         success: true,
@@ -204,7 +180,7 @@ router.post('/importCertificate', async (req, res) => {
     const { error } = validateWalletImport(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
-    let user = await User.findOne({ walletAddress: req.body.x509Identity.walletAddress });
+    let user = await User.findOne({ walletAddress: req.body.x509Identity.walletAddress.toLowerCase() });
     if (!user)
         return res.status(400).json({payload: `wallet: ${req.body.x509Identity.walletAddress} is not exist`, success: false, status: 400});
 
@@ -213,18 +189,12 @@ router.post('/importCertificate', async (req, res) => {
         return res.status(400).json({payload: 'password is incorrect !', success: false, status: 400})
 
     try {
-        const key = new NodeRSA({b:1024});
-
-        let publicKey = key.exportKey('public');
-        let privateKey = key.exportKey('private');
-        console.log('publicKey: ', publicKey);
-        console.log('privateKey: ', privateKey);
-        const token = user.generateAuthToken(publicKey);
+        const token = user.generateAuthToken();
         let orgName = req.body.orgName;
         let walletAddress = await helper.importWalletByCertificate({
             orgName,
             password: req.body.password,
-            walletAddress: req.body.x509Identity.walletAddress,
+            walletAddress: req.body.x509Identity.walletAddress.toLowerCase(),
             x509Identity: req.body.x509Identity,
         });
         console.log('walletAddress: ', walletAddress);
@@ -232,12 +202,7 @@ router.post('/importCertificate', async (req, res) => {
             res.status(200).header('jwtAuthToken', token).json({
                 payload: {
                     user: _.pick(user, ['_id', 'name', 'email', 'walletAddress']),
-                    'jwtAuthToken': token,
-                    rsa: {
-                        'privateKey': privateKey,
-                        'publicKey': publicKey
-                    },
-                    x509Identity: req.body.x509Identity
+                    'jwtAuthToken': token
                 },
                 success: true,
                 status: 200
@@ -253,8 +218,7 @@ router.post('/importCertificate', async (req, res) => {
 });
 
 
-//todo auth and sign
-router.post('/getLinkedWallets', auth, rsaVerify, async (req, res) => {
+router.post('/getLinkedWallets', auth, async (req, res) => {
     const { error } = validateLinkedWallet(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
@@ -264,21 +228,27 @@ router.post('/getLinkedWallets', auth, rsaVerify, async (req, res) => {
 
     const isValidPassword = await bcrypt.compare(req.body.password, user.password);
     if(!isValidPassword)
-        return res.status(400).json({payload: 'password is incorrect !', success: false, status: 400})
+        return res.status(400).json({payload: 'password is incorrect !', success: false, status: 400}) 
 
     try {
         let orgName = req.body.orgName;
-
-        let walletAddress = await helper.getLinkedWallets({
+        let payload = await helper.getLinkedWallets({
             orgName,
             password: req.body.password,
             walletType: req.body.walletType,
-            walletAddress: req.user.walletAddress,
+            walletAddress: req.user.walletAddress.toLowerCase(),
         });
-        if (walletAddress) {
-            res.status(200).json({payload:  walletAddress, success: true, status: 200})
+
+        let user = await User.findOne({ walletAddress: req.body.x509Identity.walletAddress.toLowerCase() });
+        // data, signature
+        let verify = await Eth.VerifySignature(JSON.stringify(req.body.x509Identity), user.walletSignature)
+        console.log('walletAddress', user.walletAddress)
+        console.log('walletverify: ', verify)   
+
+        if (payload.walletAddress === verify.toLowerCase()) {
+            res.status(200).json({payload:  payload, success: true, status: 200})
         } else {
-            res.status(400).json({payload: x509Identity, success: false, status: 400})
+            res.status(400).json({payload: 'certificate does not belongs to your account', success: false, status: 400})
         }
     } catch (error) {
         console.log(`/getLinkedWallets error: ${error} `);
