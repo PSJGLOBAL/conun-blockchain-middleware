@@ -7,7 +7,7 @@ const auth = require('../../middleware/auth');
 const owner = require('../../middleware/owner');
 const x509 = require('../../middleware/x509');
 const events = require('events');
-
+const Eth = require('../../app/web3/eth.main');
 const Helper = require('../../common/helper');
 const logger = Helper.getLogger('TokenAPI');
 
@@ -15,20 +15,6 @@ function CallInvoke(event, req) {
     const eventDeal = new events.EventEmitter();
     return new Promise(
         (resolve, reject) => {
-            eventDeal.on('Transfer', async () => {
-                let result = await invokeHandler.Transfer({
-                    channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
-                    fcn: req.body.fcn,
-                    orgName: req.body.orgName,
-                    walletAddress: req.body.fromAddress,
-                    to: req.body.toAddress,
-                    value: req.body.value,
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
-            });
-
             eventDeal.on('Init', async () => {
                 let result = await invokeHandler.Init({
                     channelName: req.params.channelName,
@@ -67,9 +53,35 @@ function CallInvoke(event, req) {
                 resolve(result.message);
             });
 
+            eventDeal.on('Transfer', async () => {
+                let _data = {
+                    walletAddress: req.body.fromAddress,
+                    to: req.body.toAddress,
+                    value: req.body.value,
+                }
+    
+                let hashed = await Eth.CreateSignature(_data, 'a90f4afe01cefe6145fdc567bbdab5098bb00f3286e9ead20b212c4a2c36b93a') 
+                console.log('VerifySignature: ', await Eth.VerifySignature(_data))
+                console.log('testSignature: ', _data, hashed.signature)
+
+                let result = await invokeHandler.Transfer({
+                    channelName: req.params.channelName,
+                    chainCodeName: req.params.chainCodeName,
+                    fcn: req.body.fcn,
+                    orgName: req.body.orgName,
+                    walletAddress: req.body.fromAddress,
+                    to: req.body.toAddress,
+                    value: req.body.value,
+                    signTransaction: hashed.signature
+                });
+                if(!result.status) reject(result.message);
+                resolve(result.message);
+            });
+
 
             let status = eventDeal.emit(event)
             if (!status) {
+                console.log('CallInvoke - > status: ', status)
                 eventDeal.removeAllListeners();
                 reject('not valid request to chain-code');
             }
@@ -158,7 +170,8 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
     }
 });
 
-router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
+// router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
+router.get('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
     try {
         CallQuery(req.query.fcn, req)
             .then((response) => {

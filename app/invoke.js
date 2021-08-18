@@ -34,9 +34,9 @@ module.exports = {
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
             let _value = web3.utils.toWei(arg.value, 'ether');
-
+            
             //  submitTransaction(func, wallet-address)
-            let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity, arg.to, _value);
+            let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity, arg.to, _value, arg.signTransaction);
             console.log('result>> :', result);
             await gateway.disconnect();
 
@@ -132,11 +132,11 @@ module.exports = {
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.connectOptions);
-
+        
             // Get the network (channel) our contract is deployed to.
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
-            
+                
             // submitTransaction(func, wallet-address)
             let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity);
             await gateway.disconnect();

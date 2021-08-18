@@ -9,7 +9,7 @@ const Web3 = require('web3');
 const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
 const ConContractAddress = config.get('ethereum.contract_address');
 const web3 = new Web3(provider);
-
+const createKeccakHash = require('keccak');
 var abijson = require('./abi.json');
 var abiarray = abijson;
 
@@ -381,14 +381,14 @@ module.exports = {
     },
 
     CreateSignature: async (data, privateKey) => {
-        let signature = await web3.eth.accounts.sign(data, privateKey);
+        let signature = await web3.eth.accounts.sign(JSON.stringify(data), privateKey);
         console.log('signature: ', signature)
         return signature;
     },
 
     VerifySignature: async (data, signature) => {
-        let whoSigned = await web3.eth.accounts.recover(data, signature);
-        console.log('whoSigned: ', whoSigned)
+        let whoSigned = await web3.eth.accounts.recover(JSON.stringify(data), signature);
+        console.log('----> whoSigned: ', whoSigned)
         return whoSigned;
     },
 
@@ -409,7 +409,7 @@ module.exports = {
         // let sig2 = sigObj.signature;W
         // console.log('sig2: ', sig2);
 
-        // let whoSigned1 = await web3.eth.accounts.recover(msg, sig2)S
+        // let whoSigned1 = await web3.eth.accounts.recover(msg, sig2)
         // let whoSigned2 = await web3.eth.accounts.recover(sigObj)
 
         // console.log('whoSigned1: ', whoSigned1);
