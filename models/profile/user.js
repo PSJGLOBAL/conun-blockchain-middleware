@@ -2,7 +2,6 @@ const Joi = require('joi');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const config = require('config');
-const {walletSchema} = require('./wallet');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -125,7 +124,7 @@ function validateLinkedWallet(req) {
         password: Joi.string().min(5).max(100).required(),
         walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
         x509Identity: Joi.object({
-            walletAddress: Joi.string().min(5).max(300).required(),
+            walletAddress: Joi.string().min(5).required(),
             credentials: Joi.object().required(),
             mspId: Joi.string().valid('Org1MSP', 'Org2MSP', 'Org3MSP').required(),
             type: Joi.string().required(),

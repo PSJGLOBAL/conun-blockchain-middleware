@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const Joi = require('joi');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
 
 const {User, validateMember, validateNoneMember, validateAuthLogin, 
-    validateWalletLogin, validateWalletImport, validateLinkedWallet} = require('../../models/profile/user');
-const { Wallet } = require('../../models/profile/wallet');
+      validateWalletImport, validateLinkedWallet} = require('../../models/profile/user');
 const Helper = require('../../common/helper');
 const _logger = Helper.getLogger("UserAPI");
 
@@ -68,7 +66,7 @@ router.post('/auth-create', oauth,  async (req, res) => {
 
         console.log('x509Identity: ', x509Identity);
 
-        let hashed = await Eth.CreateSignature(JSON.stringify(x509Identity), decryptData.privateKey)
+        let hashed = await Eth.CreateSignature(x509Identity, decryptData.privateKey)
         console.log('walletSignature: ', hashed.signature)
 
         user = new User ({
@@ -120,7 +118,7 @@ router.post('/wallet-create', async (req, res) => {
         });
         console.log('x509Identity: ', x509Identity);
 
-        let hashed = await Eth.CreateSignature(JSON.stringify(x509Identity), decryptData.privateKey)
+        let hashed = await Eth.CreateSignature(x509Identity, decryptData.privateKey);
         console.log('walletSignature: ', hashed.signature)
         
         user = new User ({
@@ -241,7 +239,7 @@ router.post('/getLinkedWallets', auth, async (req, res) => {
 
         let user = await User.findOne({ walletAddress: req.body.x509Identity.walletAddress.toLowerCase() });
         // data, signature
-        let verify = await Eth.VerifySignature(JSON.stringify(req.body.x509Identity), user.walletSignature)
+        let verify = await Eth.VerifySignature(req.body.x509Identity, user.walletSignature);
         console.log('walletAddress', user.walletAddress)
         console.log('walletverify: ', verify)   
 
