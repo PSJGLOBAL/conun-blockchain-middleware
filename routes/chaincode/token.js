@@ -1,13 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const _ = require('lodash');
 const invokeHandler = require('../../app/invoke');
 const queryHandler = require('../../app/query');
 const auth = require('../../middleware/auth');
-const owner = require('../../middleware/owner');
-const x509 = require('../../middleware/x509');
 const events = require('events');
-const Eth = require('../../app/web3/eth.main');
 const Helper = require('../../common/helper');
 const logger = Helper.getLogger('TokenAPI');
 
@@ -22,6 +18,8 @@ function CallInvoke(event, req) {
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
                     walletAddress: req.body.walletAddress,
+                    messageHash: req.body.messageHash,
+                    signature: req.body.signature
                 });
                 if(!result.status) reject(result.message);
                 resolve(result.message);
@@ -35,6 +33,8 @@ function CallInvoke(event, req) {
                     orgName: req.body.orgName,
                     walletAddress: req.body.walletAddress,
                     amount: req.body.amount,
+                    messageHash: req.body.messageHash,
+                    signature: req.body.signature
                 });
                 if(!result.status) reject(result.message);
                 resolve(result.message);
@@ -48,22 +48,14 @@ function CallInvoke(event, req) {
                     orgName: req.body.orgName,
                     walletAddress: req.body.walletAddress,
                     amount: req.body.amount,
+                    messageHash: req.body.messageHash,
+                    signature: req.body.signature
                 });
                 if(!result.status) reject(result.message);
                 resolve(result.message);
             });
 
             eventDeal.on('Transfer', async () => {
-                let _data = {
-                    walletAddress: req.body.fromAddress,
-                    to: req.body.toAddress,
-                    value: req.body.value,
-                }
-    
-                let hashed = await Eth.CreateSignature(_data, 'a90f4afe01cefe6145fdc567bbdab5098bb00f3286e9ead20b212c4a2c36b93a') 
-                console.log('VerifySignature: ', await Eth.VerifySignature(_data))
-                console.log('testSignature: ', _data, hashed.signature)
-
                 let result = await invokeHandler.Transfer({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
@@ -72,7 +64,8 @@ function CallInvoke(event, req) {
                     walletAddress: req.body.fromAddress,
                     to: req.body.toAddress,
                     value: req.body.value,
-                    signTransaction: hashed.signature
+                    messageHash: req.body.messageHash,
+                    signature: req.body.signature
                 });
                 if(!result.status) reject(result.message);
                 resolve(result.message);
@@ -138,9 +131,7 @@ function CallQuery(event, req) {
     )
 }
 
-
-// router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, owner, x509.verify, async (req, res) => {
-router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
+router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
     try {
         CallInvoke(req.body.fcn, req)
             .then((response) => {
@@ -170,8 +161,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
     }
 });
 
-// router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
-router.get('/channels/:channelName/chaincodes/:chainCodeName', async (req, res) => {
+router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req, res) => {
     try {
         CallQuery(req.query.fcn, req)
             .then((response) => {

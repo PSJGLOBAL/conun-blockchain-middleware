@@ -6,12 +6,13 @@ const config = require('config');
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
+        required: false,
         minlength: 3,
         maxlength: 50,
     },
     email: {
         type: String,
-        unique: true,
+        required: false,
         minlength: 5,
         maxlength: 100,
     },
@@ -36,7 +37,7 @@ const userSchema = new mongoose.Schema({
     },
     x509keyStore: {
         type: Object,
-        unique: true,
+        required: false,
         minlength: 10,
         maxlength: 1024,
     },
