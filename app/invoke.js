@@ -36,7 +36,7 @@ module.exports = {
             let _value = web3.utils.toWei(arg.value, 'ether');
             
             //  submitTransaction(func, wallet-address)
-            let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity, arg.to, _value, arg.signTransaction);
+            let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity, arg.to, _value, arg.messageHash, arg.signature);
             console.log('result>> :', result);
             await gateway.disconnect();
 
@@ -70,7 +70,7 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
 
             let _amount = web3.utils.toWei(arg.amount, 'ether');
-            let result = await contract.submitTransaction(arg.fcn, _amount);
+            let result = await contract.submitTransaction(arg.fcn, _amount, arg.messageHash, arg.signature);
             await gateway.disconnect();
 
 
@@ -104,7 +104,7 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
 
             let _amount = web3.utils.toWei(arg.amount, 'ether');
-            let result = await contract.submitTransaction(arg.fcn, _amount);
+            let result = await contract.submitTransaction(arg.fcn, _amount, arg.messageHash, arg.signature);
 
             await gateway.disconnect();
 
@@ -138,7 +138,7 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
                 
             // submitTransaction(func, wallet-address)
-            let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity);
+            let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity, arg.messageHash, arg.signature);
             await gateway.disconnect();
 
             logger.info('>> Init result: ', JSON.parse(result.toString()));

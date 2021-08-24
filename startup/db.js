@@ -4,23 +4,25 @@ const Helper = require('../common/helper');
 
 const logger = Helper.getLogger('MongoDB')
 
+let options = {
+    dbName: config.get("db.name"),
+    auth: { "authSource": "admin" },
+    user: config.get("db.user"),
+    pass: config.get("db.password"),
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  }
+
 module.exports = function () {
-    mongoose.connect(config.get('db'), {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true,
-      })
+    mongoose.connect(config.get("db.url"), options)
     mongoose.set('useFindAndModify', false);
     mongoose.set('useCreateIndex', true);
 
     // Retry connection
     const connectWithRetry = () => {
         console.log('MongoDB connection with retry')
-        return mongoose.connect(config.get('db'), {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useCreateIndex: true,
-          })
+        return mongoose.connect(config.get("db.url"), options)
     }
 
 // Exit application on error
