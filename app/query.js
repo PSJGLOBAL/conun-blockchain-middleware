@@ -112,11 +112,11 @@ module.exports = {
 
             // let result = await contract.evaluateTransaction(arg.fcn, arg.wallet_address);
             //todo ' peer chaincode invoke \
-            //         -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA \
+            //         -o localhost:7050 --ordererTLSHostnameOverride orderer.conun.io --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA \
             //         $PEER_CONN_PARMS \
             //         -C mychannel -n qscc \
             //         -c '{"function":"GetTransactionByID","Args":["mychannel", "b2d4920bb653cced5622e7a51dc90f3c23df83172eaee670605e4be1d1b1f6e5"]}'
-            let result = await network.queryTransaction('b2d4920bb653cced5622e7a51dc90f3c23df83172eaee670605e4be1d1b1f6e5', 'peer0.org1.example.com')
+            let result = await network.queryTransaction('b2d4920bb653cced5622e7a51dc90f3c23df83172eaee670605e4be1d1b1f6e5', 'peer0.org1.conun.io')
 
             // console.log(`Transaction has been evaluated, result is: ${result}`);
             return {

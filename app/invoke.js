@@ -57,9 +57,9 @@ module.exports = {
         }
     },
 
-    Burn: async (arg) => {
+    BurnFrom: async (arg) => {
         try {
-            logger.info('>> Burn: ', arg);
+            logger.info('>> BurnFrom: ', arg);
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -70,20 +70,19 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
 
             let _amount = web3.utils.toWei(arg.amount, 'ether');
-            let result = await contract.submitTransaction(arg.fcn, _amount, arg.messageHash, arg.signature);
+            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress, _amount, arg.messageHash, arg.signature);
             await gateway.disconnect();
 
 
             let payload = JSON.parse(result.toString());
             payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
-            payload.Func.Total = web3.utils.fromWei(payload.Func.Total, "ether");
             return {
                 status: true,
                 message: payload
             };
 
         } catch (error) {
-            logger.error(`Burn error: ${error.message}, arg: ${arg}`);
+            logger.error(`BurnFrom error: ${error.message}, arg: ${arg}`);
             return {
                 status: false,
                 message: splitString(error.message)
@@ -91,9 +90,10 @@ module.exports = {
         }
     },
 
-    Mint: async (arg) => {
+    MintAndTransfer: async (arg) => {
         try {
-            logger.info('>> Mint: ', arg);
+            logger.info('>> MintAndTransfer: ', arg);
+            console.log('>> MintAndTransfer: ', arg)
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -104,20 +104,19 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
 
             let _amount = web3.utils.toWei(arg.amount, 'ether');
-            let result = await contract.submitTransaction(arg.fcn, _amount, arg.messageHash, arg.signature);
-
+            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress, _amount, arg.messageHash, arg.signature);
             await gateway.disconnect();
 
             let payload = JSON.parse(result.toString());
+            console.log('>> MintAndTransfer result: ', payload)
             payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
-            payload.Func.Total = web3.utils.fromWei(payload.Func.Total, "ether");
             return {
                 status: true,
                 message: payload
             };
 
         } catch (error) {
-            logger.error(`Mint error: ${error.message}, arg: ${arg}`);
+            logger.error(`MintAndTransfer error: ${error.message}, arg: ${arg}`);
             return {
                 status: false,
                 message: splitString(error.message)

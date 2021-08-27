@@ -22,8 +22,8 @@ function CallInvoke(event, req) {
                 resolve(result);
             })
 
-            eventDeal.on('Mint', async () => {
-                let result = await invokeHandler.Mint({
+            eventDeal.on('MintAndTransfer', async () => {
+                let result = await invokeHandler.MintAndTransfer({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,

@@ -24,9 +24,9 @@ function CallInvoke(event, req) {
                 if(!result.status) reject(result.message);
                 resolve(result.message);
             });
-
-            eventDeal.on('Mint', async () => {
-                let result = await invokeHandler.Mint({
+            // todo MintAndTransfer
+            eventDeal.on('MintAndTransfer', async () => {
+                let result = await invokeHandler.MintAndTransfer({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
@@ -39,9 +39,9 @@ function CallInvoke(event, req) {
                 if(!result.status) reject(result.message);
                 resolve(result.message);
             });
-
-            eventDeal.on('Burn', async () => {
-                let result = await invokeHandler.Burn({
+            //todo BurnFrom
+            eventDeal.on('BurnFrom', async () => {
+                let result = await invokeHandler.BurnFrom({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,

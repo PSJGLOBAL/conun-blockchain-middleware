@@ -17,7 +17,6 @@ function auth(req, res, next) {
                     return res.status(400).json({payload: {expiredAt: err.expiredAt}, success: false,  status:  400 });
                 }
                 req.user = verify;
-                console.log('req.user: ', req.user)
                 next();
             });
     } catch (e) {
