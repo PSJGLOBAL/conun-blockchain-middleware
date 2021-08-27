@@ -8,8 +8,8 @@ const connectionOrg = require('../helper/conection')
 const crypto = require('../../utils/crypto/encryption.algorithm');
 
 const mapOrganizations = new Map();
-mapOrganizations.set('Org1', 'ca.org1.example.com')
-mapOrganizations.set('Org2', 'ca.org2.example.com')
+mapOrganizations.set('Org1', 'ca.org1.conun.io')
+mapOrganizations.set('Org2', 'ca.org2.conun.io')
 
 
 const getUserIdentity = async (arg)  => {
@@ -171,13 +171,15 @@ const getRegisteredUser = async (arg) => {
     const ccpPath = path.resolve(__dirname, '../../', 'config', 'connection-org1.json');
     const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
     const ccp = JSON.parse(ccpJSON);
+
+    console.log('ccp: ',ccp);
     // Create a new CA client for interacting with the CA.
     const caURL = ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)].url;
     const ca = new FabricCAServices(caURL);
-    // console.log('caURL: ',caURL)
+    console.log('caURL: ',caURL);
     const walletPath = path.join(process.cwd(), 'wallet');
     const wallet = await Wallets.newFileSystemWallet(walletPath);
-    // console.log(`Wallet path: ${walletPath}`);
+    console.log(`Wallet path: ${walletPath}`);
 
     // Check to see if we've already enrolled the admin user.
     let adminIdentity = await wallet.get('admin');
@@ -193,6 +195,7 @@ const getRegisteredUser = async (arg) => {
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
 
     let keyStore = crypto.AesEncrypt(JSON.stringify(arg.keyStore), arg.password);
+    console.log('keyStore: ', keyStore)
     if(!keyStore) return;
     // Register the user, enroll the user, and import the new identity into the wallet.
     const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: arg.walletAddress, role: 'client', attrs: [{ name: arg.walletType, value: keyStore, ecert: true }] }, adminUser);
@@ -223,7 +226,7 @@ const enrollAdmin = async () => {
         const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
         const ccp = JSON.parse(ccpJSON);
 
-        const caInfo = ccp.certificateAuthorities['ca.org1.example.com'];
+        const caInfo = ccp.certificateAuthorities['ca.org1.conun.io'];
         const caTLSCACerts = caInfo.tlsCACerts.pem;
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
 

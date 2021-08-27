@@ -8,5 +8,5 @@ const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
 const mapOrganizations = new Map();
-mapOrganizations.set('Org1', 'ca.org1.example.com');
-mapOrganizations.set('Org2', 'ca.org2.example.com');
+mapOrganizations.set('Org1', 'ca.org1.conun.io');
+mapOrganizations.set('Org2', 'ca.org2.conun.io');

@@ -115,7 +115,7 @@ describe('INVOKE CONX', () => {
     });
 
 
-    describe('POST / Mint', () => {
+    describe('POST / MintAndTransfer', () => {
         let fcn;
         let orgName;
         let walletAddress;
@@ -142,51 +142,51 @@ describe('INVOKE CONX', () => {
         };
 
         beforeEach(() => {
-            fcn = 'Mint';
+            fcn = 'MintAndTransfer';
             orgName = 'Org1';
             walletAddress = '0x07AEFe41428146D01d5953626FCa408A2bb58792';
             amount = 10;
         });
 
-        it('1 - test Mint', async () => {
+        it('1 - test MintAndTransfer', async () => {
             fcn = '';
             orgName = '';
             walletAddress = '';
             amount = '';
             const res = await execute();
-            console.log('1 - test Mint: ', res.body);
+            console.log('1 - test MintAndTransfer: ', res.body);
             expect(res.status).toBe(400);
         });
 
-        it('2 - test Mint', async () => {
+        it('2 - test MintAndTransfer', async () => {
             fcn = 'aaaa';
             orgName = 'Org1';
             walletAddress = '0x07AEFe41428146D01d5953626FCa408A2bb58792';
             amount = 100;
             const res = await execute();
-            console.log('2 - test Mint: ', res.body);
+            console.log('2 - test MintAndTransfer: ', res.body);
             expect(res.status).toBe(400);
         });
 
-        it('3 - test Mint', async () => {
-            fcn = 'Mint';
+        it('3 - test MintAndTransfer', async () => {
+            fcn = 'MintAndTransfer';
             orgName = 'Org1';
             walletAddress = new Array(21).join('C');
             amount = 100;
             const res = await execute();
-            console.log('3 - test Mint: ', res.body);
+            console.log('3 - test MintAndTransfer: ', res.body);
             expect(res.status).toBe(400);
         });
 
-        it('4 - test Mint', async () => {
+        it('4 - test MintAndTransfer', async () => {
             const res = await execute();
-            console.log('4 - test Mint: ', res.body);
+            console.log('4 - test MintAndTransfer: ', res.body);
             expect(res.status).toBe(200);
         });
     });
 
 
-    describe('POST / Burn', () => {
+    describe('POST / BurnFrom', () => {
         let fcn;
         let orgName;
         let walletAddress;
@@ -213,39 +213,39 @@ describe('INVOKE CONX', () => {
         };
 
         beforeEach(() => {
-            fcn = 'Burn';
+            fcn = 'BurnFrom';
             orgName = 'Org1';
             walletAddress = '0x07AEFe41428146D01d5953626FCa408A2bb58792';
             amount = 10;
         });
 
-        it('1 - test Burn', async () => {
+        it('1 - test BurnFrom', async () => {
             fcn = '';
             orgName = '';
             walletAddress = '';
             amount = '';
             const res = await execute();
-            console.log('1 - test Burn: ', res.body);
+            console.log('1 - test BurnFrom: ', res.body);
             expect(res.status).toBe(400);
         });
 
-        it('2 - test Burn', async () => {
+        it('2 - test BurnFrom', async () => {
             fcn = 'aaaa';
             orgName = 'Org1';
             walletAddress = '0x07AEFe41428146D01d5953626FCa408A2bb58792';
             amount = 100;
             const res = await execute();
-            console.log('2 - test Burn: ', res.body);
+            console.log('2 - test BurnFrom: ', res.body);
             expect(res.status).toBe(400);
         });
 
-        it('3 - test Burn', async () => {
-            fcn = 'Burn';
+        it('3 - test BurnFrom', async () => {
+            fcn = 'BurnFrom';
             orgName = 'Org1';
             walletAddress = new Array(21).join('C');
             amount = 100;
             const res = await execute();
-            console.log('3 - test Burn: ', res.body);
+            console.log('3 - test BurnFrom: ', res.body);
             expect(res.status).toBe(400);
         });
     });
