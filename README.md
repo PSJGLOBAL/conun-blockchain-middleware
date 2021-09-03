@@ -114,3 +114,25 @@
         [blockchain_ip] ca.org1.example.com
         [blockchain_ip] ca.org2.example.com
         [blockchain_ip] ca_orderer       
+
+
+
+5. Docker:
+    1 - Install:
+        sudo apt-get update
+        sudo apt-get upgrade
+        sudo apt install docker.io
+        systemctl start docker
+        systemctl enable docker
+        docker --versio
+
+        sudo usermod -aG docker ${USER}
+        su - ${USER}
+        id -nG
+        sudo usermod -aG docker addusernamehere
+
+    2 - Build:
+        docker build --tag conun-middleware-testnet-v3:0.1 .
+    
+    3 - Run Docker image:
+        docker run -d -p 4040:4040 -it conun-middleware-testnet-v3:0.1

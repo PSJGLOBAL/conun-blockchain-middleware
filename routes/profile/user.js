@@ -217,10 +217,12 @@ router.post('/importCertificate', async (req, res) => {
 
 
 router.post('/getLinkedWallets', auth, async (req, res) => {
+    console.log('getLinkedWallets: ', req.body)
     const { error } = validateLinkedWallet(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
     let user = await User.findOne({walletAddress: req.user.walletAddress});
+    console.log('user db - 1: ', user)
     if (!user)
         return res.status(400).json({payload: `wallet: ${req.user.walletAddress} is not exist`, success: false, status: 400});
 
@@ -234,10 +236,8 @@ router.post('/getLinkedWallets', auth, async (req, res) => {
             orgName,
             password: req.body.password,
             walletType: req.body.walletType,
-            walletAddress: req.user.walletAddress.toLowerCase(),
+            walletAddress: req.body.x509Identity.walletAddress.toLowerCase(),
         });
-
-        let user = await User.findOne({ walletAddress: req.body.x509Identity.walletAddress.toLowerCase() });
         // data, signature
         let verify = await Eth.VerifySignature(req.body.x509Identity, user.walletSignature);
         console.log('walletAddress', user.walletAddress)
@@ -246,7 +246,7 @@ router.post('/getLinkedWallets', auth, async (req, res) => {
         if (payload.walletAddress === verify.toLowerCase()) {
             res.status(200).json({payload:  payload, success: true, status: 200})
         } else {
-            res.status(400).json({payload: 'certificate does not belongs to your account', success: false, status: 400})
+            res.status(400).json({payload: `certificate does not belongs to your account. owner is: ${verify}`, success: false, status: 400})
         }
     } catch (error) {
         console.log(`/getLinkedWallets error: ${error} `);
