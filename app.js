@@ -46,8 +46,10 @@ app.get('/', async (req, res)  => {
 
 logger.info('process.env.NODE_ENV:  ', process.env.NODE_ENV);
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development' && !process.env.TEST_PORT) {
      process.env.PORT = "4040";
+} else if (process.env.NODE_ENV === 'development' && process.env.TEST_PORT) {
+    process.env.PORT = process.env.TEST_PORT
 } else {
     process.env.PORT = constants.port;
 }

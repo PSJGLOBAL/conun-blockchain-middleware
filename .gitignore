@@ -11,3 +11,4 @@ logs/
 *.log
 coverage
 http_req
+private.json

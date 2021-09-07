@@ -15,7 +15,7 @@ RUN npm install
 
 # Bundle app source
 COPY . /conun-middleware-testnet-v3
-
+COPY hosts /etc/
 # Build assets
 
 ENV PORT 4040

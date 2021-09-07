@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "export NODE_ENV=development && jest --watchAll --coverage",
+    "test": "export NODE_ENV=development && export TEST_PORT=4444 && jest --watchAll --coverage",
     "win-test": "set NODE_ENV=development && jest --watchAll --coverage",
     "start": "node app.js",
     "dev": "export NODE_ENV=development && nodemon app.js"

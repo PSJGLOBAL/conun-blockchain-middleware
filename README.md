@@ -126,13 +126,14 @@
         systemctl enable docker
         docker --versio
 
+    2 - Switch user:    
         sudo usermod -aG docker ${USER}
         su - ${USER}
         id -nG
         sudo usermod -aG docker addusernamehere
 
-    2 - Build:
+    3 - Build:
         docker build --tag conun-middleware-testnet-v3:0.1 .
     
-    3 - Run Docker image:
+    4 - Run Docker image:
         docker run -d -p 4040:4040 -it conun-middleware-testnet-v3:0.1
