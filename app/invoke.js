@@ -4,9 +4,9 @@ const config = require('config');
 const Web3 = require('web3');
 const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
 const web3 = new Web3(provider);
-
 const Helper = require('../common/helper');
 const logger = Helper.getLogger('app');
+
 
 function splitString(msg) {
     try {
@@ -102,7 +102,6 @@ module.exports = {
     MintAndTransfer: async (arg) => {
         try {
             logger.info('>> MintAndTransfer: ', arg);
-            console.log('>> MintAndTransfer: ', arg)
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -115,11 +114,12 @@ module.exports = {
             let _amount = web3.utils.toWei(arg.amount, 'ether');
             let result = await contract.submitTransaction(arg.fcn, JSON.stringify(
                {
-                "id": arg.id,
-                "user": arg.walletAddress,
-                "amount": _amount,
-                "message": arg.messageHash,
-                "signature": arg.signature
+                id: arg.id,
+                key: arg.key,
+                user: arg.walletAddress,
+                amount: _amount,
+                message: arg.messageHash,
+                signature: arg.signature
                }
             ));
             await gateway.disconnect();

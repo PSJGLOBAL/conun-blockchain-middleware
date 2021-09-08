@@ -6,27 +6,6 @@ const adminConfig = require('./private.json');
 
 let server;
 
-async function sign(walletAddress,  payload) {
-    try {
-        const walletPath = path.join(process.cwd(), 'wallet');
-        const wallet = await Wallets.newFileSystemWallet(walletPath);
-        let identity = await wallet.get(walletAddress);
-        if(!identity) return;
-        // console.log('identity.credentials.privateKey: ', identity.credentials.privateKey);
-        const privateKey = PrivateKey.fromPEM(identity.credentials.privateKey);
-        // console.log('> privateKey: ', privateKey);
-        const signature = privateKey.sign(Buffer.from(JSON.stringify(payload)), 'sha256');
-        // console.log('> signature: ', signature);
-        let sign = jwt.sign({signature: signature.toString('base64')}, identity.credentials.privateKey, { expiresIn: '19000ms' });
-        console.log('sign: ', sign);
-
-        return sign;
-    } catch (e) {
-        console.log('>> signIn error: ', e);
-    }
-}
-
-
 describe('BRIDGE SWAP', () => {
     beforeEach(() => {
         server = require('../../app');
@@ -106,13 +85,14 @@ describe('BRIDGE SWAP', () => {
     describe('POST / CONX -> MintAndTransfer', () => {
         const execute = async (hashed) => {
             return await request(server)
-                .post('/api/v1/con-token/channels/mychannel/chaincodes/bridge')
+                .post('/api/v1/bridge-swap/channels/mychannel/chaincodes/bridge')
                 .set('jwtAuthToken', adminConfig.jwtAuthToken)
                 .send({
                     fcn,
                     orgName,
                     password,
                     id,
+                    key,
                     walletAddress,
                     amount,
                     messageHash: hashed.messageHash,
@@ -124,14 +104,15 @@ describe('BRIDGE SWAP', () => {
             fcn = "MintAndTransfer"
             orgName = adminConfig.orgName
             password = adminConfig.password
-            id = "0xa4287e0024343dd3b107be1db5ad6fcc7e1413ed50ec32fb68cbb5c2673f1a5d"
+            id = "2906aecdda3808ba41c1f6aae45badb92327234a095b753bde3e68692cd8d7dd"
+            key = "d6d5e2fa9149c2267b474e4f2432fc4746d042a632b20dbc0c0c65e7699ebb1d"
             walletAddress = adminConfig.walletAddress
             amount = "10000"
         });
 
         it('1- CONX Mint', async () => {
             let hashed = await Eth.CreateSignature('aaaa', adminConfig.privateKey)
-            console.log('hashed: ', hashed);
+            // console.log("hashed: ", hashed)
             const res = await execute(hashed);
             console.log('swap response: ', res.body);
             expect(res.status).toBe(200);
@@ -140,42 +121,42 @@ describe('BRIDGE SWAP', () => {
 
 
 
-    describe('POST / CONX -> BurnFrom', () => {
-        const execute = async (hashed) => {
-            return await request(server)
-                .post('/api/v1/con-token/channels/mychannel/chaincodes/bridge')
-                .set('jwtAuthToken', adminConfig.jwtAuthToken)
-                .send({
-                    fcn,
-                    orgName,
-                    password,
-                    id,
-                    walletAddress,
-                    amount,
-                    messageHash: hashed.messageHash,
-                    signature: hashed.signature
-                });
-        };
+    // describe('POST / CONX -> BurnFrom', () => {
+    //     const execute = async (hashed) => {
+    //         return await request(server)
+    //             .post('/api/v1/con-token/channels/mychannel/chaincodes/bridge')
+    //             .set('jwtAuthToken', adminConfig.jwtAuthToken)
+    //             .send({
+    //                 fcn,
+    //                 orgName,
+    //                 password,
+    //                 id,
+    //                 walletAddress,
+    //                 amount,
+    //                 messageHash: hashed.messageHash,
+    //                 signature: hashed.signature
+    //             });
+    //     };
         
-        beforeEach(() => {
-            fcn = "BurnFrom"
-            orgName = adminConfig.orgName
-            password = adminConfig.password
-            id = "0xa4287e0024343dd3b107be1db5ad6fcc7e1413ed50ec32fb68cbb5c2673f1a5d"
-            walletAddress = adminConfig.walletAddress
-            amount = "10000"
-        });
+    //     beforeEach(() => {
+    //         fcn = "BurnFrom"
+    //         orgName = adminConfig.orgName
+    //         password = adminConfig.password
+    //         id = "0xa4287e0024343dd3b107be1db5ad6fcc7e1413ed50ec32fb68cbb5c2673f1a5d"
+    //         walletAddress = adminConfig.walletAddress
+    //         amount = "10000"
+    //     });
 
        
-        it('1- CONX Burn', async () => {
-            let hashed = await Eth.CreateSignature('aaaa', adminConfig.privateKey)
-            console.log('hashed: ', hashed);
-            const res = await execute(hashed);
-            console.log('swap response: ', res.body);
-            expect(res.status).toBe(200);
-        });
+    //     it('1- CONX Burn', async () => {
+    //         let hashed = await Eth.CreateSignature('aaaa', adminConfig.privateKey)
+    //         console.log('hashed: ', hashed);
+    //         const res = await execute(hashed);
+    //         console.log('swap response: ', res.body);
+    //         expect(res.status).toBe(200);
+    //     });
 
-    });
+    // });
 
 
 

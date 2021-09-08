@@ -64,7 +64,7 @@ router.post('/auth-create', oauth,  async (req, res) => {
             password: req.body.password
         });
 
-        console.log('x509Identity: ', x509Identity);
+        // console.log('x509Identity: ', x509Identity);
 
         let hashed = await Eth.CreateSignature(x509Identity, decryptData.privateKey)
         console.log('walletSignature: ', hashed.signature)
@@ -116,7 +116,7 @@ router.post('/wallet-create', async (req, res) => {
             keyStore: req.body.keyStore,
             password: req.body.password
         });
-        console.log('x509Identity: ', x509Identity);
+        // console.log('x509Identity: ', x509Identity);
 
         let hashed = await Eth.CreateSignature(x509Identity, decryptData.privateKey);
         console.log('walletSignature: ', hashed.signature)
