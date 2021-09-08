@@ -70,12 +70,21 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
 
             let _amount = web3.utils.toWei(arg.amount, 'ether');
-            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress, _amount, arg.messageHash, arg.signature);
+            let result = await contract.submitTransaction(arg.fcn, JSON.stringify(
+                {
+                 "id": arg.id,
+                 "user": arg.walletAddress,
+                 "amount": _amount,
+                 "message": arg.messageHash,
+                 "signature": arg.signature
+                }
+             ));
             await gateway.disconnect();
 
-
+         
             let payload = JSON.parse(result.toString());
-            payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
+            console.log('>> MintAndTransfer result: ', payload)
+            payload.value = web3.utils.fromWei(payload.value, "ether");
             return {
                 status: true,
                 message: payload
@@ -104,12 +113,20 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
 
             let _amount = web3.utils.toWei(arg.amount, 'ether');
-            let result = await contract.submitTransaction(arg.fcn, arg.walletAddress, _amount, arg.messageHash, arg.signature);
+            let result = await contract.submitTransaction(arg.fcn, JSON.stringify(
+               {
+                "id": arg.id,
+                "user": arg.walletAddress,
+                "amount": _amount,
+                "message": arg.messageHash,
+                "signature": arg.signature
+               }
+            ));
             await gateway.disconnect();
 
             let payload = JSON.parse(result.toString());
             console.log('>> MintAndTransfer result: ', payload)
-            payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
+            payload.value = web3.utils.fromWei(payload.value, "ether");
             return {
                 status: true,
                 message: payload

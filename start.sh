@@ -47,10 +47,17 @@ stopServer() {
 
 
 # install
-build
-run
+# build
+# run
 # stopAllContainers
 # deleteAllContainers
 # stopServer
 # stopandDeleteAllContainers
 # deleteAllImages
+
+
+
+#docker ps
+#docker logs <container id>
+#  If you need to go inside a container exec, you can use a command:
+# docker exec -it <container id> /bin/bash 
