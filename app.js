@@ -46,13 +46,16 @@ app.get('/', async (req, res)  => {
 
 logger.info('process.env.NODE_ENV:  ', process.env.NODE_ENV);
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development' && !process.env.TEST_PORT) {
      process.env.PORT = "4040";
+} else if (process.env.NODE_ENV === 'development' && process.env.TEST_PORT) {
+    process.env.PORT = process.env.TEST_PORT
 } else {
     process.env.PORT = constants.port;
 }
 
 const server = app.listen(process.env.PORT, () => {
+    console.log(`Server listening to ${process.env.PORT}`);
     logger.info(`Server listening to ${process.env.PORT}`);
     logger.info(`set ${process.env.PORT} port listening...`);
 });

@@ -1,0 +1,10 @@
+192.168.100.142 peer0.org1.conun.io
+192.168.100.142 peer1.org1.conun.io
+192.168.100.142 orderer.conun.io
+192.168.100.142 peer0.org2.conun.io
+192.168.100.142 peer1.org2.conun.io
+192.168.100.142 orderer2.conun.io
+192.168.100.142 orderer3.conun.io
+192.168.100.142 ca.org1.conun.io
+192.168.100.142 ca.org2.conun.io
+192.168.100.54 ca_orderer

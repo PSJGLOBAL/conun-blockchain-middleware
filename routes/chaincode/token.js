@@ -24,7 +24,7 @@ function CallInvoke(event, req) {
                 if(!result.status) reject(result.message);
                 resolve(result.message);
             });
-            // todo MintAndTransfer
+            
             eventDeal.on('MintAndTransfer', async () => {
                 let result = await invokeHandler.MintAndTransfer({
                     channelName: req.params.channelName,
@@ -39,7 +39,7 @@ function CallInvoke(event, req) {
                 if(!result.status) reject(result.message);
                 resolve(result.message);
             });
-            //todo BurnFrom
+            
             eventDeal.on('BurnFrom', async () => {
                 let result = await invokeHandler.BurnFrom({
                     channelName: req.params.channelName,

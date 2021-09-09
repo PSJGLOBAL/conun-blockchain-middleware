@@ -11,3 +11,7 @@ logs/
 *.log
 coverage
 http_req
+private.json
+hosts
+config.json
+start.sh
