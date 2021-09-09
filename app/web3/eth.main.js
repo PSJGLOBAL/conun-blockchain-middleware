@@ -381,7 +381,7 @@ module.exports = {
     },
 
     CreateSignature: async (data, privateKey) => {
-        let signature = await web3.eth.accounts.sign(JSON.stringify(data), privateKey);
+        let signature = await web3.eth.accounts.sign(data, privateKey);
         return signature;
     },
 
