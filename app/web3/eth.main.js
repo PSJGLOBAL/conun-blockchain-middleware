@@ -386,7 +386,7 @@ module.exports = {
     },
 
     VerifySignature: async (data, signature) => {
-        let whoSigned = await web3.eth.accounts.recover(JSON.stringify(data), signature);
+        let whoSigned = await web3.eth.accounts.recover(data, signature);
         return whoSigned;
     },
 

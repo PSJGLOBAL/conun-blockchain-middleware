@@ -1,4 +1,6 @@
 const config = require('config');
+const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const Eth = require('../../app/web3/eth.main');
 const Web3 = require('web3');
 var Tx = require('ethereumjs-tx').Transaction;
@@ -113,7 +115,6 @@ const approve = async () => {
 }
 
 
-
 const depositTokens = async () => {
     web3.eth.defaultAccount = adminConfig.walletAddress;
     let privateKey = adminConfig.privateKey;
@@ -174,13 +175,23 @@ const claimTokens = async () => {
     let _amount = web3.utils.toWei("1")
     console.log('_amount: ', _amount);
     
-    let withdrawId = "0xa18b582d8d172daf74b8f98a1f6a467126506b92fc4dd72517048169d2000d43"   // id
-    let _key = "0xd7d5e2fa9149c2267b474e4f2432fc4746d042a632b20dbc0c0c65e7699ebb1a" // key
+    let seed = web3.eth.abi.encodeParameters(['string', 'address'], [uuidv4(), adminConfig.walletAddress])
+    let _key = web3.utils.sha3(seed, {encoding: 'hex'});
+    // let __key = 'b4cee65fed39d76aefdc7df265aafa0b15e99083b5bfbc40cf03816498c458f4';
+    let withdrawId = crypto.createHash('sha256').update(_key.slice(2, _key.length), 'hex').digest('hex');
+    if (!withdrawId.includes('0x')) withdrawId = '0x' + withdrawId;
+    console.log('\r\n');
+    console.log('seed: ', seed);
+    console.log('_key:', _key, web3.utils.isHex(_key));
+    console.log('withdrawId: ', withdrawId, web3.utils.isHex(withdrawId))
+
+
+    // let withdrawId = "0xa18b582d8d172daf74b8f98a1f6a467126506b92fc4dd72517048169d2000d43"   // id
+    // let _key = "0xd7d5e2fa9149c2267b474e4f2432fc4746d042a632b20dbc0c0c65e7699ebb1a" // key
 
 
     const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [_amount, adminConfig.walletAddress])
     console.log('encoded: ', encoded);
-    // web3.utils.keccak256(message)
     const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
     console.log('hash: ', hash);
     let hashed = await Eth.CreateSignature(hash, adminConfig.ownerPrivateKey)
@@ -238,4 +249,30 @@ const claimTokens = async () => {
 // approve();
 // depositTokens();
 
-// claimTokens();
+claimTokens();
+
+
+
+// function genSwapID(address) {
+//     let uuid = uuidv4();
+    
+//     const key = web3.utils.sha3(`${address}${uuid}`, {encoding: 'hex'})
+//     const id = web3.utils.sha3(key, {encoding: 'hex'})
+//     console.log('key: ', key);
+//     console.log('id: ', id);
+// }
+
+
+
+// // genSwapID(adminConfig.walletAddress);
+
+// const bcrypt = require('bcrypt');
+
+// const salto = async () => {
+//     const salt = await bcrypt.genSalt();
+//     console.log('salt: ', salt)
+//     let hash = await bcrypt.hash('123', salt);
+//     console.log('hash: ', hash)
+// }
+
+// salto();

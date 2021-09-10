@@ -66,7 +66,7 @@ router.post('/auth-create', oauth,  async (req, res) => {
 
         // console.log('x509Identity: ', x509Identity);
 
-        let hashed = await Eth.CreateSignature(x509Identity, decryptData.privateKey)
+        let hashed = await Eth.CreateSignature(JSON.stringify(x509Identity), decryptData.privateKey)
         console.log('walletSignature: ', hashed.signature)
 
         user = new User ({
@@ -118,7 +118,7 @@ router.post('/wallet-create', async (req, res) => {
         });
         // console.log('x509Identity: ', x509Identity);
 
-        let hashed = await Eth.CreateSignature(x509Identity, decryptData.privateKey);
+        let hashed = await Eth.CreateSignature(JSON.stringify(x509Identity), decryptData.privateKey);
         console.log('walletSignature: ', hashed.signature)
         
         user = new User ({
@@ -239,7 +239,7 @@ router.post('/getLinkedWallets', auth, async (req, res) => {
             walletAddress: req.body.x509Identity.walletAddress.toLowerCase(),
         });
         // data, signature
-        let verify = await Eth.VerifySignature(req.body.x509Identity, user.walletSignature);
+        let verify = await Eth.VerifySignature(JSON.stringify(req.body.x509Identity), user.walletSignature);
         console.log('walletAddress', user.walletAddress)
         console.log('walletverify: ', verify)   
 
