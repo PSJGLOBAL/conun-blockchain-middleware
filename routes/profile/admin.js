@@ -31,7 +31,7 @@ router.post('/auth-create', oauth,  async (req, res) => {
         });
 
         console.log('x509Identity: ', x509Identity);
-        let hashed = await Eth.CreateSignature(x509Identity, decryptData.privateKey)
+        let hashed = await Eth.CreateSignature(JSON.stringify(x509Identity), decryptData.privateKey)
         console.log('walletSignature: ', hashed.signature)
         user = new User ({
             name: req.body.name,

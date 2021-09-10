@@ -381,12 +381,12 @@ module.exports = {
     },
 
     CreateSignature: async (data, privateKey) => {
-        let signature = await web3.eth.accounts.sign(JSON.stringify(data), privateKey);
+        let signature = await web3.eth.accounts.sign(data, privateKey);
         return signature;
     },
 
     VerifySignature: async (data, signature) => {
-        let whoSigned = await web3.eth.accounts.recover(JSON.stringify(data), signature);
+        let whoSigned = await web3.eth.accounts.recover(data, signature);
         return whoSigned;
     },
 
