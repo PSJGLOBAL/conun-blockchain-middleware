@@ -8,7 +8,12 @@ const adminConfig = require('./private.json');
 let server;
 
 const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
-const web3 = new Web3(provider);
+// todo make event listener
+// todo get abi from url
+const wsProvider = new Web3.providers.WebsocketProvider(config.get('ethereum.wsProvider'));
+const web3 = new Web3(wsProvider);
+
+// const wsweb3 = new Web3(wsProvider);
 
 const BridgeContractAddress = config.get('ethereum.bridge_contract_address');
 const ConContractAddress = config.get('ethereum.contract_address');
@@ -71,7 +76,7 @@ const approve = async () => {
     web3.eth.defaultAccount = adminConfig.walletAddress;
     let privateKey = adminConfig.privateKey;
 
-    const _approve = await conContract.methods.approve(BridgeContractAddress, web3.utils.toWei('1')).encodeABI();
+    const _approve = await conContract.methods.approve(BridgeContractAddress, web3.utils.toWei('10')).encodeABI();
     console.log('_approve: ', _approve);
 
     return  new Promise(
@@ -214,7 +219,7 @@ const claimTokens = async () => {
                     to: BridgeContractAddress,
                     value: '0x0',
                     gasLimit: web3.utils.toHex('144159'),
-                    gasPrice: web3.utils.toHex(web3.utils.toWei('5', 'gwei')),
+                    gasPrice: web3.utils.toHex(web3.utils.toWei('2', 'gwei')),
                     data: withdrawal
                 };
                 console.log('>> txObject: ', txObject);
@@ -243,36 +248,27 @@ const claimTokens = async () => {
 
 }
 
+const listenContractEvent = async () => {
+    
+}
 
 // initTrustedSigner();
 
 // approve();
-// depositTokens();
+depositTokens();
+// claimTokens();
 
-claimTokens();
-
-
-
-// function genSwapID(address) {
-//     let uuid = uuidv4();
-    
-//     const key = web3.utils.sha3(`${address}${uuid}`, {encoding: 'hex'})
-//     const id = web3.utils.sha3(key, {encoding: 'hex'})
-//     console.log('key: ', key);
-//     console.log('id: ', id);
-// }
-
-
-
-// // genSwapID(adminConfig.walletAddress);
-
-// const bcrypt = require('bcrypt');
-
-// const salto = async () => {
-//     const salt = await bcrypt.genSalt();
-//     console.log('salt: ', salt)
-//     let hash = await bcrypt.hash('123', salt);
-//     console.log('hash: ', hash)
-// }
-
-// salto();
+(()=> {
+    console.log('>>')
+    bridgeContract.events.allEvents()
+    .on('connected', (id) => {
+        console.log('listenContractEvent connected', id); 
+    })
+    .on('data', (event) => {
+        console.log('listenContractEvent', event);
+    })
+    .on('error', (err) => {
+        console.log('listenContractEvent err: ', err)
+    });
+    console.log('<<')
+})()
