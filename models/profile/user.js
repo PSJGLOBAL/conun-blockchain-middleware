@@ -48,6 +48,7 @@ const userSchema = new mongoose.Schema({
         minlength: 5,
         maxlength: 300,
     },
+    swaps: [{type: mongoose.Schema.Types.ObjectId,ref:'Swap'}],
     createdAt: { type: Date, default: Date.now },
     isAdmin: Boolean
 });
@@ -135,6 +136,7 @@ function validateLinkedWallet(req) {
 }
 
 exports.User = User;
+exports.userSchema = userSchema;
 exports.validateMember = validateMember;
 exports.validateNoneMember = validateNoneMember;
 exports.validateAuthLogin = validateAuthLogin;
