@@ -47,10 +47,12 @@ stopServer() {
 
 
 # install
+
+
+## switch to user mode
 # build
 # run
-# stopAllContainers
-# deleteAllContainers
+
 # stopServer
 # stopandDeleteAllContainers
 # deleteAllImages

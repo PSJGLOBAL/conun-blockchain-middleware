@@ -137,3 +137,5 @@
     
     4 - Run Docker image:
         docker run -d -p 4040:4040 -it conun-middleware-testnet-v3:0.1
+
+    [ install editor inside docker: apt-get update && apt-get install nano]
