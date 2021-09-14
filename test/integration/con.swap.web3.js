@@ -248,10 +248,6 @@ const claimTokens = async () => {
 
 }
 
-const listenContractEvent = async () => {
-    
-}
-
 // initTrustedSigner();
 
 // approve();

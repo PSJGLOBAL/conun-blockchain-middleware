@@ -1,8 +1,5 @@
 const Joi = require('joi');
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const config = require('config');
-const {userSchema} = require('./user')
 
 const swapSchema = new mongoose.Schema({
     swapType: {
