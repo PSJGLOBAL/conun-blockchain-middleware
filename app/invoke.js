@@ -102,6 +102,7 @@ module.exports = {
     MintAndTransfer: async (arg) => {
         try {
             logger.info('>> MintAndTransfer: ', arg);
+            console.log('>> MintAndTransfer: ', arg);
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -133,6 +134,7 @@ module.exports = {
             };
 
         } catch (error) {
+            console.log(`MintAndTransfer error: ${error.message}, arg: ${arg}`)
             logger.error(`MintAndTransfer error: ${error.message}, arg: ${arg}`);
             return {
                 status: false,
