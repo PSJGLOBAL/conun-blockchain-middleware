@@ -175,6 +175,7 @@ router.post('/auth-login', oauth, async (req, res) => {
 
 //done
 router.post('/importCertificate', async (req, res) => {
+    console.log('importCertificate:', req.body);
     const { error } = validateWalletImport(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
@@ -195,7 +196,7 @@ router.post('/importCertificate', async (req, res) => {
             walletAddress: req.body.x509Identity.walletAddress.toLowerCase(),
             x509Identity: req.body.x509Identity,
         });
-        console.log('walletAddress: ', walletAddress);
+        console.log('walletAddress: ', walletAddress, token);
         if (walletAddress) {
             res.status(200).header('jwtAuthToken', token).json({
                 payload: {
