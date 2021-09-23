@@ -111,8 +111,11 @@ module.exports = {
             // Get the network (channel) our contract is deployed to.
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
-
+            // todo make mint and trasfer for Bridge and CONX contract
+            // fix response type
             let _amount = web3.utils.toWei(arg.amount, 'ether');
+            
+            // bridge contract
             let result = await contract.submitTransaction(arg.fcn, JSON.stringify(
                {
                 id: arg.id,
@@ -123,6 +126,15 @@ module.exports = {
                 signature: arg.signature
                }
             ));
+
+            // CONX contract
+            // let result = await contract.submitTransaction(arg.fcn, 
+            // arg.walletAddress,
+            // _amount,
+            // arg.messageHash,
+            // arg.signature
+            // );
+
             await gateway.disconnect();
 
             let payload = JSON.parse(result.toString());
