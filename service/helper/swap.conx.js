@@ -4,8 +4,7 @@ const events = require('events');
 const Helper = require('../../common/helper');
 const logger = Helper.getLogger('TokenAPI');
 
-function CallInvoke(event, req) {
-    console.log('CallInvoke: ', event, req)
+function CallInvokeSwap(event, req) {
     const eventDeal = new events.EventEmitter();
     return new Promise(
         (resolve, reject) => {
@@ -51,4 +50,4 @@ function CallInvoke(event, req) {
     )
 }
 
-module.exports = CallInvoke;
+module.exports = CallInvokeSwap;

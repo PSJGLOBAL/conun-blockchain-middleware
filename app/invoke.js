@@ -42,7 +42,7 @@ module.exports = {
 
             let payload = JSON.parse(result.toString());
             console.log('transfer -> payload: ', payload);
-            payload.Func.Amount = web3.utils.fromWei(payload.Func.Amount, "ether");
+            payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
             return {
                 status: true,
                 message: payload
@@ -69,22 +69,22 @@ module.exports = {
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
 
-            let _amount = web3.utils.toWei(arg.amount, 'ether');
+            let value = web3.utils.toWei(arg.amount, 'ether');
             let result = await contract.submitTransaction(arg.fcn, JSON.stringify(
                 {
                  "id": arg.id,
                  "user": arg.walletAddress,
-                 "amount": _amount,
+                 "value": value,
                  "message": arg.messageHash,
                  "signature": arg.signature
                 }
              ));
-            await gateway.disconnect();
+            gateway.disconnect();
 
          
             let payload = JSON.parse(result.toString());
             console.log('>> MintAndTransfer result: ', payload)
-            payload.value = web3.utils.fromWei(payload.value, "ether");
+            payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
             return {
                 status: true,
                 message: payload
@@ -101,8 +101,7 @@ module.exports = {
 
     MintAndTransfer: async (arg) => {
         try {
-            logger.info('>> MintAndTransfer: ', arg);
-            console.log('>> MintAndTransfer: ', arg);
+            let result, payload = null;
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -113,33 +112,32 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
             // todo make mint and trasfer for Bridge and CONX contract
             // fix response type
-            let _amount = web3.utils.toWei(arg.amount, 'ether');
+            let value = web3.utils.toWei(arg.amount, 'ether');
+            const transaction = contract.createTransaction(arg.fcn);
             
-            // bridge contract
-            let result = await contract.submitTransaction(arg.fcn, JSON.stringify(
-               {
-                id: arg.id,
-                key: arg.key,
-                user: arg.walletAddress,
-                amount: _amount,
-                message: arg.messageHash,
-                signature: arg.signature
-               }
-            ));
-
-            // CONX contract
-            // let result = await contract.submitTransaction(arg.fcn, 
-            // arg.walletAddress,
-            // _amount,
-            // arg.messageHash,
-            // arg.signature
-            // );
-
-            await gateway.disconnect();
-
-            let payload = JSON.parse(result.toString());
-            console.log('>> MintAndTransfer result: ', payload)
-            payload.value = web3.utils.fromWei(payload.value, "ether");
+            if(arg.chainCodeName === 'CONX') {
+                result = await transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature);
+                payload = JSON.parse(result.toString());
+                payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
+            }
+            else if(arg.chainCodeName === 'bridge') {
+                result = await transaction.submit(JSON.stringify(
+                    {
+                        id: arg.id,
+                        key: arg.key,
+                        user: arg.walletAddress,
+                        value: value,
+                        message: arg.messageHash,
+                        signature: arg.signature
+                    }
+                ));
+                payload = JSON.parse(result.toString());
+                payload.Value = web3.utils.fromWei(payload.Value, "ether");
+                payload.txHash = transaction.getTransactionId();
+            }
+            
+            gateway.disconnect();
+            
             return {
                 status: true,
                 message: payload
