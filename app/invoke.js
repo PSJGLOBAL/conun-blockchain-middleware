@@ -101,8 +101,6 @@ module.exports = {
 
     MintAndTransfer: async (arg) => {
         try {
-            logger.info('>> MintAndTransfer: ', arg);
-            console.log('>> MintAndTransfer: ', arg);
             let result, payload = null;
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
