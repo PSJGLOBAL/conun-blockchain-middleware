@@ -43,25 +43,21 @@ const swapSchema = new mongoose.Schema({
         minlength: 10,
         maxlength: 300,
     },
-    txHash: {
-        type: new mongoose.Schema({
-            ethereumTx: {
-                type: String,
-                required: false,
-                unique: true,
-                sparse: true,
-                minlength: 10,
-                maxlength: 100,
-            },
-            conunTx: {
-                type: String,
-                required: false,
-                unique: true,
-                sparse: true,
-                minlength: 10,
-                maxlength: 100,
-            }
-        })
+    ethereumTx: {
+        type: String,
+        required: false,
+        unique: true,
+        sparse: true,
+        minlength: 10,
+        maxlength: 100,
+    },
+    conunTx: {
+        type: String,
+        required: false,
+        unique: true,
+        sparse: true,
+        minlength: 10,
+        maxlength: 100,
     },
     isComplited: Boolean,
     createdAt: { type: Date, default: Date.now },

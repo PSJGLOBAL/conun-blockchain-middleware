@@ -27,9 +27,6 @@ process.on('exit', onExit);
 
 // type con-conx, conx-con
 router.post('/swap-request/type/:swapType', auth, async (req, res) => {
-    // amount
-    // walletAddress
-    // return {id, key, messageHash, signature}
     const { error } = validateSwap(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
@@ -43,17 +40,17 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
     if (!withdrawId.includes('0x')) withdrawId = '0x' + withdrawId;
     
     const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [web3.utils.toWei(req.body.amount), req.body.walletAddress])
-    console.log('encoded: ', encoded);
+    // console.log('encoded: ', encoded);
     const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
-    console.log('hash: ', hash);
+    // console.log('hash: ', hash);
 
     let hashed = await Eth.CreateSignature(hash, config.get('ethereum.adminPrivateKey'));
-    console.log('messageHash: ', hashed.messageHash);
-    console.log('signature: ', hashed.signature);
-    console.log('\r\n');
-    console.log('seed: ', seed);
-    console.log('_key:', _key, web3.utils.isHex(_key));
-    console.log('withdrawId: ', withdrawId, web3.utils.isHex(withdrawId))
+    // console.log('messageHash: ', hashed.messageHash);
+    // console.log('signature: ', hashed.signature);
+    // console.log('\r\n');
+    // console.log('seed: ', seed);
+    // console.log('_key:', _key, web3.utils.isHex(_key));
+    // console.log('withdrawId: ', withdrawId, web3.utils.isHex(withdrawId))
 
     try {
         if(req.params.swapType === 'CONtoCONX') {
@@ -68,11 +65,11 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
            })
 
            let _swap = await swap.save()
-           console.log('_swap: ', _swap);
+        //    console.log('_swap: ', _swap);
 
            user.swaps.push(swap);
            let _user = await user.save();
-           console.log('_user: ', _user);
+        //    console.log('_user: ', _user);
 
            res.status(200).json({
                 payload: {
@@ -96,11 +93,11 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
                })
     
                let _swap = await swap.save()
-               console.log('_swap: ', _swap);
+            //    console.log('_swap: ', _swap);
     
                user.swaps.push(swap);
                let _user = await user.save();
-               console.log('_user: ', _user);
+            //    console.log('_user: ', _user);
     
                res.status(200).json({
                     payload: {

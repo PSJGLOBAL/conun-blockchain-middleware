@@ -1,7 +1,7 @@
 const Web3 = require('web3');
 const config = require('config');
 const crypto = require('crypto');
-const CallInvoke = require('./helper/swap.conx');
+const CallInvokeSwap = require('./helper/swap.conx');
 const invokeHandler = require('../app/invoke');
 const {Swap} = require('../models/profile/swap.model');
 const {User} = require('../models/profile/user');
@@ -19,44 +19,54 @@ class EtherEvent {
 
 
     async querySwapID(data) {
+        console.log('1-----------------')
         data.returnValues = JSON.parse(JSON.stringify(data.returnValues).replace('Result', ''));
-        console.log('data.returnValues: ', data.returnValues)
+        // console.log('data.returnValues: ', data.returnValues)
         
 
         if(data.event === 'NewDeposit') {
             let user = await User.findOne({walletAddress: data.returnValues.from.toLowerCase()})
-            // console.log('user', user);
+    
             let swap = await Swap.findOne({wallet: user._id , swapID: data.returnValues.depositId})
-            console.log('swap', swap);
+            
             let ethereumTx = await Swap.findByIdAndUpdate(swap._id,
                 {
-                    txHash: {ethereumTx: data.transactionHash}
+                    ethereumTx: data.transactionHash,
+                    isComplited: false,
                 },
                 {new: true})
 
             console.log('ethereumTx: ', ethereumTx);
 
-            if(swap.swapKey.includes('0x')) {
-                swap.swapKey = swap.swapKey.slice(2, swap.swapKey.length);
-                console.log('swap.swapKey:  ', swap.swapKey);
-            }
-            console.log('swap id: ', crypto.createHash('sha256').update(swap.swapKey, 'string').digest('hex'));
-
             try {
-                    CallInvoke('MintAndTransfer', {
+                console.log('2-----------------')
+                CallInvokeSwap('MintAndTransfer', {
                         channelName: 'mychannel',
                         chainCodeName: 'bridge',
                         fcn: 'MintAndTransfer',
                         orgName: 'Org1',
-                        id: crypto.createHash('sha256').update(swap.swapKey, 'string').digest('hex'),
-                        key: swap.swapKey,
+                        id: swap.swapID.slice(2, swap.swapID.length),
+                        key: swap.swapKey.slice(2, swap.swapKey.length),
                         walletAddress: user.walletAddress,
                         amount: swap.amount,
-                        messageHash: swap.messageHash.slice(2, swap.messageHash.length),
-                        signature: swap.signature.slice(2, swap.signature.length)
+                        messageHash: swap.messageHash,
+                        signature: swap.signature
                     })
-                    .then((response) => {
-                            console.log('CallInvoke -> response', response)
+                    .then(async (response) => {
+                        console.log('3-----------------')
+                            console.log('CallInvoke -> response', response);
+                            const filter = {
+                                wallet: user._id,
+                                swapID: data.returnValues.depositId,
+                                amount: response.Value
+                            }
+                            const update = {
+                                conunTx: response.txHash,
+                                isComplited: true,
+                                complitedAt: Date.now()
+                            }
+                        let conunTX = await Swap.findOneAndUpdate(filter, update, {new: true});
+                        console.log('conunTx: ', conunTX);
                     }
                     ).catch((error) => {
                         console.log('1 - CallInvoke -> error', error);
@@ -79,27 +89,6 @@ class EtherEvent {
         })
         .on('error', (err) => {
             console.log('listenContractEvent err: ', err);
-        });
-
-
-        // test
-        invokeHandler.MintAndTransfer({
-            channelName: 'mychannel',
-            chainCodeName: 'bridge',
-            fcn: 'MintAndTransfer',
-            orgName: 'Org1',
-            id: '88af1c375cfc2edd5be4d2c6adf85b8f5019597a124ac121e2387e2227c6cfe7',
-            key: 'a80b93ac623311cd732a0b5a8b80e6e5b2bd24905c74532edff57ff0ed7df13e',
-            walletAddress: '0x39a98cfe183ba67ac37d4b237ac2bf504314a1e9',
-            amount: '0.1',
-            messageHash: '0x99fa8155ccd80af12abda5615df638829018bf4283fefd0b7bb1cfe75e347fbb',
-            signature: '0xb99a5d30e8ae156af4fa2020ac8a86e79ad6df3177a3b7037e1419f8a17c0fc7710c023ce51c3f7c797a1858f79b5cfbdbfbc18c1f5c16dcfe139b6283228f9c1c'
-        })
-        .then((response) => {
-            console.log('CallInvoke -> response', response)
-        }
-        ).catch((error) => {
-            console.log('1 - CallInvoke -> error', error);
         });
     }
 }
