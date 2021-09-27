@@ -70,6 +70,18 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
 
             let value = web3.utils.toWei(arg.amount, 'ether');
+            const transaction = contract.createTransaction(arg.fcn);
+
+            //tod check contract.createTransaction , transaction.submit()
+
+            if(arg.chainCodeName === 'CONX') {
+                result = await transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature);
+                payload = JSON.parse(result.toString());
+                console.log('payload CONX send: ', payload)
+                payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
+            }
+            else if(arg.chainCodeName === 'bridge') {
+                console.log('>> value: ', value, arg.walletAddress);
             let result = await contract.submitTransaction(arg.fcn, JSON.stringify(
                 {
                  "id": arg.id,
@@ -79,11 +91,17 @@ module.exports = {
                  "signature": arg.signature
                 }
              ));
+             payload = JSON.parse(result.toString());
+             console.log('payload CONX Bridge Swap: ', payload)
+             payload.Value = web3.utils.fromWei(payload.Value, "ether");
+             payload.txHash = transaction.getTransactionId();
+            }
+
             gateway.disconnect();
 
          
             let payload = JSON.parse(result.toString());
-            console.log('>> MintAndTransfer result: ', payload)
+            console.log('>> BurnFrom result: ', payload);
             payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
             return {
                 status: true,
@@ -110,8 +128,7 @@ module.exports = {
             // Get the network (channel) our contract is deployed to.
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
-            // todo make mint and trasfer for Bridge and CONX contract
-            // fix response type
+         
             let value = web3.utils.toWei(arg.amount, 'ether');
             const transaction = contract.createTransaction(arg.fcn);
             

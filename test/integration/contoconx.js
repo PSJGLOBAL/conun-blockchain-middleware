@@ -13,7 +13,7 @@
           '1': '0x47fc465a0511f289ea38c5a04e82030590b442d34e003eb191747507675fb1aa',
           '2': '10000000000000000',
           from: '0x39A98cfE183bA67aC37D4b237aC2bf504314A1E9',
-          depositId: '0x47fc465a0511f289ea38c5a04e82030590b442d34e003eb191747507675fb1aa',
+          swapID: '0x47fc465a0511f289ea38c5a04e82030590b442d34e003eb191747507675fb1aa',
           amount: '10000000000000000'
         },
         event: 'NewDeposit',
@@ -44,7 +44,7 @@
             '1': '0x0c958b8251761b0e7527cc10458b902a5fae476ea9619fa1429edb2693bdea79',
             '2': '10000000000000000',
             from: '0x39A98cfE183bA67aC37D4b237aC2bf504314A1E9',
-            depositId: '0x0c958b8251761b0e7527cc10458b902a5fae476ea9619fa1429edb2693bdea79',
+            swapID: '0x0c958b8251761b0e7527cc10458b902a5fae476ea9619fa1429edb2693bdea79',
             amount: ''
           },
           event: 'NewDeposit',
@@ -92,8 +92,8 @@
       }
 
       etherEvent.querySwapID(data)
-      etherEvent.depositCONX(invoke)
+      etherEvent.swapCONX(invoke)
       .catch((error) => {
-          console.log('depositCONX-> error: ', error)
+          console.log('swapCONX-> error: ', error)
       })
 })()

@@ -126,9 +126,9 @@ const depositTokens = async () => {
     const bridgeContract = new web3.eth.Contract(bridgeAbiJson, BridgeContractAddress);
 
     let _amount = "1"
-    let depositId = "0xbfa24ec298cc0a696f070862394b463c9d34e8fc640bc98ddbee712c378ec630"
+    let swapID = "0xbfa24ec298cc0a696f070862394b463c9d34e8fc640bc98ddbee712c378ec630"
 
-    const deposit = await bridgeContract.methods.depositTokens(web3.utils.toWei(_amount), depositId, adminConfig.walletAddress).encodeABI();
+    const deposit = await bridgeContract.methods.depositTokens(web3.utils.toWei(_amount), swapID, adminConfig.walletAddress).encodeABI();
     console.log('deposit: ', deposit);
 
     return  new Promise(
@@ -183,15 +183,15 @@ const claimTokens = async () => {
     let seed = web3.eth.abi.encodeParameters(['string', 'address'], [uuidv4(), adminConfig.walletAddress])
     let _key = web3.utils.sha3(seed, {encoding: 'hex'});
     // let __key = 'b4cee65fed39d76aefdc7df265aafa0b15e99083b5bfbc40cf03816498c458f4';
-    let withdrawId = crypto.createHash('sha256').update(_key.slice(2, _key.length), 'hex').digest('hex');
-    if (!withdrawId.includes('0x')) withdrawId = '0x' + withdrawId;
+    let swapID = crypto.createHash('sha256').update(_key.slice(2, _key.length), 'hex').digest('hex');
+    if (!swapID.includes('0x')) swapID = '0x' + swapID;
     console.log('\r\n');
     console.log('seed: ', seed);
     console.log('_key:', _key, web3.utils.isHex(_key));
-    console.log('withdrawId: ', withdrawId, web3.utils.isHex(withdrawId))
+    console.log('swapID: ', swapID, web3.utils.isHex(swapID))
 
 
-    // let withdrawId = "0xa18b582d8d172daf74b8f98a1f6a467126506b92fc4dd72517048169d2000d43"   // id
+    // let swapID = "0xa18b582d8d172daf74b8f98a1f6a467126506b92fc4dd72517048169d2000d43"   // id
     // let _key = "0xd7d5e2fa9149c2267b474e4f2432fc4746d042a632b20dbc0c0c65e7699ebb1a" // key
 
 
@@ -205,7 +205,7 @@ const claimTokens = async () => {
     let _signature = hashed.signature
     
 
-    const withdrawal = await bridgeContract.methods.claimTokens(_amount, withdrawId, _msgForSign, _signature, _key).encodeABI();
+    const withdrawal = await bridgeContract.methods.claimTokens(_amount, swapID, _msgForSign, _signature, _key).encodeABI();
     console.log('withdrawal: ', withdrawal);
 
     return  new Promise(

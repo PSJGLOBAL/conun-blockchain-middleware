@@ -25,7 +25,7 @@ class EtherEvent {
             queryData.returnValues = JSON.parse(JSON.stringify(queryData.returnValues).replace('Result', ''));
             let user = await User.findOne({walletAddress: queryData.returnValues.from.toLowerCase()})
             let isExistTx = await Swap.findOne({ethereumTx: queryData.transactionHash});
-            let swap = await Swap.findOne({wallet: user._id , swapID: queryData.returnValues.depositId})
+            let swap = await Swap.findOne({wallet: user._id , swapID: queryData.returnValues.swapID})
             if(!isExistTx && swap) {
                 console.log('swap query: ', swap);
                 let ethereumTx = await Swap.findByIdAndUpdate(swap._id,
@@ -42,12 +42,12 @@ class EtherEvent {
                     swap,
                     ethereumTx
                 });      
-            } else reject({reson: 'ethereumTx or depositId error:', isExistTx, swap })
+            } else reject({reson: 'ethereumTx or swapID error:', isExistTx, swap })
         })
     }
 
-    depositCONX(ivoke) {
-        console.log('depositCONX: ', ivoke)
+    swapCONtoCONX(ivoke) {
+        console.log('swapCONX: ', ivoke)
         return new Promise(
             (resolve, reject) => {
                 CallInvokeSwap('MintAndTransfer', {
@@ -65,7 +65,48 @@ class EtherEvent {
                     .then(async (response) => {
                         const filter = {
                             wallet: ivoke.user._id,
-                            swapID: ivoke.queryData.returnValues.depositId,
+                            swapID: ivoke.queryData.returnValues.swapID,
+                            amount: response.Value
+                        }
+                        const update = {
+                            amount: response.Value,
+                            conunTx: response.txHash,
+                            isComplited: true,
+                            complitedAt: Date.now()
+                        }
+                        let conunTX = await Swap.findOneAndUpdate(filter, update, {new: true});
+                        if(!conunTX) reject(false);
+                        console.log('conunTX: ', conunTX, response)
+                        resolve(conunTX);
+                    })
+                    .catch((error) => {
+                        console.log('CallInvoke -> error', error);
+                        reject(error);
+                });       
+            }
+        );
+    }
+
+    swapCONXtoCON(ivoke) {
+        console.log('swapCON: ', ivoke)
+        return new Promise(
+            (resolve, reject) => {
+                CallInvokeSwap('BurnFrom', {
+                        channelName: 'mychannel',
+                        chainCodeName: 'bridge',
+                        fcn: 'BurnFrom',
+                        orgName: ivoke.user.orgName,
+                        id: ivoke.swap.swapID.slice(2, ivoke.swap.swapID.length),
+                        walletAddress: ivoke.user.walletAddress,
+                        amount: ivoke.swap.amount,
+                        messageHash: ivoke.swap.messageHash,
+                        signature: ivoke.swap.signature
+                    })
+                    .then(async (response) => {
+                        console.log('SWAP CON - res: ', response);
+                        const filter = {
+                            wallet: ivoke.user._id,
+                            swapID: ivoke.queryData.returnValues.swapID,
                             amount: response.Value
                         }
                         const update = {
@@ -88,19 +129,30 @@ class EtherEvent {
     }
 
     listenEvent() {
+
         this.listenContract.events.allEvents()
         .on('connected', (id) => {
             console.log('Ethereum EVENT CONNECTED', id);
         })
         .on('data', (data) => {
+            console.log('EVENT LISTEN -> : ', data)
             if(data.event === 'NewDeposit')
                 this.querySwapID(data)
                     .then((invoke) => {
-                        this.depositCONX(invoke)
+                        console.log('invoke: ', invoke)
+                        this.swapCONtoCONX(invoke)
                     })
                     .catch((error) => {
                         console.log('error: ', error)
                     })
+            else if(data.event === 'NewWithdraw')
+                    this.querySwapID(data)
+                        .then((invoke) => {
+                            this.swapCONXtoCON(invoke)
+                        })
+                        .catch((error) => {
+                            console.log('error: ', error)
+                        })        
         })
         .on('error', (err) => {
             console.log('listenContractEvent err: ', err);
