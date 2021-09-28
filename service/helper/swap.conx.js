@@ -31,6 +31,7 @@ function CallInvokeSwap(event, req) {
                     chainCodeName: req.chainCodeName,
                     fcn: req.fcn,
                     orgName: req.orgName,
+                    id: req.id,
                     walletAddress: req.walletAddress,
                     amount: req.amount,
                     messageHash: req.messageHash,

@@ -27,6 +27,7 @@ process.on('exit', onExit);
 
 // type con-conx, conx-con
 router.post('/swap-request/type/:swapType', auth, async (req, res) => {
+    console.log('swap request: ',  req.body);
     const { error } = validateSwap(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
@@ -36,21 +37,12 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
 
     let seed = web3.eth.abi.encodeParameters(['string', 'address'], [uuidv4(), req.body.walletAddress])
     let _key = web3.utils.sha3(seed, {encoding: 'hex'});
-    let withdrawId = crypto.createHash('sha256').update(_key.slice(2, _key.length), 'hex').digest('hex');
-    if (!withdrawId.includes('0x')) withdrawId = '0x' + withdrawId;
-    
-    const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [web3.utils.toWei(req.body.amount), req.body.walletAddress])
-    // console.log('encoded: ', encoded);
+    let swapID = crypto.createHash('sha256').update(_key.slice(2, _key.length), 'hex').digest('hex');
+    if (!swapID.includes('0x')) swapID = '0x' + swapID;
+    console.log('swapID: ', swapID)
+    const encoded = web3.eth.abi.encodeParameters(['bytes32', 'uint256', 'address'], [swapID, web3.utils.toWei(req.body.amount), req.body.walletAddress])
     const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
-    // console.log('hash: ', hash);
-
-    let hashed = await Eth.CreateSignature(hash, config.get('ethereum.adminPrivateKey'));
-    // console.log('messageHash: ', hashed.messageHash);
-    // console.log('signature: ', hashed.signature);
-    // console.log('\r\n');
-    // console.log('seed: ', seed);
-    // console.log('_key:', _key, web3.utils.isHex(_key));
-    // console.log('withdrawId: ', withdrawId, web3.utils.isHex(withdrawId))
+    let hashed = await Eth.CreateSignature(hash, config.get('ethereum.adminPrivateKey'))
 
     try {
         if(req.params.swapType === 'CONtoCONX') {
@@ -58,7 +50,7 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
             swapType: req.params.swapType,
             wallet: user._id,
             amount: req.body.amount,
-            swapID: withdrawId,
+            swapID: swapID,
             swapKey: _key,
             messageHash: hashed.messageHash,
             signature: hashed.signature
@@ -86,7 +78,7 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
                 swapType: req.params.swapType,
                 wallet: user._id,
                 amount: req.body.amount,
-                swapID: withdrawId,
+                swapID: swapID,
                 swapKey: _key,
                 messageHash: hashed.messageHash,
                 signature: hashed.signature

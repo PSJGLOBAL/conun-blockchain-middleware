@@ -60,6 +60,7 @@ module.exports = {
     BurnFrom: async (arg) => {
         try {
             logger.info('>> BurnFrom: ', arg);
+            let result, payload = null;
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -70,27 +71,42 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
 
             let value = web3.utils.toWei(arg.amount, 'ether');
-            let result = await contract.submitTransaction(arg.fcn, JSON.stringify(
-                {
-                 "id": arg.id,
-                 "user": arg.walletAddress,
-                 "value": value,
-                 "message": arg.messageHash,
-                 "signature": arg.signature
-                }
+            const transaction = contract.createTransaction(arg.fcn);
+
+            //tod check contract.createTransaction , transaction.submit()
+
+            if(arg.chainCodeName === 'CONX') {
+                result = await transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature);
+                payload = JSON.parse(result.toString());
+                console.log('payload CONX send: ', payload)
+                payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
+            }
+            else if(arg.chainCodeName === 'bridge') {
+                console.log('>> value: ', value, arg.walletAddress);
+                result = await transaction.submit(JSON.stringify(
+                    {
+                    id: arg.id,
+                    user: arg.walletAddress,
+                    value: value,
+                    message: arg.messageHash,
+                    signature: arg.signature
+                    }
              ));
+             payload = JSON.parse(result.toString());
+             console.log('payload CONX Bridge Swap: ', payload)
+             payload.Value = web3.utils.fromWei(payload.Value, "ether");
+             payload.txHash = transaction.getTransactionId();
+            }
+
             gateway.disconnect();
 
-         
-            let payload = JSON.parse(result.toString());
-            console.log('>> MintAndTransfer result: ', payload)
-            payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
             return {
                 status: true,
                 message: payload
             };
 
         } catch (error) {
+            console.log(`BurnFrom Swap error: ${error.message}, arg: ${arg}`)
             logger.error(`BurnFrom error: ${error.message}, arg: ${arg}`);
             return {
                 status: false,
@@ -110,8 +126,7 @@ module.exports = {
             // Get the network (channel) our contract is deployed to.
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
-            // todo make mint and trasfer for Bridge and CONX contract
-            // fix response type
+         
             let value = web3.utils.toWei(arg.amount, 'ether');
             const transaction = contract.createTransaction(arg.fcn);
             

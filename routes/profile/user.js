@@ -13,6 +13,28 @@ const auth = require('../../middleware/auth');
 const oauth = require('../../middleware/email.oauth');
 const Eth = require('../../app/web3/eth.main');
 const crypto = require('../../utils/crypto/encryption.algorithm');
+const config = require('config');
+
+router.get('/getConfig', auth, async (req, res) => {
+    try {
+        let bridgeContractAddrress = config.get('ethereum.bridge_contract_address');
+        let conContractAddrress = config.get('ethereum.contract_address')
+        res.status(200).json({payload: {
+            conContract: {
+                address: conContractAddrress,
+                abiUrl: `http://api-ropsten.etherscan.io/api?module=contract&action=getabi&address=${conContractAddrress}&format=raw`
+            },
+            bridgeContract: {
+                address: bridgeContractAddrress,
+                abiUrl: `http://api-ropsten.etherscan.io/api?module=contract&action=getabi&address=${bridgeContractAddrress}&format=raw`
+            },
+
+        }, success: true, status: 200})
+    } catch (error) {
+        _logger.error(`/me: Reqeest: ${req.user._id} `, error);
+        res.status(400).json({payload: error.message, success: false, status: 400 })
+    }
+});
 
 router.get('/check', async (req, res) => {
     try {
