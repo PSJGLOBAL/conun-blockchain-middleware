@@ -60,6 +60,7 @@ module.exports = {
     BurnFrom: async (arg) => {
         try {
             logger.info('>> BurnFrom: ', arg);
+            let result, payload = null;
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -82,14 +83,14 @@ module.exports = {
             }
             else if(arg.chainCodeName === 'bridge') {
                 console.log('>> value: ', value, arg.walletAddress);
-            let result = await contract.submitTransaction(arg.fcn, JSON.stringify(
-                {
-                 "id": arg.id,
-                 "user": arg.walletAddress,
-                 "value": value,
-                 "message": arg.messageHash,
-                 "signature": arg.signature
-                }
+                result = await transaction.submit(JSON.stringify(
+                    {
+                    id: arg.id,
+                    user: arg.walletAddress,
+                    value: value,
+                    message: arg.messageHash,
+                    signature: arg.signature
+                    }
              ));
              payload = JSON.parse(result.toString());
              console.log('payload CONX Bridge Swap: ', payload)
@@ -99,16 +100,13 @@ module.exports = {
 
             gateway.disconnect();
 
-         
-            let payload = JSON.parse(result.toString());
-            console.log('>> BurnFrom result: ', payload);
-            payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
             return {
                 status: true,
                 message: payload
             };
 
         } catch (error) {
+            console.log(`BurnFrom Swap error: ${error.message}, arg: ${arg}`)
             logger.error(`BurnFrom error: ${error.message}, arg: ${arg}`);
             return {
                 status: false,

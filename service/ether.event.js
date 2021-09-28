@@ -129,14 +129,13 @@ class EtherEvent {
     }
 
     listenEvent() {
-
         this.listenContract.events.allEvents()
         .on('connected', (id) => {
             console.log('Ethereum EVENT CONNECTED', id);
         })
         .on('data', (data) => {
             console.log('EVENT LISTEN -> : ', data)
-            if(data.event === 'NewDeposit')
+            if(data.event === 'CONtoCONX')
                 this.querySwapID(data)
                     .then((invoke) => {
                         console.log('invoke: ', invoke)
@@ -145,7 +144,7 @@ class EtherEvent {
                     .catch((error) => {
                         console.log('error: ', error)
                     })
-            else if(data.event === 'NewWithdraw')
+            else if(data.event === 'CONXtoCON')
                     this.querySwapID(data)
                         .then((invoke) => {
                             this.swapCONXtoCON(invoke)

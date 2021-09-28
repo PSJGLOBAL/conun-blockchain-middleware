@@ -39,8 +39,8 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
     let _key = web3.utils.sha3(seed, {encoding: 'hex'});
     let swapID = crypto.createHash('sha256').update(_key.slice(2, _key.length), 'hex').digest('hex');
     if (!swapID.includes('0x')) swapID = '0x' + swapID;
-    
-    const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [web3.utils.toWei(req.body.amount), req.body.walletAddress])
+    console.log('swapID: ', swapID)
+    const encoded = web3.eth.abi.encodeParameters(['bytes32', 'uint256', 'address'], [swapID, web3.utils.toWei(req.body.amount), req.body.walletAddress])
     const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
     let hashed = await Eth.CreateSignature(hash, config.get('ethereum.adminPrivateKey'))
 
