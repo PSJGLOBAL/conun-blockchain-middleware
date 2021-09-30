@@ -17,16 +17,18 @@ const config = require('config');
 
 router.get('/getConfig', auth, async (req, res) => {
     try {
+        let conContractAddrress = config.get('ethereum.contract_address');
         let bridgeContractAddrress = config.get('ethereum.bridge_contract_address');
-        let conContractAddrress = config.get('ethereum.contract_address')
+        let conABI = require('../../app/web3/abi.json');
+        let bridgeABI = require('../../app/web3/bridge.swap.abi.json');
         res.status(200).json({payload: {
             conContract: {
                 address: conContractAddrress,
-                abiUrl: `http://api-ropsten.etherscan.io/api?module=contract&action=getabi&address=${conContractAddrress}&format=raw`
+                abiRaw: conABI
             },
             bridgeContract: {
                 address: bridgeContractAddrress,
-                abiUrl: `http://api-ropsten.etherscan.io/api?module=contract&action=getabi&address=${bridgeContractAddrress}&format=raw`
+                abiRaw: bridgeABI
             },
 
         }, success: true, status: 200})
