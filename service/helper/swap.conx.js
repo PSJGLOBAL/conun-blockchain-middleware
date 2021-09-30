@@ -8,8 +8,8 @@ function CallInvokeSwap(event, req) {
     const eventDeal = new events.EventEmitter();
     return new Promise(
         (resolve, reject) => {
-            eventDeal.on('MintAndTransfer', async () => {
-                let result = await invokeHandler.MintAndTransfer({
+            eventDeal.on('MintAndTransfer', () => {
+                invokeHandler.MintAndTransfer({
                     channelName: req.channelName,
                     chainCodeName: req.chainCodeName,
                     fcn: req.fcn,
@@ -20,13 +20,16 @@ function CallInvokeSwap(event, req) {
                     amount: req.amount,
                     messageHash: req.messageHash,
                     signature: req.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result) => {
+                    resolve(result.message);
+                }).catch((error) => {
+                    reject(error.message);
+                })
             });
 
-            eventDeal.on('BurnFrom', async () => {
-                let result = await invokeHandler.BurnFrom({
+            eventDeal.on('BurnFrom', () => {
+                invokeHandler.BurnFrom({
                     channelName: req.channelName,
                     chainCodeName: req.chainCodeName,
                     fcn: req.fcn,
@@ -36,10 +39,30 @@ function CallInvokeSwap(event, req) {
                     amount: req.amount,
                     messageHash: req.messageHash,
                     signature: req.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result) => {
+                    resolve(result.message);
+                }).catch((error) => {
+                    reject(error.message);
+                })
             });
+
+            eventDeal.on('CheckIdExists', () => {
+                invokeHandler.CheckIdExists({
+                    channelName: req.channelName,
+                    chainCodeName: req.chainCodeName,
+                    fcn: req.fcn,
+                    orgName: req.orgName,
+                    swapID: req.swapID,
+                    walletAddress: req.walletAddress,
+                })
+                .then((result) => {
+                    resolve(result);
+                }).catch((error) => {
+                    reject(error.message);
+                })
+            });
+
 
             let status = eventDeal.emit(event)
             if (!status) {

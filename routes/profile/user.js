@@ -24,11 +24,11 @@ router.get('/getConfig', auth, async (req, res) => {
         res.status(200).json({payload: {
             conContract: {
                 address: conContractAddrress,
-                abiUrl: conABI
+                abiRaw: conABI
             },
             bridgeContract: {
                 address: bridgeContractAddrress,
-                abiUrl: bridgeABI
+                abiRaw: bridgeABI
             },
 
         }, success: true, status: 200})

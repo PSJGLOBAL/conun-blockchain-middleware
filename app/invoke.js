@@ -82,18 +82,16 @@ module.exports = {
                 payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
             }
             else if(arg.chainCodeName === 'bridge') {
-                console.log('>> value: ', value, arg.walletAddress);
                 result = await transaction.submit(JSON.stringify(
                     {
-                    id: arg.id,
-                    user: arg.walletAddress,
-                    value: value,
-                    message: arg.messageHash,
-                    signature: arg.signature
+                    Id: arg.id,
+                    User: arg.walletAddress,
+                    Value: value,
+                    Message: arg.messageHash,
+                    Signature: arg.signature
                     }
              ));
              payload = JSON.parse(result.toString());
-             console.log('payload CONX Bridge Swap: ', payload)
              payload.Value = web3.utils.fromWei(payload.Value, "ether");
              payload.txHash = transaction.getTransactionId();
             }
@@ -138,12 +136,12 @@ module.exports = {
             else if(arg.chainCodeName === 'bridge') {
                 result = await transaction.submit(JSON.stringify(
                     {
-                        id: arg.id,
-                        key: arg.key,
-                        user: arg.walletAddress,
+                        Id: arg.id,
+                        Key: arg.key,
+                        User: arg.walletAddress,
                         value: value,
-                        message: arg.messageHash,
-                        signature: arg.signature
+                        Message: arg.messageHash,
+                        Signature: arg.signature
                     }
                 ));
                 payload = JSON.parse(result.toString());
@@ -197,7 +195,40 @@ module.exports = {
                 message: splitString(error.message)
             }
         }
+    },
+
+    CheckIdExists: async (arg) => {
+        try {
+            logger.info('>> CheckIdExists: ', arg);
+            const connection = await connectionOrg(arg.walletAddress, arg.orgName);
+            // Create a new gateway for connecting to our peer node.
+            const gateway = new Gateway();
+            await gateway.connect(connection.ccp, connection.connectOptions);
+        
+            // Get the network (channel) our contract is deployed to.
+            const network = await gateway.getNetwork(arg.channelName);
+            const contract = network.getContract(arg.chainCodeName);
+                
+            // submitTransaction(func, wallet-address)
+            let result = await contract.submitTransaction(arg.fcn, connection.connectOptions.identity, arg.swapID);
+            console.log('CheckIdExists result: ', result.toString());
+            gateway.disconnect();
+
+            logger.info('>> CheckIdExists result: ', JSON.parse(result.toString()));
+
+            return {
+                status: result.toString(),
+                message: arg.swapID
+            }
+        } catch (error) {
+            logger.error(`CheckIdExists error: ${error.message}, arg: ${arg}`);
+            return {
+                status: false,
+                message: splitString(error.message)
+            }
+        }
     }
+
 };
 
 

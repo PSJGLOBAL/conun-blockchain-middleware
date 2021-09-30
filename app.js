@@ -6,7 +6,6 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require('./swagger.json');
 const bodyParser = require('body-parser');
 const constants = require('./config/constants.json');
-
 const Helper = require('./common/helper');
 const logger = Helper.getLogger('app');
 
@@ -63,6 +62,7 @@ const server = app.listen(process.env.PORT, () => {
 process.on('uncaughtException', ex => {
     console.log('>> uncaughtException: ', ex);
 });
+
 
 server.timeout = 240000;
 module.exports = server;

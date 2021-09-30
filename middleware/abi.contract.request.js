@@ -1,4 +1,6 @@
 const https = require('https');
+const config = require('config');
+const fs = require('fs');
 //http://api-ropsten.etherscan.io/api?module=contract&action=getabi&address=${conContractAddrress}&format=raw
 async function etherAbi (contractAddrress) {
     let options = {
@@ -14,6 +16,7 @@ async function etherAbi (contractAddrress) {
         return new Promise (
             async (resolve, reject) => {
             https.get(options, (_res) => {
+                console.log('>> >>')
                 _res.setEncoding('utf8');
                 _res.on('data', function (chunk) {
                     rawData += chunk;
@@ -33,8 +36,38 @@ async function etherAbi (contractAddrress) {
     }
 }
 
-//          const etherAbi = require('../../middleware/abi.contract.request');
-//          let conABI = await etherAbi(conContractAddrress);
-//          let bridgeABI = await etherAbi(bridgeContractAddrress);
+// let conContractAddrress = config.get('ethereum.contract_address');
+// let bridgeContractAddrress = config.get('ethereum.bridge_contract_address');
 
-module.exports = etherAbi;
+
+// setTimeout(()=> {
+//     etherAbi(conContractAddrress)
+//         .then((conABI) => {
+//             console.log('>> >>  ----- conContractAddrress >> ')
+//             if (fs.existsSync('/home/conun/conun-middleware-testnet-v3/app/web3/conunABI.json')) {
+//                 fs.unlinkSync('/home/conun/conun-middleware-testnet-v3/app/web3/conunABI.json');
+//             }
+//             fs.writeFile('/home/conun/conun-middleware-testnet-v3/app/web3/conunABI.json', JSON.stringify(conABI), 'utf8', function(err) {
+//                 if (err) throw err;
+//                 console.log('conABI: ', conABI);
+//                 }
+//             );
+//         });
+// }, 3000);
+
+
+
+// setTimeout(()=> {
+//     etherAbi(bridgeContractAddrress)
+//         .then((bridgeABI) => {
+//             console.log('>> >>  ----- bridgeContractAddrress >> ')
+//             if (fs.existsSync('/home/conun/conun-middleware-testnet-v3/app/web3/bridgeABI.json')) {
+//                 fs.unlinkSync('/home/conun/conun-middleware-testnet-v3/app/web3/bridgeABI.json');
+//                 fs.writeFile('/home/conun/conun-middleware-testnet-v3/app/web3/bridgeABI.json', JSON.stringify(bridgeABI), 'utf8', function(err) {
+//                     if (err) throw err;
+//                     console.log('bridgeABI: ', bridgeABI);
+//                     }
+//                 );
+//             }
+//         });
+// }, 9000);
