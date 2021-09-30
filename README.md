@@ -100,7 +100,7 @@
 
 4. Production Host gateway available:
 
-        sudo vim /etc/hosts
+        sudo nano /etc/hosts
 
         ex: 192.168.0.0 peer0.org1.example.com
 
@@ -138,4 +138,4 @@
     4 - Run Docker image:
         docker run -d -p 4040:4040 -it conun-middleware-testnet-v3:0.1
 
-    [ install editor inside docker: apt-get update && apt-get install nano]
+    5 - [ install editor inside docker: apt-get update && apt-get install nano]

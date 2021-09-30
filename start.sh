@@ -18,8 +18,9 @@ build() {
     docker build --tag conun-middleware-testnet-v3:0.1 .
 }
 
+
 run() {
-    docker run -d -p 4040:4040 -it conun-middleware-testnet-v3:0.1
+    docker run -d -p 4040:4040 -v /home/conun/conun-middleware-testnet-v3/wallet:/conun-middleware-testnet-v3/wallet -it conun-middleware-testnet-v3:0.1
 }
 
 stopAllContainers() {
@@ -42,7 +43,6 @@ deleteAllImages() {
 
 stopServer() {
     sudo kill -9 `sudo lsof -t -i:4040`
-
 }
 
 
@@ -59,7 +59,7 @@ stopServer() {
 
 
 
-#docker ps
-#docker logs <container id>
-#  If you need to go inside a container exec, you can use a command:
-# docker exec -it <container id> /bin/bash 
+#   docker ps
+#   docker logs <container id>
+#   If you need to go inside a container exec, you can use a command:
+#   docker exec -it <container id> /bin/bash

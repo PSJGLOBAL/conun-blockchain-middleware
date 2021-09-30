@@ -19,7 +19,6 @@ class EtherEvent {
 
 
     querySwapID(queryData) {
-        console.log('queryData: ', queryData)
         return new Promise (
             async (resolve, reject) => {
             queryData.returnValues = JSON.parse(JSON.stringify(queryData.returnValues).replace('Result', ''));
@@ -27,7 +26,6 @@ class EtherEvent {
             let isExistTx = await Swap.findOne({ethereumTx: queryData.transactionHash});
             let swap = await Swap.findOne({wallet: user._id , swapID: queryData.returnValues.swapID})
             if(!isExistTx && swap) {
-                console.log('swap query: ', swap);
                 let ethereumTx = await Swap.findByIdAndUpdate(swap._id,
                     {
                         ethereumTx: queryData.transactionHash,
@@ -47,7 +45,6 @@ class EtherEvent {
     }
 
     swapCONtoCONX(ivoke) {
-        console.log('swapCONX: ', ivoke)
         return new Promise(
             (resolve, reject) => {
                 CallInvokeSwap('MintAndTransfer', {
@@ -76,7 +73,6 @@ class EtherEvent {
                         }
                         let conunTX = await Swap.findOneAndUpdate(filter, update, {new: true});
                         if(!conunTX) reject(false);
-                        console.log('conunTX: ', conunTX, response)
                         resolve(conunTX);
                     })
                     .catch((error) => {
@@ -88,7 +84,6 @@ class EtherEvent {
     }
 
     swapCONXtoCON(ivoke) {
-        console.log('swapCON: ', ivoke)
         return new Promise(
             (resolve, reject) => {
                 CallInvokeSwap('BurnFrom', {
@@ -117,7 +112,6 @@ class EtherEvent {
                         }
                         let conunTX = await Swap.findOneAndUpdate(filter, update, {new: true});
                         if(!conunTX) reject(false);
-                        console.log('conunTX: ', conunTX, response)
                         resolve(conunTX);
                     })
                     .catch((error) => {
@@ -134,11 +128,9 @@ class EtherEvent {
             console.log('Ethereum EVENT CONNECTED', id);
         })
         .on('data', (data) => {
-            console.log('EVENT LISTEN -> : ', data)
             if(data.event === 'CONtoCONX')
                 this.querySwapID(data)
                     .then((invoke) => {
-                        console.log('invoke: ', invoke)
                         this.swapCONtoCONX(invoke)
                     })
                     .catch((error) => {

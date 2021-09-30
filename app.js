@@ -60,5 +60,9 @@ const server = app.listen(process.env.PORT, () => {
     logger.info(`set ${process.env.PORT} port listening...`);
 });
 
+process.on('uncaughtException', ex => {
+    console.log('>> uncaughtException: ', ex);
+});
+
 server.timeout = 240000;
 module.exports = server;
