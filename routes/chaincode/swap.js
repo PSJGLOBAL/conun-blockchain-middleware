@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const fork = require('child_process').fork;
-const EtherEvent = fork(__dirname+'../../../service/ether.event');
+// const fork = require('child_process').fork;
+// const EtherEvent = fork(__dirname+'../../../service/ether.event');
+const EtherEvent = require('../../service/ether.event');
 const Web3 = require('web3');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
@@ -17,12 +18,12 @@ const logger = Helper.getLogger('TokenAPI');
 const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
 const web3 = new Web3(provider);
 
-function onExit() {
-    EtherEvent.kill('SIGINT');
-    process.exit(0);
-}
+// function onExit() {
+//     EtherEvent.kill('SIGINT');
+//     process.exit(0);
+// }
 
-process.on('exit', onExit);
+// process.on('exit', onExit);
 
 
 // type con-conx, conx-con
