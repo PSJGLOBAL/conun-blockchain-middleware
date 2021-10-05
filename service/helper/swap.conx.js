@@ -9,6 +9,7 @@ function CallInvokeSwap(event, req) {
     return new Promise(
         (resolve, reject) => {
             eventDeal.on('MintAndTransfer', () => {
+                console.log('1-MintAndTransfer >> ')
                 invokeHandler.MintAndTransfer({
                     channelName: req.channelName,
                     chainCodeName: req.chainCodeName,
@@ -29,6 +30,7 @@ function CallInvokeSwap(event, req) {
             });
 
             eventDeal.on('BurnFrom', () => {
+                console.log('1-BurnFrom >> ')
                 invokeHandler.BurnFrom({
                     channelName: req.channelName,
                     chainCodeName: req.chainCodeName,
@@ -42,22 +44,6 @@ function CallInvokeSwap(event, req) {
                 })
                 .then((result) => {
                     resolve(result.message);
-                }).catch((error) => {
-                    reject(error.message);
-                })
-            });
-
-            eventDeal.on('CheckIdExists', () => {
-                invokeHandler.CheckIdExists({
-                    channelName: req.channelName,
-                    chainCodeName: req.chainCodeName,
-                    fcn: req.fcn,
-                    orgName: req.orgName,
-                    swapID: req.swapID,
-                    walletAddress: req.walletAddress,
-                })
-                .then((result) => {
-                    resolve(result);
                 }).catch((error) => {
                     reject(error.message);
                 })
