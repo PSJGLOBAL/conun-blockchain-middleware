@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
-const invokeHandler = require('../../app/invoke');
+// const invokeHandler = require('../../app/invoke');
 const queryHandler = require('../../app/query');
 const events = require('events');
 

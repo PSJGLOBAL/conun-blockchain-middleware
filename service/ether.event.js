@@ -74,35 +74,23 @@ class EtherEvent {
                     messageHash: ivoke.swap.messageHash,
                     signature: ivoke.swap.signature
                 })
-
-                // CallInvokeSwap('MintAndTransfer', {
-                //     channelName: 'mychannel',
-                //     chainCodeName: 'bridge',
-                //     fcn: 'MintAndTransfer',
-                //     orgName: ivoke.user.orgName,
-                //     id: ivoke.swap.swapID.slice(2, ivoke.swap.swapID.length),
-                //     key: ivoke.swap.swapKey.slice(2, ivoke.swap.swapKey.length),
-                //     walletAddress: ivoke.user.walletAddress,
-                //     amount: ivoke.swap.amount,
-                //     messageHash: ivoke.swap.messageHash,
-                //     signature: ivoke.swap.signature
-                // })
                 .then((response) => {
+                    console.log('response: ', response)
                     const filter = {
                         wallet: ivoke.user._id,
                         swapID: ivoke.queryData.returnValues.swapID,
-                        amount: response.Value
+                        amount: response.message.Value
                     }
                     const update = {
-                        amount: response.Value,
-                        conunTx: response.txHash,
+                        amount: response.message.Value,
+                        conunTx: response.message.txHash,
                         isComplited: true,
                         complitedAt: Date.now()
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((conunTX) => {
                             console.log('ethereumTx', ivoke.ethereumTx.ethereumTx)
-                            console.log('conunTX', response.txHash);
+                            console.log('conunTX', response.message.txHash);
                             resolve(conunTX);    
                         })
                         .catch((err) => {
@@ -120,8 +108,8 @@ class EtherEvent {
     swapCONXtoCON(ivoke) {
         return new Promise(
             (resolve, reject) => {
-
-                invokeHandler.BurnFrom({
+                const invokeHandler = new Invoke();
+                invokeHandler.burnFromBridge({
                     channelName: 'BurnFrom',
                     chainCodeName: 'bridge',
                     fcn: 'BurnFrom',
@@ -132,42 +120,30 @@ class EtherEvent {
                     messageHash: ivoke.swap.messageHash,
                     signature: ivoke.swap.signature
                 })
-
-                // CallInvokeSwap('BurnFrom', {
-                //         channelName: 'mychannel',
-                //         chainCodeName: 'bridge',
-                //         fcn: 'BurnFrom',
-                //         orgName: ivoke.user.orgName,
-                //         id: ivoke.swap.swapID.slice(2, ivoke.swap.swapID.length),
-                //         walletAddress: ivoke.user.walletAddress,
-                //         amount: ivoke.swap.amount,
-                //         messageHash: ivoke.swap.messageHash,
-                //         signature: ivoke.swap.signature
-                //     })
-                    .then((response) => {
-                        const filter = {
-                            wallet: ivoke.user._id,
-                            swapID: ivoke.queryData.returnValues.swapID,
-                            amount: response.Value
-                        }
-                        const update = {
-                            amount: response.Value,
-                            conunTx: response.txHash,
-                            isComplited: true,
-                            complitedAt: Date.now()
-                        }
-                        Swap.findOneAndUpdate(filter, update, {new: true})
-                            .then((conunTX) => {
-                                console.log('ethereumTx', ivoke.ethereumTx.ethereumTx)
-                                console.log('conunTX', response.txHash);
-                                resolve(conunTX);
-                            })
-                            .catch((err) => {
-                                reject(err)
-                            })
-                    })
-                    .catch((error) => {
-                        reject(error);
+                .then((response) => {
+                    const filter = {
+                        wallet: ivoke.user._id,
+                        swapID: ivoke.queryData.returnValues.swapID,
+                        amount: response.message.Value
+                    }
+                    const update = {
+                        amount: response.message.Value,
+                        conunTx: response.message.txHash,
+                        isComplited: true,
+                        complitedAt: Date.now()
+                    }
+                    Swap.findOneAndUpdate(filter, update, {new: true})
+                        .then((response) => {
+                            console.log('ethereumTx', ivoke.ethereumTx.ethereumTx)
+                            console.log('conunTX', response.message.txHash);
+                            resolve(response);
+                        })
+                        .catch((err) => {
+                            reject(err)
+                        })
+                })
+                .catch((error) => {
+                    reject(error);
                 });       
             }
         );
@@ -225,6 +201,7 @@ function listenEvent() {
         if(data.event === 'CONtoCONX') {
             etherEvent.querySwapID(data)
                 .then((invoke) => {
+                    console.log('invoke>> : ', invoke)
                     etherEvent.swapCONtoCONX(invoke)
                 })
                 .catch((error) => {

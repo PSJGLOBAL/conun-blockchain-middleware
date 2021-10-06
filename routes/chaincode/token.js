@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const invokeHandler = require('../../app/invoke');
+// const invokeHandler = require('../../app/invoke');
 const queryHandler = require('../../app/query');
 const auth = require('../../middleware/auth');
 const events = require('events');
