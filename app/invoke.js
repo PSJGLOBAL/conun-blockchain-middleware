@@ -33,11 +33,8 @@ module.exports = class Invoke {
 
     async connect (arg) {
         this.connection = await connectionOrg(arg.walletAddress, arg.orgName);
-        // Create a new gateway for connecting to our peer node.
         this.gateway = new Gateway();
         await this.gateway.connect(this.connection.ccp, this.connection.connectOptions);
-
-        // Get the network (channel) our contract is deployed to.
         this.network = await this.gateway.getNetwork(arg.channelName);
         this.contract = this.network.getContract(arg.chainCodeName);
     }

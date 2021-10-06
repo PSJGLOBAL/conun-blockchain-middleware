@@ -1,12 +1,11 @@
 const Web3 = require('web3');
 const config = require('config');
-// const CallInvokeSwap = require('./helper/swap.conx');
 const Invoke = require('../app/invoke');
-
 const {Swap} = require('../models/profile/swap.model');
 const {User} = require('../models/profile/user');
-
 require('../startup/db')();
+const Helper = require('../common/helper');
+const logger = Helper.getLogger('app');
 
 class EtherEvent {
     constructor(contractAddress, abi, url) {
@@ -17,44 +16,38 @@ class EtherEvent {
         this.web3 = new Web3(this.provider);
         this.listenContract = new this.web3.eth.Contract(this.abi, this.contractAddress);
     }
-
-
+    
     querySwapID(queryData) {
         return new Promise (
             (resolve, reject) => {
-                        queryData.returnValues = JSON.parse(JSON.stringify(queryData.returnValues).replace('Result', ''));
-                        User.findOne({walletAddress: queryData.returnValues.from.toLowerCase()})
-                            .then((user) => {
-                                Swap.findOne({wallet: user._id , swapID: queryData.returnValues.swapID})
-                                    .then((swap) => {
-                                            Swap.findByIdAndUpdate(swap._id,
-                                                {
-                                                    ethereumTx: queryData.transactionHash,
-                                                    isComplited: false,
-                                                },
-                                                {new: true}
-                                            )
-                                            .then((ethereumTx) => {
-                                                resolve({
-                                                    queryData,
-                                                    user,
-                                                    swap,
-                                                    ethereumTx
-                                                }); 
-                                            })
-                                            .catch((err) => {
-                                                reject(err)
-                                            })
-                                    })
-                                    .catch((err) => {
-                                        reject(err)
-                                    })
-                            }) 
+                queryData.returnValues = JSON.parse(JSON.stringify(queryData.returnValues).replace('Result', ''));
+                User.findOne({walletAddress: queryData.returnValues.from.toLowerCase()})
+                    .then((user) => {
+                        Swap.findOne({wallet: user._id , swapID: queryData.returnValues.swapID})
+                            .then((swap) => {
+                                    Swap.findByIdAndUpdate(swap._id, 
+                                        { ethereumTx: queryData.transactionHash, isComplited: false, }, {new: true})
+                                        .then((ethereumTx) => {
+                                            resolve({
+                                                queryData,
+                                                user,
+                                                swap,
+                                                ethereumTx
+                                            }); 
+                                        })
+                                        .catch((err) => {
+                                            reject(err)
+                                        })
+                            })
                             .catch((err) => {
                                 reject(err)
-                            })   
-                   
-        })
+                            })
+                })
+                .catch((err) => {
+                    reject(err)
+                })       
+            }
+        )
     }
 
     swapCONtoCONX(ivoke) {
@@ -149,79 +142,44 @@ class EtherEvent {
         );
     }
 
-    // listenEvent() {
-    //     this.listenContract.events.allEvents()
-    //     .on('connected', (id) => {
-    //         console.log('Ethereum EVENT CONNECTED', id);
-    //     })
-    //     .on('data', (data) => {
-    //         console.log('Ethereum EVENT Interupted>> ')
-    //         if(data.event === 'CONtoCONX') {
-    //             this.querySwapID(data)
-    //                 .then((invoke) => {
-    //                     this.swapCONtoCONX(invoke)
-    //                 })
-    //                 .catch((error) => {
-    //                     console.log('error: ', error)
-    //                 })
-    //         }
-    //         else if(data.event === 'CONXtoCON')
-    //         {
-    //             this.querySwapID(data)
-    //                     .then((invoke) => {
-    //                         this.swapCONXtoCON(invoke)
-    //                     })
-    //                     .catch((error) => {
-    //                         console.log('CONXtoCON error: ', error)
-    //                     }) 
-    //         }       
-    //     })
-    //     .on('error', (err) => {
-    //         console.log('listenContractEvent err: ', err);
-    //     });
-    // }
+    listenEvent() {
+        this.listenContract.events.allEvents()
+        .on('connected', (id) => {
+            console.log('Ethereum EVENT CONNECTED', id);
+        })
+        .on('data', (data) => {
+            if(data.event === 'CONtoCONX') {
+                this.querySwapID(data)
+                    .then((invoke) => {
+                        this.swapCONtoCONX(invoke)
+                    })
+                    .catch((error) => {
+                        console.log('querySwapID - > error: ', error)
+                        logger.error(`querySwapID error: ${error}`);
+                    })
+            }
+            else if(data.event === 'CONXtoCON')
+            {
+                this.querySwapID(data)
+                    .then((invoke) => {
+                        this.swapCONXtoCON(invoke)
+                    })
+                    .catch((error) => {
+                        console.log('querySwapID -> error: ', error)
+                        logger.error(`querySwapID error: ${error}`);
+                    }) 
+            }       
+        })
+        .on('error', (error) => {
+            console.log('listenContractEvent err: ', error);
+            logger.error(`listenContractEvent error: ${error}`);
+        });
+    }
 }
 
-console.log('event print> > > ')
 let BridgeContractAddress = config.get('ethereum.bridge_contract_address');
 let bridgeAbiJson = require('../app/web3/bridge.swap.abi.json');
 let url = config.get('ethereum.wsProvider');
 
 const etherEvent = new EtherEvent(BridgeContractAddress, bridgeAbiJson, url);
-// etherEvent.listenEvent();
-
-
-function listenEvent() {
-    etherEvent.listenContract.events.allEvents()
-    .on('connected', (id) => {
-        console.log('Ethereum EVENT CONNECTED', id);
-    })
-    .on('data', (data) => {
-        console.log('Ethereum EVENT Interupted>> ')
-        if(data.event === 'CONtoCONX') {
-            etherEvent.querySwapID(data)
-                .then((invoke) => {
-                    console.log('invoke>> : ', invoke)
-                    etherEvent.swapCONtoCONX(invoke)
-                })
-                .catch((error) => {
-                    console.log('error: ', error)
-                })
-        }
-        else if(data.event === 'CONXtoCON')
-        {
-            etherEvent.querySwapID(data)
-                    .then((invoke) => {
-                        etherEvent.swapCONXtoCON(invoke)
-                    })
-                    .catch((error) => {
-                        console.log('CONXtoCON error: ', error)
-                    }) 
-        }       
-    })
-    .on('error', (err) => {
-        console.log('listenContractEvent err: ', err);
-    });
-}
-
-listenEvent();
+etherEvent.listenEvent();
