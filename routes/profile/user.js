@@ -13,12 +13,11 @@ const auth = require('../../middleware/auth');
 const oauth = require('../../middleware/email.oauth');
 const Eth = require('../../app/web3/eth.main');
 const crypto = require('../../utils/crypto/encryption.algorithm');
-const config = require('config');
 
 router.get('/getConfig', auth, async (req, res) => {
     try {
-        let conContractAddrress = config.get('ethereum.contract_address');
-        let bridgeContractAddrress = config.get('ethereum.bridge_contract_address');
+        let conContractAddrress = process.env.ETHER_CON_CONTRACT_ADDRESS;
+        let bridgeContractAddrress = process.env.ETHER_BRIDGE_CONTRACT_ADDRESS;
         let conABI = require('../../app/web3/abi.json');
         let bridgeABI = require('../../app/web3/bridge.swap.abi.json');
         res.status(200).json({payload: {

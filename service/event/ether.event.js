@@ -1,13 +1,11 @@
 const Web3 = require('web3');
-const config = require('config');
-const Invoke = require('../app/invoke');
-const {Swap} = require('../models/profile/swap.model');
-const {User} = require('../models/profile/user');
-require('../startup/db')();
-const Helper = require('../common/helper');
+const Invoke = require('../../app/invoke');
+const {Swap} = require('../../models/profile/swap.model');
+const {User} = require('../../models/profile/user');
+const Helper = require('../../common/helper');
 const logger = Helper.getLogger('app');
 
-class EtherEvent {
+module.exports = class EtherEvent {
     constructor(contractAddress, abi, url) {
         this.contractAddress = contractAddress;
         this.abi = abi;
@@ -176,10 +174,3 @@ class EtherEvent {
         });
     }
 }
-
-let BridgeContractAddress = config.get('ethereum.bridge_contract_address');
-let bridgeAbiJson = require('../app/web3/bridge.swap.abi.json');
-let url = config.get('ethereum.wsProvider');
-
-const etherEvent = new EtherEvent(BridgeContractAddress, bridgeAbiJson, url);
-etherEvent.listenEvent();

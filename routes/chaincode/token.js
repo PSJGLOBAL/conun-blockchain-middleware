@@ -67,7 +67,7 @@ function CallInvoke(event, req) {
                     orgName: req.body.orgName,
                     walletAddress: req.body.fromAddress,
                     to: req.body.toAddress,
-                    value: req.body.value,
+                    amount: req.body.value,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
                 });

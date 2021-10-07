@@ -16,3 +16,5 @@ hosts
 config.json
 start.sh
 .vscode
+.env
+nginx.middleware.conf

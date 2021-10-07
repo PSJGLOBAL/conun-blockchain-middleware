@@ -2,10 +2,10 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+require("dotenv").config();
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require('./swagger.json');
 const bodyParser = require('body-parser');
-const constants = require('./config/constants.json');
 const Helper = require('./common/helper');
 const logger = Helper.getLogger('app');
 
@@ -40,7 +40,10 @@ if (process.env.NODE_ENV === 'development') {
 
 
 app.get('/', async (req, res)  => {
-    res.send({"msg": "server is working"})
+    res.status(200).json({
+        success: true,
+        status: 200
+    })
 });
 
 console.log('process.env.NODE_ENV:  ', process.env.NODE_ENV, process.env.PORT);
@@ -53,6 +56,7 @@ const server = app.listen(process.env.PORT, () => {
 
 process.on('uncaughtException', ex => {
     console.log('>> uncaughtException: ', ex);
+    logger.error('>> uncaughtException:', ex);
 });
 
 

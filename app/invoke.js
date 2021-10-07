@@ -1,8 +1,7 @@
 const { Gateway } = require('fabric-network');
 const connectionOrg = require('./helper/conection');
-const config = require('config');
 const Web3 = require('web3');
-const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
+const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
 const web3 = new Web3(provider);
 const Helper = require('../common/helper');
 const logger = Helper.getLogger('app');
@@ -18,8 +17,6 @@ function splitString(msg) {
         return msg
     }
 }
-
-console.log('invoke class');
 
 module.exports = class Invoke {
     constructor() {
@@ -91,7 +88,7 @@ module.exports = class Invoke {
                 this.transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature)
                 .then((result) => {
                     this.payload = JSON.parse(result.toString());
-                    payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
+                    this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
                     this.payload.txHash = this.transaction.getTransactionId();
                     console.log('this.payload >>', this.payload);
                     this.gateway.disconnect();
@@ -165,7 +162,7 @@ module.exports = class Invoke {
                 this.transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature)
                 .then((result) => {
                     this.payload = JSON.parse(result.toString());
-                    payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
+                    this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
                     this.payload.txHash = this.transaction.getTransactionId();
                     console.log('this.payload >>', this.payload);
                     this.gateway.disconnect();
@@ -195,10 +192,10 @@ module.exports = class Invoke {
             (resolve, reject) => {
                 let value = web3.utils.toWei(arg.amount, 'ether');
                 this.transaction = this.contract.createTransaction(arg.fcn)
-                this.transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature)
+                this.transaction.submit(arg.walletAddress, arg.to, value, arg.messageHash, arg.signature)
                 .then((result) => {
                     this.payload = JSON.parse(result.toString());
-                    payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
+                    this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
                     this.payload.txHash = this.transaction.getTransactionId();
                     console.log('this.payload >>', this.payload);
                     this.gateway.disconnect();

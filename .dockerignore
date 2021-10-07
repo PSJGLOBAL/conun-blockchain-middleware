@@ -6,3 +6,4 @@ logs/
 Dockerfile
 .dockerignore
 start.sh
+.env

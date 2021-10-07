@@ -1,12 +1,8 @@
 const express = require('express');
 const router = express.Router();
-// const fork = require('child_process').fork;
-// const EtherEvent = fork(__dirname+'../../../service/ether.event');
-const EtherEvent = require('../../service/ether.event');
 const Web3 = require('web3');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
-const config = require('config');
 const {User} = require('../../models/profile/user');
 const {Swap, validateSwap} = require('../../models/profile/swap.model');
 const Eth = require('../../app/web3/eth.main');
@@ -15,18 +11,10 @@ const auth = require('../../middleware/auth');
 const Helper = require('../../common/helper');
 const logger = Helper.getLogger('TokenAPI');
 
-const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
+
+const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
 const web3 = new Web3(provider);
 
-// function onExit() {
-//     EtherEvent.kill('SIGINT');
-//     process.exit(0);
-// }
-
-// process.on('exit', onExit);
-
-
-// type con-conx, conx-con
 router.post('/swap-request/type/:swapType', auth, async (req, res) => {
     console.log('swap request: ',  req.body);
     const { error } = validateSwap(req.body);
@@ -43,7 +31,7 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
     console.log('swapID: ', swapID)
     const encoded = web3.eth.abi.encodeParameters(['bytes32', 'uint256', 'address'], [swapID, web3.utils.toWei(req.body.amount), req.body.walletAddress])
     const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
-    let hashed = await Eth.CreateSignature(hash, config.get('ethereum.adminPrivateKey'))
+    let hashed = await Eth.CreateSignature(hash, process.env.ADMIN_PRIVATE_KEY)
 
     try {
         if(req.params.swapType === 'CONtoCONX') {
@@ -58,11 +46,8 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
            })
 
            let _swap = await swap.save()
-        //    console.log('_swap: ', _swap);
-
            user.swaps.push(swap);
-           let _user = await user.save();
-        //    console.log('_user: ', _user);
+           await user.save();
 
            res.status(200).json({
                 payload: {
@@ -85,13 +70,10 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
                 signature: hashed.signature
                })
     
-               let _swap = await swap.save()
-            //    console.log('_swap: ', _swap);
-    
+               let _swap = await swap.save();     
                user.swaps.push(swap);
-               let _user = await user.save();
-            //    console.log('_user: ', _user);
-    
+               await user.save();
+                
                res.status(200).json({
                     payload: {
                         type: 'CONXtoCON',

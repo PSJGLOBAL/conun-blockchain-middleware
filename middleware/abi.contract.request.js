@@ -1,5 +1,4 @@
 const https = require('https');
-const config = require('config');
 const fs = require('fs');
 //http://api-ropsten.etherscan.io/api?module=contract&action=getabi&address=${conContractAddrress}&format=raw
 async function etherAbi (contractAddrress) {
@@ -36,8 +35,8 @@ async function etherAbi (contractAddrress) {
     }
 }
 
-// let conContractAddrress = config.get('ethereum.contract_address');
-// let bridgeContractAddrress = config.get('ethereum.bridge_contract_address');
+// let conContractAddrress = process.env.ETHER_CON_CONTRACT_ADDRESS
+// let bridgeContractAddrress = process.env.ETHER_BRIDGE_CONTRACT_ADDRESS
 
 
 // setTimeout(()=> {

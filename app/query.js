@@ -1,8 +1,7 @@
 const { Gateway } = require('fabric-network');
 const connectionOrg = require('./helper/conection')
-const config = require('config');
 const Web3 = require('web3');
-const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
+const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
 const web3 = new Web3(provider);
 
 const Helper = require('../common/helper');

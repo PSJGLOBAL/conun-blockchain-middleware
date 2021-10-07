@@ -17,7 +17,7 @@ ENV NODE_ENV=development
 # Install app dependencies
 RUN npm install
 
-ENV PORT 4040
-EXPOSE 4040
+ENV PORT 4000
+EXPOSE 4000
 
 CMD [ "npm", "start" ]
