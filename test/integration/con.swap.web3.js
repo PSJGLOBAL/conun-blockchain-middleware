@@ -1,4 +1,3 @@
-const config = require('config');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const Eth = require('../../app/web3/eth.main');
@@ -7,16 +6,16 @@ var Tx = require('ethereumjs-tx').Transaction;
 const adminConfig = require('./private.json');
 let server;
 
-const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
+const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
 // todo make event listener
 // todo get abi from url
-const wsProvider = new Web3.providers.WebsocketProvider(config.get('ethereum.wsProvider'));
+const wsProvider = new Web3.providers.WebsocketProvider(process.env.ETHER_WS_PROVIDER);
 const web3 = new Web3(wsProvider);
 
 // const wsweb3 = new Web3(wsProvider);
 
-const BridgeContractAddress = config.get('ethereum.bridge_contract_address');
-const ConContractAddress = config.get('ethereum.contract_address');
+const BridgeContractAddress = process.env.ETHER_BRIDGE_CONTRACT_ADDRESS;
+const ConContractAddress = process.env.ETHER_CON_CONTRACT_ADDRESS;
 
 const bridgeAbiJson = require('../../app/web3/bridge.swap.abi.json');
 const conAbiJson = require('../../app/web3/abi.json');

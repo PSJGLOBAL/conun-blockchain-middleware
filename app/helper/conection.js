@@ -3,9 +3,8 @@ const path = require("path")
 const { Wallets, DefaultEventHandlerStrategies  } = require('fabric-network');
 
 const ccpPath = path.resolve(__dirname, '../../', 'config', 'connection-org1.json');
-const appConfig = require("config")
 const Helper = require("../../common/helper")
-const DiscoveryOption =  appConfig.get('discoveryOption');
+const DiscoveryOption =  process.env.DISCOVERY_OPTION;
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 

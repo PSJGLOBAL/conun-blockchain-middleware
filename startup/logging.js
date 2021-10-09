@@ -1,7 +1,7 @@
 require('express-async-errors');
 require('winston-mongodb');
 const winston = require('winston');
-const config = require('config');
+
 var options = {
     file: {
         level: 'silly',
@@ -19,7 +19,7 @@ var options = {
         colorize: true,
     },
     LogDB: {
-        db: config.get('log.logDB'),
+        db: `mongodb://${process.env.MONGODB_URL}/conun-middleware-logs`,
         level: 'silly',
         handleExceptions: true,
     }

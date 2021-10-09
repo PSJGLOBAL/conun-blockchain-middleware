@@ -40,6 +40,10 @@ deleteAllImages() {
     docker rmi -f $(docker images -a -q)
 }
 
+killRuningNodes() {
+    sudo lsof -i -P -n | grep LISTEN
+    # sudo pkill node
+}
 
 stopServer() {
     sudo kill -9 `sudo lsof -t -i:4040`

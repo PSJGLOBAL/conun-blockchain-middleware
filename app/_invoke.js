@@ -134,16 +134,16 @@ module.exports = {
             (resolve, reject) => {
 
                 if(arg.chainCodeName === 'CONX') {
-                    // const transaction = contract.createTransaction(arg.fcn);
-                    // console.log('CONX >> ')
-                    // let result = await transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature);
-                    // let payload = JSON.parse(result.toString());
-                    // payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
-                    // gateway.disconnect();  
-                    // resolve({
-                    //     status: true,
-                    //     message: payload
-                    // });
+                    const transaction = contract.createTransaction(arg.fcn);
+                    console.log('CONX >> ')
+                    let result = await transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature);
+                    let payload = JSON.parse(result.toString());
+                    payload.Func.Value = web3.utils.fromWei(payload.Func.Value, "ether");
+                    gateway.disconnect();  
+                    resolve({
+                        status: true,
+                        message: payload
+                    });
                 }
                 else if(arg.chainCodeName === 'bridge') {
                     console.log('2-MintAndTransfer >> ')

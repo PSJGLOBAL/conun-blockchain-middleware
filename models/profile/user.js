@@ -1,7 +1,6 @@
 const Joi = require('joi');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const config = require('config');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -54,7 +53,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.generateAuthToken = function () {
-    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, walletAddress: this.walletAddress, walletSignature: this.walletSignature}, config.get('jwtPrivateKey'), { expiresIn: '365d' });
+    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, walletAddress: this.walletAddress, walletSignature: this.walletSignature}, process.env.JWT_PRIVATE_KEY, { expiresIn: '365d' });
 }
 
 const User = mongoose.model('User', userSchema);

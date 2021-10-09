@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const invokeHandler = require('../../app/invoke');
+const Invoke = require('../../app/invoke');
 const queryHandler = require('../../app/query');
 const auth = require('../../middleware/auth');
 const events = require('events');
@@ -12,7 +12,8 @@ function CallInvoke(event, req) {
     return new Promise(
         (resolve, reject) => {
             eventDeal.on('Init', async () => {
-                let result = await invokeHandler.Init({
+                const invokeHandler = new Invoke();
+                let result = await invokeHandler.init({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
@@ -26,8 +27,8 @@ function CallInvoke(event, req) {
             });
             
             eventDeal.on('MintAndTransfer', async () => {
-                con
-                let result = await invokeHandler.MintAndTransfer({
+                const invokeHandler = new Invoke();
+                let result = await invokeHandler.conxMintAndTransfer({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
@@ -42,7 +43,8 @@ function CallInvoke(event, req) {
             });
             
             eventDeal.on('BurnFrom', async () => {
-                let result = await invokeHandler.BurnFrom({
+                const invokeHandler = new Invoke();
+                let result = await invokeHandler.burnFromConx({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
@@ -57,14 +59,15 @@ function CallInvoke(event, req) {
             });
 
             eventDeal.on('Transfer', async () => {
-                let result = await invokeHandler.Transfer({
+                const invokeHandler = new Invoke();
+                let result = await invokeHandler.transferConx({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
                     walletAddress: req.body.fromAddress,
                     to: req.body.toAddress,
-                    value: req.body.value,
+                    amount: req.body.value,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
                 });

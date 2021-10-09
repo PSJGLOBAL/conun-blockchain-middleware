@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Helper = require('../common/helper');
+const Helper = require('../../common/helper');
 
 const logger = Helper.getLogger('MongoDB')
 

@@ -1,15 +1,12 @@
 #!/usr/bin/env node
-const config = require('config');
-
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var xmlHttp = new XMLHttpRequest();
 var Tx = require('ethereumjs-tx').Transaction;
 
 const Web3 = require('web3');
-const provider = new Web3.providers.HttpProvider(config.get('ethereum.httpProvider'));
-const ConContractAddress = config.get('ethereum.contract_address');
+const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
+const ConContractAddress = process.env.ETHER_CON_CONTRACT_ADDRESS
 const web3 = new Web3(provider);
-const createKeccakHash = require('keccak');
 var abijson = require('./abi.json');
 var abiarray = abijson;
 
@@ -302,7 +299,7 @@ module.exports = {
 
     SendCON: async (object) => {
         try {
-            object.contract_address = config.get('ethereum.contract_address');
+            object.contract_address = process.env.ETHER_CON_CONTRACT_ADDRESS;
             web3.eth.defaultAccount = object.fromAddress;
 
             if(object.privateKey.includes('0x')) {
