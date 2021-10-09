@@ -139,3 +139,20 @@
         docker run -d -p 4040:4040 -v /home/conun/conun-middleware-testnet-v3/wallet:/conun-middleware-testnet-v3/wallet -it conun-middleware-testnet-v3:0.1
 
     5 - [ install editor inside docker: apt-get update && apt-get install nano]
+
+
+    sudo systemctl enable mongod
+
+    sudo service mongod restart
+
+
+    sudo service mongod status
+
+    sudo systemctl enable mongod
+
+    sudo service mongod restart
+
+    chown -R mongodb:mongodb /var/lib/mongodb
+    chown mongodb:mongodb /tmp/mongodb-27017.sock
+
+    sudo service mongod restart
