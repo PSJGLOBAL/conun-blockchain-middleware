@@ -52,7 +52,7 @@ services:
       container_name: conun.middleware.worker.com
       build: .
       restart: unless-stopped
-      command: npm run worker-start
+      command: npm run worker
       env_file: ./.env
       volumes:
         - ./service:/conun-worker-testnet-v3/service
