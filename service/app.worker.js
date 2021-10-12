@@ -3,10 +3,10 @@ const app = express();
 const cors = require('cors');
 require("dotenv").config();
 const bodyParser = require('body-parser');
-const Helper = require('./common/helper');
+const Helper = require('../common/helper');
 const logger = Helper.getLogger('app');
-const EtherEvent = require('./service/event/ether.event')
-const bridgeAbiJson = require('./app/web3/bridge.swap.abi.json');
+const EtherEvent = require('./event/ether.event')
+const bridgeAbiJson = require('../app/web3/bridge.swap.abi.json');
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -28,8 +28,8 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-require('./service/startup/worker.routes.v1')(app);
-require('./service/startup/db')();
+require('./startup/worker.routes.v1')(app);
+require('./startup/db')();
 
 let BridgeContractAddress = process.env.ETHER_BRIDGE_CONTRACT_ADDRESS;
 let url = process.env.ETHER_WS_PROVIDER;
@@ -39,7 +39,7 @@ etherEvent.listenEvent();
 
 app.get('/', async (req, res)  => {
     res.status(200).json({
-        message: 'worker',
+        message: `worker Id: ${etherEvent.eventId}`,
         success: true,
         status: 200
     })

@@ -196,7 +196,7 @@ router.post('/auth-login', oauth, async (req, res) => {
     });
 });
 
-//done
+
 router.post('/importCertificate', async (req, res) => {
     console.log('importCertificate:', req.body);
     const { error } = validateWalletImport(req.body);
@@ -212,9 +212,71 @@ router.post('/importCertificate', async (req, res) => {
 
     try {
         const token = user.generateAuthToken();
-        let orgName = req.body.orgName;
         let walletAddress = await helper.importWalletByCertificate({
-            orgName,
+            orgName: req.body.orgName,
+            password: req.body.password,
+            walletAddress: req.body.x509Identity.walletAddress.toLowerCase(),
+            x509Identity: req.body.x509Identity,
+        });
+        console.log('walletAddress: ', walletAddress, token);
+        if (walletAddress) {
+            res.status(200).header('jwtAuthToken', token).json({
+                payload: {
+                    user: _.pick(user, ['_id', 'name', 'email', 'walletAddress']),
+                    'jwtAuthToken': token
+                },
+                success: true,
+                status: 200
+            });
+        } else {
+            res.status(400).json({payload: x509Identity, success: false, status: 400})
+        }
+    } catch (error) {
+        console.log(`/importWalletByCertificate error: ${error} `);
+        _logger.error(`/importWalletByCertificate error: ${error} `);
+        res.status(400).json({payload: `duplicate user or ${error.message}`, success: false, status: 400})
+    }
+});
+
+
+router.post('/retryImportCertificate', async (req, res) => {
+    console.log('importCertificate:', req.body);
+    const { error } = validateWalletImport(req.body);
+    if (error)
+        return res.status(400).json({payload: error.details[0].message, success: false, status: 400 });
+    let wallet = await User.findOne({walletAddress: req.body.x509Identity.walletAddress.toLowerCase() });
+    console.log('wallet: ', wallet);
+    if (wallet)
+        return res.status(400).json({payload: 'Wallet already exist', success: false, status: 400});
+
+    try {
+        let payload = await helper.getLinkedWallets({
+            orgName: req.body.orgName,
+            password: req.body.password,
+            walletType: 'ETH',
+            walletAddress: req.body.x509Identity.walletAddress.toLowerCase(),
+            x509Identity: req.body.x509Identity
+        });
+        console.log('payload: ', payload);
+        let decryptData = await Eth.keyStoreDecrypt(payload.keyStore, req.body.password);
+        console.log('decryptData.privateKey: ', decryptData.privateKey);
+        let hashed = await Eth.CreateSignature(JSON.stringify(req.body.x509Identity), decryptData.privateKey);
+        console.log('walletSignature: ', hashed.signature)
+        let user = new User ({
+            orgName: req.body.orgName,
+            password: req.body.password,
+            walletAddress: req.body.x509Identity.walletAddress.toLowerCase(), 
+            walletSignature: hashed.signature,
+            isAdmin: false
+        });
+    
+        console.log('User DB save: ', user);
+        const salt = await bcrypt.genSalt();
+        user.password = await bcrypt.hash(user.password, salt);
+        await user.save();  
+        const token = user.generateAuthToken();
+        let walletAddress = await helper.importWalletByCertificate({
+            orgName: req.body.orgName,
             password: req.body.password,
             walletAddress: req.body.x509Identity.walletAddress.toLowerCase(),
             x509Identity: req.body.x509Identity,

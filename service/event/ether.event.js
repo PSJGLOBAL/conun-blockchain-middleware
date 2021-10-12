@@ -13,18 +13,20 @@ module.exports = class EtherEvent {
         this.provider = new Web3.providers.WebsocketProvider(this.url);
         this.web3 = new Web3(this.provider);
         this.listenContract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        this.eventId = null;
     }
     
-    querySwapID(queryData) {
+    querySwapID(queryData, eventId) {
         return new Promise (
             (resolve, reject) => {
                 queryData.returnValues = JSON.parse(JSON.stringify(queryData.returnValues).replace('Result', ''));
                 User.findOne({walletAddress: queryData.returnValues.from.toLowerCase()})
                     .then((user) => {
-                        Swap.findOne({wallet: user._id , swapID: queryData.returnValues.swapID})
+                        Swap.findOne({wallet: user._id, swapID: queryData.returnValues.swapID})
                             .then((swap) => {
+                                if(!swap.eventId) {
                                     Swap.findByIdAndUpdate(swap._id, 
-                                        { ethereumTx: queryData.transactionHash, isComplited: false, }, {new: true})
+                                        { ethereumTx: queryData.transactionHash, eventId: eventId, isComplited: false, }, {new: true})
                                         .then((ethereumTx) => {
                                             resolve({
                                                 queryData,
@@ -36,6 +38,9 @@ module.exports = class EtherEvent {
                                         .catch((err) => {
                                             reject(err)
                                         })
+                                } else {
+                                    reject(`event already handeled by woker id ${swap.eventId}`)
+                                }
                             })
                             .catch((err) => {
                                 reject(err)
@@ -144,10 +149,11 @@ module.exports = class EtherEvent {
         this.listenContract.events.allEvents()
         .on('connected', (id) => {
             console.log('Ethereum EVENT CONNECTED', id);
+            this.eventId = id;
         })
         .on('data', (data) => {
             if(data.event === 'CONtoCONX') {
-                this.querySwapID(data)
+                this.querySwapID(data, this.eventId)
                     .then((invoke) => {
                         this.swapCONtoCONX(invoke)
                     })
@@ -158,7 +164,7 @@ module.exports = class EtherEvent {
             }
             else if(data.event === 'CONXtoCON')
             {
-                this.querySwapID(data)
+                this.querySwapID(data, this.eventId)
                     .then((invoke) => {
                         this.swapCONXtoCON(invoke)
                     })

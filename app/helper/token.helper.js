@@ -117,7 +117,8 @@ const getLinkedWallets = async (arg)  => {
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(arg.walletAddress);
         if (!identity) {
-            return 'Please Import Certificate First'
+            let status = await wallet.put(arg.walletAddress, arg.x509Identity);
+            if(!status) return false;
         }
 
         const connection = await connectionOrg(arg.walletAddress, arg.orgName);
@@ -156,6 +157,7 @@ const getLinkedWallets = async (arg)  => {
                             walletAddress: userWallet,
                             keyStore: JSON.parse(keyStore)
                         })
+                    else reject(false)    
                 }
             });
             reject(false)

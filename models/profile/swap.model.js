@@ -59,6 +59,12 @@ const swapSchema = new mongoose.Schema({
         minlength: 10,
         maxlength: 100,
     },
+    eventId: {
+        type: String,
+        required: false,
+        minlength: 10,
+        maxlength: 50,
+    },
     isComplited: Boolean,
     createdAt: { type: Date, default: Date.now },
     complitedAt: {type: Date}

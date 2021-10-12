@@ -6,7 +6,7 @@
   "scripts": {
     "test": "export NODE_ENV=test && export PORT=4444 && jest --watchAll --coverage",
     "start": "node app.js",
-    "worker-start": "node app.worker.js"
+    "worker": "node ./service/app.worker.js"
   },
   "keywords": [],
   "author": "",
