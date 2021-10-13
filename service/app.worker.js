@@ -50,7 +50,6 @@ console.log('process.env.NODE_ENV:  ', process.env.NODE_ENV, process.env.WORKER_
 const server = app.listen(process.env.WORKER_PORT, () => {
     console.log(`Woker listening to ${process.env.WORKER_PORT}`);
     logger.info(`worker listening to ${process.env.WORKER_PORT}`);
-    logger.info(`set ${process.env.WORKER_PORT} port listening...`);
 });
 
 process.on('uncaughtException', ex => {

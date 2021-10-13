@@ -51,7 +51,6 @@ console.log('process.env.NODE_ENV:  ', process.env.NODE_ENV, process.env.PORT);
 const server = app.listen(process.env.PORT, () => {
     console.log(`Server listening to ${process.env.PORT}`);
     logger.info(`Server listening to ${process.env.PORT}`);
-    logger.info(`set ${process.env.PORT} port listening...`);
 });
 
 process.on('uncaughtException', ex => {

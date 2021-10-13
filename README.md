@@ -119,40 +119,120 @@
 
 5. Docker:
     1 - Install:
-        sudo apt-get update
-        sudo apt-get upgrade
-        sudo apt install docker.io
-        systemctl start docker
-        systemctl enable docker
-        docker --versio
+    
+    ```bash
+    sudo apt-get update 
+    sudo apt-get upgrade
+    sudo apt install docker.io
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sudo systemctl status docker
+    docker --versio
+    ```
 
     2 - Switch user:    
-        sudo usermod -aG docker ${USER}
-        su - ${USER}
-        id -nG
-        sudo usermod -aG docker addusernamehere
+    ```bash
+    sudo usermod -aG docker ${USER}
+    su - ${USER}
+    id -nG
+    sudo usermod -aG docker addusernamehere
+    ```
 
+    NOTE: if you want to build only one image ther following cmd:
     3 - Build:
-        docker build --tag conun-middleware-testnet-v3:0.1 .
+    ```bash
+    docker build --tag conun-middleware-testnet-v3:0.1 .
+    ```
     
     4 - Run Docker image:
-        docker run -d -p 4040:4040 -v /home/conun/conun-middleware-testnet-v3/wallet:/conun-middleware-testnet-v3/wallet -it conun-middleware-testnet-v3:0.1
+    ```bash
+    docker run -d -p 4040:4040 -v /home/conun/conun-middleware-testnet-v3/wallet:/conun-middleware-testnet-v3/wallet -it conun-middleware-testnet-v3:0.1
+    ```
 
-    5 - [ install editor inside docker: apt-get update && apt-get install nano]
+    5 - install editor inside docker:
+    ```bash
+    apt-get update && apt-get install nano
+    ```
 
+6. Docker Compose:
+    ```bash
+    sudo apt install docker-compose
+    docker-compose --version
+    ```
+  
+7. MONGODB 
+- [installation doc](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/#install-mongodb-community-edition)
 
-    sudo systemctl enable mongod
+    If you have issue with mongodb, run following cmd:
 
-    sudo service mongod restart
-
-
-    sudo service mongod status
-
-    sudo systemctl enable mongod
-
-    sudo service mongod restart
-
+    ```bash
     chown -R mongodb:mongodb /var/lib/mongodb
     chown mongodb:mongodb /tmp/mongodb-27017.sock
-
+    sudo systemctl enable mongod
     sudo service mongod restart
+    sudo service mongod status
+   ```
+   
+   Set user and password for mongod:
+   ```bash
+    mongod
+    
+    >-------------
+    use admin
+    >
+    switched to db admin
+    >
+
+    db.createUser(
+     {
+      user: "admin",
+      pwd: "password",
+      roles: [ { role: "dbOwner", db: "db-name" } ]
+     }
+    )
+   ```
+
+   Network Binding:
+   ```
+   sudo ufw allow 27017
+   ```
+   ```
+   sudo ufw allow from your_trusted_server_ip/32 to any port 27017
+   ```
+   To verify the changes in firewall settings, type:
+   ```
+   sudo ufw status
+   ```
+   Open the MongoDB configuration file in the editor:
+   ```
+   sudo nano /etc/mongod.conf
+    
+    >-----------------------------------------------------------------
+    # mongod.conf
+
+    # for documentation of all options, see:
+    #   http://docs.mongodb.org/manual/reference/configuration-options/
+
+    # Where and how to store data.
+    # network interfaces
+    net:
+        port: 27017
+        bindIp: 127.0.0.1   
+   ```
+
+   Add your server's IP address to net.bindIp:
+   ```
+   # network interfaces  
+   net:
+    port: 27017
+    bindIp: 127.0.0.1,your_trusted_server_ip
+   ```
+   And restart
+   ```
+   sudo service mongod restart
+   ```
+
+8. Check memory usage:
+    ```bash
+    htop
+    ```
