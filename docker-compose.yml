@@ -25,22 +25,17 @@ services:
     env_file: ./.env
     volumes:
       - db:/data/db
-      - /root/data/mongod:/root/data
-      - /root/logs/mongod:/root/logs
       - ./mongod.conf:/etc/mongod.conf
     ports:
-      - $MONGODB_PORT:$MONGODB_PORT
+      - 27017:27017
     environment:
       - MONGO_INITDB_ROOT_USERNAME=$MONGODB_USER
       - MONGO_INITDB_ROOT_PASSWORD=$MONGODB_PASSWORD
       - MONGO_INITDB_DATABASE=$MONGODB_NAME
-    command: --config /etc/mongod.conf
     logging:
       options:
         max-size: 1m
   conun.middleware.1.com:
-    depends_on:
-      - mongod
     container_name: conun.middleware.1.com
     build: .
     restart: unless-stopped

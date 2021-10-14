@@ -17,10 +17,10 @@ module.exports = function () {
     mongoose.connect(`mongodb://${process.env.MONGODB_URL}`, options)
     mongoose.set('useFindAndModify', false);
     mongoose.set('useCreateIndex', true);
-
+    console.log(`MongoDB connection with-> mongodb://${process.env.MONGODB_URL}`)
     // Retry connection
     const connectWithRetry = () => {
-        console.log('MongoDB connection with retry')
+        console.log(`MongoDB connection with retry-> mongodb://${process.env.MONGODB_URL}`)
         return mongoose.connect(`mongodb://${process.env.MONGODB_URL}`, options)
     }
 

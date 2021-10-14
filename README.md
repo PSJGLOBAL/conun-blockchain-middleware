@@ -127,7 +127,7 @@
     sudo systemctl start docker
     sudo systemctl enable docker
     sudo systemctl status docker
-    docker --versio
+    docker --version
     ```
 
     2 - Switch user:    
@@ -139,6 +139,7 @@
     ```
 
     NOTE: if you want to build only one image ther following cmd:
+    
     3 - Build:
     ```bash
     docker build --tag conun-middleware-testnet-v3:0.1 .
@@ -160,18 +161,36 @@
     docker-compose --version
     ```
   
+   1. Run Docker Compose
+   ```bash
+   docker-compose up       or          docker-compose up --build
+   ```
+   
+   2. Stop Docker Compose
+   ```bash
+   docker-compose down
+   ```
+
+   3. Stop and Delete Docker Containers
+   ```bash
+   docker stop $(docker ps -aq) && docker rm $(docker ps -aq)
+   ```
+
+   4. Delete Docker Images
+   ```bash
+   docker rmi -f $(docker images -a -q)
+   ```
+    
+   5. Check Decker
+   ```bash
+   docker ps       or      docker ps -a        or          docker images  
+   ```
+   6. If you need to go inside a container exec, you can use a command:
+   ```bash
+   docker exec -it <container id> /bin/bash
+   ``` 
 7. MONGODB 
 - [installation doc](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/#install-mongodb-community-edition)
-
-    If you have issue with mongodb, run following cmd:
-
-    ```bash
-    chown -R mongodb:mongodb /var/lib/mongodb
-    chown mongodb:mongodb /tmp/mongodb-27017.sock
-    sudo systemctl enable mongod
-    sudo service mongod restart
-    sudo service mongod status
-   ```
    
    Set user and password for mongod:
    ```bash
@@ -230,6 +249,16 @@
    And restart
    ```
    sudo service mongod restart
+   ```
+
+   If you have issue with mongodb, run following cmd:
+
+    ```bash
+    chown -R mongodb:mongodb /var/lib/mongodb
+    chown mongodb:mongodb /tmp/mongodb-27017.sock
+    sudo systemctl enable mongod
+    sudo service mongod restart
+    sudo service mongod status
    ```
 
 8. Check memory usage:
