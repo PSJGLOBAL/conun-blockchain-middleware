@@ -41,6 +41,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.get('/', async (req, res)  => {
     res.status(200).json({
+        message: `ID: ${process.env.PORT}`,
         success: true,
         status: 200
     })

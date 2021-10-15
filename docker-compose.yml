@@ -4,11 +4,9 @@ services:
     image: nginx:latest
     container_name: nginx
     restart: unless-stopped
-    volumes:
-      - ./nginx.middleware.conf:/etc/nginx/conf.d/default.conf:ro
     env_file: ./.env
-    ports:
-      - $NGINX_PORT:$NGINX_PORT
+    volumes:
+      - ./nginx.middleware.conf:/etc/nginx/templates/default.conf.template:ro
     environment:
       - NGINX_PORT=$NGINX_PORT
       - API_HOST=$API_HOST
@@ -17,7 +15,16 @@ services:
       - PORT_3=$PORT_3
       - WORKER_PORT_1=$WORKER_PORT_1
       - WORKER_PORT_2=$WORKER_PORT_2
-      - WORKER_PORT_3=$WORKER_PORT_3
+      - WORKER_PORT_3=$WORKER_PORT_3  
+    ports:
+      - $NGINX_PORT:$NGINX_PORT
+    depends_on:
+      - conun.middleware.1.com
+      - conun.middleware.2.com
+      - conun.middleware.3.com
+      - conun.middleware.worker.1.com
+      - conun.middleware.worker.2.com
+      - conun.middleware.worker.3.com
   mongodb:
     image: mongo:latest
     container_name: mongodb
