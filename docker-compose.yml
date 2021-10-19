@@ -46,7 +46,7 @@ services:
     container_name: conun.middleware.1.com
     build: .
     restart: unless-stopped
-    command: npm run start
+    command: sh -c "cat hosts >> /etc/hosts && npm run start"
     env_file: ./.env
     volumes:
       - .:/conun-middleware-testnet-v3/
@@ -80,7 +80,7 @@ services:
     container_name: conun.middleware.2.com
     build: .
     restart: unless-stopped
-    command: npm run start
+    command: sh -c "cat hosts >> /etc/hosts && npm run start"
     env_file: ./.env
     volumes:
       - .:/conun-middleware-testnet-v3/
@@ -114,7 +114,7 @@ services:
     container_name: conun.middleware.3.com
     build: .
     restart: unless-stopped
-    command: npm run start
+    command: sh -c "cat hosts >> /etc/hosts && npm run start"
     env_file: ./.env
     volumes:
       - .:/conun-middleware-testnet-v3/
@@ -148,7 +148,7 @@ services:
     container_name: conun.middleware.worker.1.com
     build: .
     restart: unless-stopped
-    command: npm run worker
+    command: sh -c "cat hosts >> /etc/hosts && npm run worker"
     env_file: ./.env
     volumes:
       - ./service:/conun-worker-testnet-v3/service
@@ -160,6 +160,7 @@ services:
       - ./middleware/auth:/conun-worker-testnet-v3/middleware/auth
       - ./node_modules:/conun-worker-testnet-v3/node_modules
       - ./wallet:/conun-worker-testnet-v3/wallet
+      - ./hosts:/conun-worker-testnet-v3/hosts
     ports:
       - $WORKER_PORT_1:$WORKER_PORT_1
     environment:
@@ -189,7 +190,7 @@ services:
     container_name: conun.middleware.worker.2.com
     build: .
     restart: unless-stopped
-    command: npm run worker
+    command: sh -c "cat hosts >> /etc/hosts && npm run worker"
     env_file: ./.env
     volumes:
       - ./service:/conun-worker-testnet-v3/service
@@ -201,6 +202,7 @@ services:
       - ./middleware/auth:/conun-worker-testnet-v3/middleware/auth
       - ./node_modules:/conun-worker-testnet-v3/node_modules
       - ./wallet:/conun-worker-testnet-v3/wallet
+      - ./hosts:/conun-worker-testnet-v3/hosts
     ports:
       - $WORKER_PORT_2:$WORKER_PORT_2
     environment:
@@ -230,7 +232,7 @@ services:
     container_name: conun.middleware.worker.3.com
     build: .
     restart: unless-stopped
-    command: npm run worker
+    command: sh -c "cat hosts >> /etc/hosts && npm run worker"
     env_file: ./.env
     volumes:
       - ./service:/conun-worker-testnet-v3/service
@@ -242,6 +244,7 @@ services:
       - ./middleware/auth:/conun-worker-testnet-v3/middleware/auth
       - ./node_modules:/conun-worker-testnet-v3/node_modules
       - ./wallet:/conun-worker-testnet-v3/wallet
+      - ./hosts:/conun-worker-testnet-v3/hosts
     ports:
       - $WORKER_PORT_3:$WORKER_PORT_3
     environment:
