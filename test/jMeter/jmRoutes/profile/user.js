@@ -4,7 +4,7 @@ const _ = require('lodash');
 const bcrypt = require('bcrypt');
 
 const {User, validateMember, validateNoneMember, validateAuthLogin, 
-      validateWalletImport, validateLinkedWallet} = require('../../models/profile/user');
+      validateWalletImport, validateLinkedWallet} = require('../../../../models/profile/user');
 const Helper = require('../../../../common/helper');
 const _logger = Helper.getLogger("UserAPI");
 

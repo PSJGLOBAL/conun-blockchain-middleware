@@ -60,10 +60,10 @@ function CallInvoke(event, req) {
             eventDeal.on('Transfer', async () => {
                 const invokeHandler = new Invoke();
                 let result = await invokeHandler.transferConx({
-                    channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
-                    fcn: req.body.fcn,
-                    orgName: req.body.orgName,
+                    channelName: 'mychannel',
+                    chainCodeName: 'CONX',
+                    fcn: 'Transfer',
+                    orgName: 'Org1',
                     walletAddress: req.body.fromAddress,
                     to: req.body.toAddress,
                     amount: req.body.value,

@@ -1,13 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../../middleware/auth');
-const owner = require('../../middleware/owner');
-const x509 = require('../../middleware/x509');
-const invokeDrive = require('../../app/drive/invoke');
-const queryDrive = require('../../app/drive/query');
+const invokeDrive = require('../../../../app/drive/invoke');
+const queryDrive = require('../../../../app/drive/query');
 const events = require('events');
 
-const Helper = require('../../common/helper');
+const Helper = require('../../../../common/helper');
 const logger = Helper.getLogger('DriveAPI');
 
 function CallInvokeDrive(event, req) {

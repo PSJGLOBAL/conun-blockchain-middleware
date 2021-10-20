@@ -3,10 +3,10 @@ const router = express.Router();
 const Web3 = require('web3');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
-const {User} = require('../../models/profile/user');
-const {Swap, validateSwap} = require('../../models/profile/swap.model');
-const Eth = require('../../app/web3/eth.main');
-const Helper = require('../../common/helper');
+const {User} = require('../../../models/profile/user');
+const {Swap, validateSwap} = require('../../../models/profile/swap.model');
+const Eth = require('../../../app/web3/eth.main');
+const Helper = require('../../../common/helper');
 const logger = Helper.getLogger('TokenAPI');
 
 
