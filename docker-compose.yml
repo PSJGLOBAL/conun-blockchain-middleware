@@ -13,6 +13,7 @@ services:
       - PORT_1=$PORT_1
       - PORT_2=$PORT_2
       - PORT_3=$PORT_3
+      - PORT_4=$PORT_4
       - WORKER_PORT_1=$WORKER_PORT_1
       - WORKER_PORT_2=$WORKER_PORT_2
       - WORKER_PORT_3=$WORKER_PORT_3  
@@ -22,26 +23,27 @@ services:
       - conun.middleware.1.com
       - conun.middleware.2.com
       - conun.middleware.3.com
+      - conun.middleware.4.com
       - conun.middleware.worker.1.com
       - conun.middleware.worker.2.com
       - conun.middleware.worker.3.com
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
-    restart: unless-stopped
-    env_file: ./.env
-    volumes:
-      - db:/data/db
-      - ./mongod.conf:/etc/mongod.conf
-    ports:
-      - 27017:27017
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=$MONGODB_USER
-      - MONGO_INITDB_ROOT_PASSWORD=$MONGODB_PASSWORD
-      - MONGO_INITDB_DATABASE=$MONGODB_NAME
-    logging:
-      options:
-        max-size: 1m
+  # mongodb:
+  #   image: mongo:latest
+  #   container_name: mongodb
+  #   restart: unless-stopped
+  #   env_file: ./.env
+  #   volumes:
+  #     - db:/data/db
+  #     - ./mongod.conf:/etc/mongod.conf
+  #   ports:
+  #     - 27017:27017
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=$MONGODB_USER
+  #     - MONGO_INITDB_ROOT_PASSWORD=$MONGODB_PASSWORD
+  #     - MONGO_INITDB_DATABASE=$MONGODB_NAME
+  #   logging:
+  #     options:
+  #       max-size: 1m
   conun.middleware.1.com:
     container_name: conun.middleware.1.com
     build: .
@@ -64,13 +66,13 @@ services:
       - ETHER_HTTP_PROVIDER=$ETHER_HTTP_PROVIDER
       - JWT_PRIVATE_KEY=$JWT_PRIVATE_KEY
       - DISCOVERY_OPTION=$DISCOVERY_OPTION
-      - MONGODB_URL=mongodb
+      - MONGODB_URL=$MONGODB_URL
       - MONGODB_USER=$MONGODB_USER
       - MONGODB_PASSWORD=$MONGODB_PASSWORD
       - MONGODB_NAME=$MONGODB_NAME
       - MONGODB_PORT=$MONGODB_PORT
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
     logging:
       options:
         max-size: 1m
@@ -98,13 +100,13 @@ services:
       - ETHER_HTTP_PROVIDER=$ETHER_HTTP_PROVIDER
       - JWT_PRIVATE_KEY=$JWT_PRIVATE_KEY
       - DISCOVERY_OPTION=$DISCOVERY_OPTION
-      - MONGODB_URL=mongodb
+      - MONGODB_URL=$MONGODB_URL
       - MONGODB_USER=$MONGODB_USER
       - MONGODB_PASSWORD=$MONGODB_PASSWORD
       - MONGODB_NAME=$MONGODB_NAME
       - MONGODB_PORT=$MONGODB_PORT
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
     logging:
       options:
         max-size: 1m
@@ -132,18 +134,52 @@ services:
       - ETHER_HTTP_PROVIDER=$ETHER_HTTP_PROVIDER
       - JWT_PRIVATE_KEY=$JWT_PRIVATE_KEY
       - DISCOVERY_OPTION=$DISCOVERY_OPTION
-      - MONGODB_URL=mongodb
+      - MONGODB_URL=$MONGODB_URL
       - MONGODB_USER=$MONGODB_USER
       - MONGODB_PASSWORD=$MONGODB_PASSWORD
       - MONGODB_NAME=$MONGODB_NAME
       - MONGODB_PORT=$MONGODB_PORT
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
     logging:
       options:
         max-size: 1m
     stdin_open: true
     tty: true
+  conun.middleware.4.com:
+    container_name: conun.middleware.4.com
+    build: .
+    restart: unless-stopped
+    command: sh -c "cat hosts >> /etc/hosts && npm run start"
+    env_file: ./.env
+    volumes:
+      - .:/conun-middleware-testnet-v3/
+      - /conun-middleware-testnet-v3/node_modules
+      - ./wallet:/conun-middleware-testnet-v3/wallet
+    ports:
+      - $PORT_4:$PORT_4
+    environment:
+      - PORT=$PORT_4
+      - NODE_ENV=$NODE_ENV
+      - ETHER_CON_CONTRACT_ADDRESS=$ETHER_CON_CONTRACT_ADDRESS
+      - ETHER_BRIDGE_CONTRACT_ADDRESS=$ETHER_BRIDGE_CONTRACT_ADDRESS
+      - ADMIN_WALLET=$ADMIN_WALLET
+      - ADMIN_PRIVATE_KEY=$ADMIN_PRIVATE_KEY
+      - ETHER_HTTP_PROVIDER=$ETHER_HTTP_PROVIDER
+      - JWT_PRIVATE_KEY=$JWT_PRIVATE_KEY
+      - DISCOVERY_OPTION=$DISCOVERY_OPTION
+      - MONGODB_URL=$MONGODB_URL
+      - MONGODB_USER=$MONGODB_USER
+      - MONGODB_PASSWORD=$MONGODB_PASSWORD
+      - MONGODB_NAME=$MONGODB_NAME
+      - MONGODB_PORT=$MONGODB_PORT
+    # depends_on:
+    #   - mongodb
+    logging:
+      options:
+        max-size: 1m
+    stdin_open: true
+    tty: true  
   conun.middleware.worker.1.com:
     container_name: conun.middleware.worker.1.com
     build: .
@@ -174,13 +210,13 @@ services:
       - ETHER_WS_PROVIDER=$ETHER_WS_PROVIDER
       - JWT_PRIVATE_KEY=$JWT_PRIVATE_KEY
       - DISCOVERY_OPTION=$DISCOVERY_OPTION
-      - MONGODB_URL=mongodb
+      - MONGODB_URL=$MONGODB_URL
       - MONGODB_USER=$MONGODB_USER
       - MONGODB_PASSWORD=$MONGODB_PASSWORD
       - MONGODB_NAME=$MONGODB_NAME
       - MONGODB_PORT=$MONGODB_PORT
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
     logging:
       options:
         max-size: 1m
@@ -216,13 +252,13 @@ services:
       - ETHER_WS_PROVIDER=$ETHER_WS_PROVIDER
       - JWT_PRIVATE_KEY=$JWT_PRIVATE_KEY
       - DISCOVERY_OPTION=$DISCOVERY_OPTION
-      - MONGODB_URL=mongodb
+      - MONGODB_URL=$MONGODB_URL
       - MONGODB_USER=$MONGODB_USER
       - MONGODB_PASSWORD=$MONGODB_PASSWORD
       - MONGODB_NAME=$MONGODB_NAME
       - MONGODB_PORT=$MONGODB_PORT
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
     logging:
       options:
         max-size: 1m
@@ -258,17 +294,17 @@ services:
       - ETHER_WS_PROVIDER=$ETHER_WS_PROVIDER
       - JWT_PRIVATE_KEY=$JWT_PRIVATE_KEY
       - DISCOVERY_OPTION=$DISCOVERY_OPTION
-      - MONGODB_URL=mongodb
+      - MONGODB_URL=$MONGODB_URL
       - MONGODB_USER=$MONGODB_USER
       - MONGODB_PASSWORD=$MONGODB_PASSWORD
       - MONGODB_NAME=$MONGODB_NAME
       - MONGODB_PORT=$MONGODB_PORT
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
     logging:
       options:
         max-size: 1m
     stdin_open: true
     tty: true
-volumes:
-  db:
+# volumes:
+#   db:

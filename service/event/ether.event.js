@@ -105,7 +105,7 @@ module.exports = class EtherEvent {
         return new Promise(
             (resolve, reject) => {
                 const invokeHandler = new Invoke();
-                invokeHandler.burnFromBridge({
+                invokeHandler.swapBurnFrom({
                     channelName: 'BurnFrom',
                     chainCodeName: 'bridge',
                     fcn: 'BurnFrom',

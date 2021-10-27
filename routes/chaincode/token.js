@@ -13,7 +13,7 @@ function CallInvoke(event, req) {
         (resolve, reject) => {
             eventDeal.on('Init', async () => {
                 const invokeHandler = new Invoke();
-                let result = await invokeHandler.init({
+                invokeHandler.init({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
@@ -21,14 +21,18 @@ function CallInvoke(event, req) {
                     walletAddress: req.body.walletAddress,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             });
             
             eventDeal.on('MintAndTransfer', async () => {
                 const invokeHandler = new Invoke();
-                let result = await invokeHandler.conxMintAndTransfer({
+                invokeHandler.conxMintAndTransfer({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
@@ -37,14 +41,18 @@ function CallInvoke(event, req) {
                     amount: req.body.amount,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             });
             
             eventDeal.on('BurnFrom', async () => {
                 const invokeHandler = new Invoke();
-                let result = await invokeHandler.burnFromConx({
+                invokeHandler.conxBurnFrom({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
@@ -53,14 +61,18 @@ function CallInvoke(event, req) {
                     amount: req.body.amount,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             });
 
             eventDeal.on('Transfer', async () => {
                 const invokeHandler = new Invoke();
-                let result = await invokeHandler.transferConx({
+                invokeHandler.conxTransfer({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn: req.body.fcn,
@@ -70,9 +82,13 @@ function CallInvoke(event, req) {
                     amount: req.body.value,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             });
 
 
@@ -91,39 +107,51 @@ function CallQuery(event, req) {
     return new Promise (
         (resolve, reject) => {
             eventQuery.on('BalanceOf', async () => {
-                let result = await queryHandler.BalanceOf({
+                queryHandler.BalanceOf({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
                     walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             })
 
             eventQuery.on('GetDetails', async () => {
-                let result = await queryHandler.GetDetails({
+                queryHandler.GetDetails({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
                     walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             })
 
             eventQuery.on('ClientAccountID', async () => {
-                let result = await queryHandler.ClientAccountID({
+                queryHandler.ClientAccountID({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
                     walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             });
 
             let status = eventQuery.emit(event);

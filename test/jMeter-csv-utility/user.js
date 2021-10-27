@@ -8,7 +8,11 @@ const Eth = require('../../app/web3/eth.main');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const fs = require('fs');
 
-router.post('/', async (req, res) => {
+const sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+
+router.post('/', async (req, res, next) => {
         try {
             if(!req.body.privateKey)
                 return res.json({ success: false, message: 'privateKey = null' }).status(400);
@@ -19,10 +23,10 @@ router.post('/', async (req, res) => {
             const csvWriter = createCsvWriter({
                 path: __dirname+'/dummy/walletList.csv',
                 header: [
-                    'id', 'walletAddress', 'privateKey'
+                    'walletAddress', 'privateKey'
                 ]
             });
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 200; i++) {
                 let pKey = _privateKey.slice(2+i.toString().length, _privateKey.length);
                 let privateKey = '0x'+`${i}`+pKey;
                 console.log('privateKey: ', privateKey, i.toString().length);
@@ -45,7 +49,6 @@ router.post('/', async (req, res) => {
                 });
 
                 let walletInfo = {
-                    id: i,
                     walletAddress: walletAddress,
                     privateKey: privateKey
                 }
@@ -55,6 +58,8 @@ router.post('/', async (req, res) => {
                 const salt = await bcrypt.genSalt();
                 user.password = await bcrypt.hash('123456', salt);
                 await user.save();
+                console.log('>> count: ', i);
+                await sleep(500); 
             }
             csvWriter
                     .writeRecords(csvData)
@@ -64,7 +69,8 @@ router.post('/', async (req, res) => {
                 if (err) throw err;
                 console.log('Data written to file');
             });
-            res.json({ success: true, message: 'success' }).status(200);
+            next();
+            // res.json({ success: true, message: 'success' }).status(200);
         } catch (e) {
             console.log('error: ', e)
             res.json({ success: false, message: 'error while user creation' }).status(400);

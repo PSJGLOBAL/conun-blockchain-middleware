@@ -65,54 +65,20 @@ module.exports = class Invoke {
                     });
                 })
                 .catch((error) => {
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    this.gateway.disconnect();
                     logger.error(`swapMintAndTransfer error: ${error.message}, arg: ${arg}`);
                     reject({
                         status: false,
                         message: splitString(error.message),
-                        txHash: this.payload.txHash
+                        txHash: this.transaction.getTransactionId()
                     });
+                    this.gateway.disconnect();
                 })
             }
         )   
     }
 
-    async conxMintAndTransfer(arg) {
-        console.log('2-conxMintAndTransfer >> ', arg)
-        await this.connect(arg)
-        return new Promise (
-            (resolve, reject) => {
-                let value = web3.utils.toWei(arg.amount, 'ether');
-                this.transaction = this.contract.createTransaction(arg.fcn)
-                this.transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature)
-                .then((result) => {
-                    this.payload = JSON.parse(result.toString());
-                    this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    console.log('this.payload >>', this.payload);
-                    this.gateway.disconnect();
-                    resolve({
-                        status: true,
-                        message: this.payload
-                    });
-                })
-                .catch((error) => {
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    this.gateway.disconnect();
-                    logger.error(`conxMintAndTransfer error: ${error.message}, arg: ${arg}`);
-                    reject({
-                        status: false,
-                        message: splitString(error.message),
-                        txHash: this.payload.txHash
-                    });
-                })
-            }
-        ) 
-    }
-
-    async burnFromBridge(arg) {
-        console.log('2-burnFromBridge >> ', arg)
+    async swapBurnFrom(arg) {
+        console.log('2-swapBurnFrom >> ', arg)
         await this.connect(arg)
         return new Promise (
             (resolve, reject) => {
@@ -139,27 +105,26 @@ module.exports = class Invoke {
                     });
                 })
                 .catch((error) => {
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    this.gateway.disconnect();
-                    logger.error(`burnFromBridge error: ${error.message}, arg: ${arg}`);
+                    logger.error(`swapBurnFrom error: ${error.message}, arg: ${arg}`);
                     reject({
                         status: false,
                         message: splitString(error.message),
-                        txHash: this.payload.txHash
+                        txHash: this.transaction.getTransactionId()
                     });
+                    this.gateway.disconnect();
                 })
             }
         )
     }
-    
-    async burnFromConx(arg) {
-        console.log('2-burnFromConx >> ', arg)
+
+    async conxMintAndTransfer(arg) {
+        console.log('2-conxMintAndTransfer >> ', arg)
         await this.connect(arg)
         return new Promise (
             (resolve, reject) => {
                 let value = web3.utils.toWei(arg.amount, 'ether');
                 this.transaction = this.contract.createTransaction(arg.fcn)
-                this.transaction.submit(arg.walletAddress, value, arg.messageHash, arg.signature)
+                this.transaction.submit(arg.toAddress, value, arg.messageHash, arg.signature)
                 .then((result) => {
                     this.payload = JSON.parse(result.toString());
                     this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
@@ -172,21 +137,52 @@ module.exports = class Invoke {
                     });
                 })
                 .catch((error) => {
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    this.gateway.disconnect();
-                    logger.error(`burnFromConx error: ${error.message}, arg: ${arg}`);
+                    logger.error(`conxMintAndTransfer error: ${error.message}, arg: ${arg}`);
                     reject({
                         status: false,
                         message: splitString(error.message),
-                        txHash: this.payload.txHash
+                        txHash: this.transaction.getTransactionId()
                     });
+                    this.gateway.disconnect();
+                })
+            }
+        ) 
+    }
+    
+    async conxBurnFrom(arg) {
+        console.log('2-conxBurnFrom >> ', arg)
+        await this.connect(arg)
+        return new Promise (
+            (resolve, reject) => {
+                let value = web3.utils.toWei(arg.amount, 'ether');
+                this.transaction = this.contract.createTransaction(arg.fcn)
+                this.transaction.submit(arg.fromAddress, value, arg.messageHash, arg.signature)
+                .then((result) => {
+                    this.payload = JSON.parse(result.toString());
+                    this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
+                    this.payload.txHash = this.transaction.getTransactionId();
+                    console.log('this.payload >>', this.payload);
+                    this.gateway.disconnect();
+                    resolve({
+                        status: true,
+                        message: this.payload
+                    });
+                })
+                .catch((error) => {
+                    logger.error(`conxBurnFrom error: ${error.message}, arg: ${arg}`);
+                    reject({
+                        status: false,
+                        message: splitString(error.message),
+                        txHash: this.transaction.getTransactionId()
+                    });
+                    this.gateway.disconnect();
                 })
             }
         ) 
     }
 
-    async transferConx(arg) {
-        console.log('2-transferConx >> ', arg)
+    async conxTransfer(arg) {
+        console.log('2-conxTransfer >> ', arg)
         await this.connect(arg)
         return new Promise (
             (resolve, reject) => {
@@ -205,14 +201,13 @@ module.exports = class Invoke {
                     });
                 })
                 .catch((error) => {
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    this.gateway.disconnect();
-                    logger.error(`transferConx error: ${error.message}, arg: ${arg}`);
+                    logger.error(`conxTransfer error: ${error.message}, arg: ${arg}`);
                     reject({
                         status: false,
                         message: splitString(error.message),
-                        txHash: this.payload.txHash
+                        txHash: this.transaction.getTransactionId()
                     });
+                    this.gateway.disconnect();
                 })
             }
         ) 
@@ -235,14 +230,13 @@ module.exports = class Invoke {
                     });
                 })
                 .catch((error) => {
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    this.gateway.disconnect();
                     logger.error(`initContract error: ${error.message}, arg: ${arg}`);
                     reject({
                         status: false,
                         message: splitString(error.message),
-                        txHash: this.payload.txHash
+                        txHash: this.transaction.getTransactionId()
                     });
+                    this.gateway.disconnect();
                 })
             }
         ) 

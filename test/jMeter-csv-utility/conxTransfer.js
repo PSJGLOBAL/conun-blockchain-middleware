@@ -32,23 +32,23 @@ router.get('/transfer-csv', async (req, res) => {
         const csvWriter = createCsvWriter({
             path: __dirname+'/dummy/conx-transaction.csv',
             header: [
-                'id', 'fromAddress', 'toAddress', 'value', 'messageHash', 'signature'
+                'fcn', 'fromAddress', 'toAddress', 'value', 'messageHash', 'signature'
             ]
         });
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 200; i++) {
             let fromAddress = walletJson[i].walletAddress;
+            let fromAddressPk = walletJson[i].privateKey
             let toAddress =   walletJson[i+1].walletAddress;
             let _value = Math.floor(Math.random() * 100) + 1;
-            console.log('_value: ',_value)
             let value = web3.utils.toWei(_value.toString())
-            const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [value, fromAddress])
+            const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [value, toAddress])
             const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
-            let hashed = await Eth.CreateSignature(hash, process.env.ADMIN_PRIVATE_KEY)
+            let hashed = await Eth.CreateSignature(hash, fromAddressPk.slice(2, fromAddressPk.length));
             let transactionInfo = {
-                id: i,
+                fcn: 'Transfer',
                 fromAddress: fromAddress, 
                 toAddress: toAddress,
-                value: value, 
+                value: _value, 
                 messageHash: hashed.messageHash,
                 signature: hashed.signature
             }
@@ -72,29 +72,111 @@ router.get('/transfer-csv', async (req, res) => {
 
 // todo MintAndTransfer csv
     /**
-    * channelName: req.params.channelName,
-    * chainCodeName: req.params.chainCodeName,
-    * fcn: req.body.fcn,
-    * orgName: req.body.orgName,
     * walletAddress: req.body.walletAddress,
     * amount: req.body.amount,
     * messageHash: req.body.messageHash,
     *signature: req.body.signature
     */
-
+router.get('/mintAndTransfer-csv', async (req, res) => {
+    try {
+        let adminWalletAddress = process.env.ADMIN_WALLET
+        let adminPk = process.env.ADMIN_PRIVATE_KEY
+        let walletList = [];
+        let csvData = [];
+        let rawdata = fs.readFileSync(path.resolve(__dirname+'/dummy/', 'walletList.json'));
+        let walletJson = JSON.parse(rawdata);
+        const csvWriter = createCsvWriter({
+            path: __dirname+'/dummy/conx-mintAndTransfer.csv',
+            header: [
+                'fcn', 'adminWalletAddress', 'toAddress', 'amount', 'messageHash', 'signature'
+            ]
+        });
+        for (let i = 0; i < 200; i++) {
+            let toAddress = walletJson[i].walletAddress;
+            let _value = 100;
+            console.log('_value: ',_value)
+            let value = web3.utils.toWei(_value.toString())
+            const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [value, toAddress])
+            const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
+            let hashed = await Eth.CreateSignature(hash, adminPk);
+            let transactionInfo = {
+                fcn: 'MintAndTransfer',
+                adminWalletAddress: adminWalletAddress,
+                toAddress: toAddress, 
+                amount: _value,
+                messageHash: hashed.messageHash,
+                signature: hashed.signature
+            }
+            walletList.push(transactionInfo);
+            csvData.push(transactionInfo);
+        }
+        csvWriter
+        .writeRecords(csvData)
+        .then(()=> console.log('The CSV file was written successfully'));
+        fs.writeFile(__dirname+'/dummy/conx-mintAndTransfer.json', JSON.stringify(walletList), (err) => {
+            if (err) throw err;
+            console.log('Data written to file');
+        });
+        res.json({ success: true, message: 'success' }).status(200);
+    } catch (e) {
+        console.log('error: ', e)
+        res.json({ success: false, message: 'error while user creation' }).status(400);
+    }
+});
 
 // todo BurnFrom csv
     /**
-    * channelName: req.params.channelName,
-    * chainCodeName: req.params.chainCodeName,
-    * fcn: req.body.fcn,
-    * orgName: req.body.orgName,
     * walletAddress: req.body.walletAddress,
     * amount: req.body.amount,
     * messageHash: req.body.messageHash,
     * signature: req.body.signature
     */
-
+router.get('/burnFrom-csv', async (req, res) => {
+    try {
+        let adminWalletAddress = process.env.ADMIN_WALLET
+        let adminPk = process.env.ADMIN_PRIVATE_KEY
+        let walletList = [];
+        let csvData = [];
+        let rawdata = fs.readFileSync(path.resolve(__dirname+'/dummy/', 'walletList.json'));
+        let walletJson = JSON.parse(rawdata);
+        const csvWriter = createCsvWriter({
+            path: __dirname+'/dummy/conx-burnFrom.csv',
+            header: [
+                'fcn', 'adminWalletAddress', 'fromAddress', 'amount', 'messageHash', 'signature'
+            ]
+        });
+        for (let i = 0; i < 200; i++) {
+            let fromAddress = walletJson[i].walletAddress;
+            let _value = 100;
+            console.log('_value: ',_value)
+            let value = web3.utils.toWei(_value.toString())
+            const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [value, fromAddress])
+            const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
+            let hashed = await Eth.CreateSignature(hash, adminPk);
+            let transactionInfo = {
+                fcn: 'BurnFrom',
+                adminWalletAddress: adminWalletAddress,
+                fromAddress: fromAddress, 
+                amount: _value,
+                messageHash: hashed.messageHash,
+                signature: hashed.signature
+            }
+            walletList.push(transactionInfo);
+            csvData.push(transactionInfo);
+        }
+        csvWriter
+        .writeRecords(csvData)
+        .then(()=> console.log('The CSV file was written successfully'));
+        fs.writeFile(__dirname+'/dummy/conx-burnFrom.json', JSON.stringify(walletList), (err) => {
+            if (err) throw err;
+            console.log('Data written to file');
+        });
+        res.json({ success: true, message: 'success' }).status(200);
+    } catch (e) {
+        console.log('error: ', e)
+        res.json({ success: false, message: 'error while user creation' }).status(400);
+    }
+});
 
 module.exports = router;
 

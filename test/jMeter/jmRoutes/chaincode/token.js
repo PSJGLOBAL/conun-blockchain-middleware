@@ -10,68 +10,67 @@ function CallInvoke(event, req) {
     const eventDeal = new events.EventEmitter();
     return new Promise(
         (resolve, reject) => {
-            eventDeal.on('Init', async () => {
-                const invokeHandler = new Invoke();
-                let result = await invokeHandler.init({
-                    channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
-                    fcn: req.body.fcn,
-                    orgName: req.body.orgName,
-                    walletAddress: req.body.walletAddress,
-                    messageHash: req.body.messageHash,
-                    signature: req.body.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
-            });
-            
             eventDeal.on('MintAndTransfer', async () => {
                 const invokeHandler = new Invoke();
-                let result = await invokeHandler.conxMintAndTransfer({
-                    channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                invokeHandler.conxMintAndTransfer({
+                    channelName: 'mychannel',
+                    chainCodeName: 'CONX',
                     fcn: req.body.fcn,
-                    orgName: req.body.orgName,
-                    walletAddress: req.body.walletAddress,
+                    orgName: 'Org1',
+                    walletAddress: req.body.adminWalletAddress,
+                    toAddress: req.body.toAddress,
                     amount: req.body.amount,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             });
             
             eventDeal.on('BurnFrom', async () => {
                 const invokeHandler = new Invoke();
-                let result = await invokeHandler.burnFromConx({
-                    channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                invokeHandler.conxBurnFrom({
+                    channelName: 'mychannel',
+                    chainCodeName: 'CONX',
                     fcn: req.body.fcn,
-                    orgName: req.body.orgName,
-                    walletAddress: req.body.walletAddress,
+                    orgName: 'Org1',
+                    walletAddress: req.body.adminWalletAddress,
+                    fromAddress: req.body.fromAddress,
                     amount: req.body.amount,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             });
 
             eventDeal.on('Transfer', async () => {
                 const invokeHandler = new Invoke();
-                let result = await invokeHandler.transferConx({
+                invokeHandler.conxTransfer({
                     channelName: 'mychannel',
                     chainCodeName: 'CONX',
-                    fcn: 'Transfer',
+                    fcn: req.body.fcn,
                     orgName: 'Org1',
                     walletAddress: req.body.fromAddress,
                     to: req.body.toAddress,
                     amount: req.body.value,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             });
 
 
@@ -90,39 +89,51 @@ function CallQuery(event, req) {
     return new Promise (
         (resolve, reject) => {
             eventQuery.on('BalanceOf', async () => {
-                let result = await queryHandler.BalanceOf({
+                queryHandler.BalanceOf({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
                     walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             })
 
             eventQuery.on('GetDetails', async () => {
-                let result = await queryHandler.GetDetails({
+                queryHandler.GetDetails({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
                     walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             })
 
             eventQuery.on('ClientAccountID', async () => {
-                let result = await queryHandler.ClientAccountID({
+                queryHandler.ClientAccountID({
                     channelName: req.params.channelName,
                     chainCodeName: req.params.chainCodeName,
                     fcn:  req.query.fcn,
                     walletAddress: req.query.walletAddress,
                     orgName: req.query.orgName
-                });
-                if(!result.status) reject(result.message);
-                resolve(result.message);
+                })
+                .then((result)=> {
+                    resolve(result.message);
+                })
+                .catch((err)=> {
+                    reject(err.message);
+                })
             });
 
             let status = eventQuery.emit(event);
