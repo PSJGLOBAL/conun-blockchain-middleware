@@ -29,7 +29,6 @@ app.use(bodyParser.urlencoded({
 }));
 
 require('./startup/worker.routes.v1')(app);
-require('./test/jMeter/jm.worker.routes')(app);
 require('./startup/db')();
 
 let BridgeContractAddress = process.env.ETHER_BRIDGE_CONTRACT_ADDRESS;

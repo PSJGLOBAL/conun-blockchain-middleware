@@ -54,6 +54,7 @@ module.exports = class Invoke {
                     }
                 ))
                 .then((result) => {
+                    logger.info('swapMintAndTransfer: ', result)
                     this.payload = JSON.parse(result.toString());
                     this.payload.Value = web3.utils.fromWei(this.payload.Value, "ether");
                     this.payload.txHash = this.transaction.getTransactionId();
@@ -95,6 +96,7 @@ module.exports = class Invoke {
                 ))
                 .then((result) => {
                     this.payload = JSON.parse(result.toString());
+                    logger.info('swapBurnFrom: ', result)
                     this.payload.Value = web3.utils.fromWei(this.payload.Value, "ether");
                     this.payload.txHash = this.transaction.getTransactionId();
                     console.log('this.payload >>', this.payload);

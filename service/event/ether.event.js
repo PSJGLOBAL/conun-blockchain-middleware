@@ -85,8 +85,8 @@ module.exports = class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((conunTX) => {
-                            console.log('ethereumTx', ivoke.ethereumTx.ethereumTx)
-                            console.log('conunTX', response.message.txHash);
+                            console.log('ethereumTx', invoke.ethereumTx.ethereumTx)
+                            console.log('conunTX', response.conunTx);
                             resolve(conunTX);    
                         })
                         .catch((err) => {
@@ -106,7 +106,7 @@ module.exports = class EtherEvent {
             (resolve, reject) => {
                 const invokeHandler = new Invoke();
                 invokeHandler.swapBurnFrom({
-                    channelName: 'BurnFrom',
+                    channelName: 'mychannel',
                     chainCodeName: 'bridge',
                     fcn: 'BurnFrom',
                     orgName: ivoke.user.orgName,
@@ -130,8 +130,8 @@ module.exports = class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((response) => {
-                            console.log('ethereumTx', ivoke.ethereumTx.ethereumTx)
-                            console.log('conunTX', response.message.txHash);
+                            console.log('ethereumTx', invoke.ethereumTx.ethereumTx)
+                            console.log('conunTX', response.conunTx);
                             resolve(response);
                         })
                         .catch((err) => {
