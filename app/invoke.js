@@ -127,7 +127,7 @@ module.exports = class Invoke {
             (resolve, reject) => {
                 let value = web3.utils.toWei(arg.amount, 'ether');
                 this.transaction = this.contract.createTransaction(arg.fcn)
-                this.transaction.submit(arg.toAddress, value, arg.messageHash, arg.signature)
+                this.transaction.submit(arg.toAddress, value, arg.messageHash, arg.signature, arg.mintId)
                 .then((result) => {
                     this.payload = JSON.parse(result.toString());
                     this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
@@ -159,7 +159,7 @@ module.exports = class Invoke {
             (resolve, reject) => {
                 let value = web3.utils.toWei(arg.amount, 'ether');
                 this.transaction = this.contract.createTransaction(arg.fcn)
-                this.transaction.submit(arg.fromAddress, value, arg.messageHash, arg.signature)
+                this.transaction.submit(arg.fromAddress, value, arg.messageHash, arg.signature, arg.burnId)
                 .then((result) => {
                     this.payload = JSON.parse(result.toString());
                     this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");

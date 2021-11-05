@@ -24,9 +24,9 @@ module.exports = class EtherEvent {
                     .then((user) => {
                         Swap.findOne({wallet: user._id, swapID: queryData.returnValues.swapID})
                             .then((swap) => {
-                                if(!swap.eventId) {
+                                if(swap.eventId === eventId) {
                                     Swap.findByIdAndUpdate(swap._id, 
-                                        { ethereumTx: queryData.transactionHash, eventId: eventId, isComplited: false, }, {new: true})
+                                        { ethereumTx: queryData.transactionHash, isComplited: false, }, {new: true})
                                         .then((ethereumTx) => {
                                             resolve({
                                                 queryData,

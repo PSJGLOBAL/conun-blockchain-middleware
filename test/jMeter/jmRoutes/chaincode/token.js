@@ -21,7 +21,8 @@ function CallInvoke(event, req) {
                     toAddress: req.body.toAddress,
                     amount: req.body.amount,
                     messageHash: req.body.messageHash,
-                    signature: req.body.signature
+                    signature: req.body.signature,
+                    mintId: req.body.mintId.slice(2, req.body.mintId.length)
                 })
                 .then((result)=> {
                     resolve(result.message);
@@ -42,7 +43,8 @@ function CallInvoke(event, req) {
                     fromAddress: req.body.fromAddress,
                     amount: req.body.amount,
                     messageHash: req.body.messageHash,
-                    signature: req.body.signature
+                    signature: req.body.signature,
+                    burnId: req.body.burnId.slice(2, req.body.burnId.length)
                 })
                 .then((result)=> {
                     resolve(result.message);

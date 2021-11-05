@@ -10,10 +10,26 @@ const Eth = require('../../app/web3/eth.main');
 const auth = require('../../middleware/auth');
 const Helper = require('../../common/helper');
 const logger = Helper.getLogger('TokenAPI');
-
+const EtherEvent = require('./event/ether.event')
+const bridgeAbiJson = require('../app/web3/bridge.swap.abi.json');
 
 const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
 const web3 = new Web3(provider);
+
+let BridgeContractAddress = process.env.ETHER_BRIDGE_CONTRACT_ADDRESS;
+let url = process.env.ETHER_WS_PROVIDER;
+
+const etherEvent = new EtherEvent(BridgeContractAddress, bridgeAbiJson, url);
+etherEvent.listenEvent();
+
+router.get('/', async (req, res)  => {
+    res.status(200).json({
+        message: `worker Id: ${etherEvent.eventId}`,
+        success: true,
+        status: 200
+    })
+});
+
 
 router.post('/swap-request/type/:swapType', auth, async (req, res) => {
     console.log('swap request: ',  req.body);
@@ -42,7 +58,8 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
             swapID: swapID,
             swapKey: _key,
             messageHash: hashed.messageHash,
-            signature: hashed.signature
+            signature: hashed.signature,
+            eventId: etherEvent.eventId
            })
 
            let _swap = await swap.save()
@@ -67,7 +84,8 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
                 swapID: swapID,
                 swapKey: _key,
                 messageHash: hashed.messageHash,
-                signature: hashed.signature
+                signature: hashed.signature,
+                eventId: etherEvent.eventId
                })
     
                let _swap = await swap.save();     

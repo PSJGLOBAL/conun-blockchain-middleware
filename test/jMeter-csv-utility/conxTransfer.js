@@ -35,12 +35,12 @@ router.get('/transfer-csv', async (req, res) => {
                 'fcn', 'fromAddress', 'toAddress', 'value', 'messageHash', 'signature'
             ]
         });
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 2; i++) {
             let fromAddress = walletJson[i].walletAddress;
             let fromAddressPk = walletJson[i].privateKey
             let toAddress =   walletJson[i+1].walletAddress;
             let _value = Math.floor(Math.random() * 100) + 1;
-            let value = web3.utils.toWei(_value.toString())
+            let value = web3.utils.toWei(_value.toString(), 'ether')
             const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [value, toAddress])
             const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
             let hashed = await Eth.CreateSignature(hash, fromAddressPk.slice(2, fromAddressPk.length));
@@ -88,15 +88,16 @@ router.get('/mintAndTransfer-csv', async (req, res) => {
         const csvWriter = createCsvWriter({
             path: __dirname+'/dummy/conx-mintAndTransfer.csv',
             header: [
-                'fcn', 'adminWalletAddress', 'toAddress', 'amount', 'messageHash', 'signature'
+                'fcn', 'adminWalletAddress', 'toAddress', 'amount', 'messageHash', 'signature', 'mintId'
             ]
         });
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 2; i++) {
             let toAddress = walletJson[i].walletAddress;
-            let _value = 100;
+            let _mintId = '0xdad693d9830bec57a841eec67ff6ca452a0e2e6126b27a1bb1732858d95de1df'
+            let _value = '100';
             console.log('_value: ',_value)
-            let value = web3.utils.toWei(_value.toString())
-            const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [value, toAddress])
+            let value = web3.utils.toWei(_value, 'ether');
+            const encoded = web3.eth.abi.encodeParameters(['bytes32', 'uint256', 'address'], [_mintId, value, toAddress])
             const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
             let hashed = await Eth.CreateSignature(hash, adminPk);
             let transactionInfo = {
@@ -105,7 +106,8 @@ router.get('/mintAndTransfer-csv', async (req, res) => {
                 toAddress: toAddress, 
                 amount: _value,
                 messageHash: hashed.messageHash,
-                signature: hashed.signature
+                signature: hashed.signature,
+                mintId: _mintId
             }
             walletList.push(transactionInfo);
             csvData.push(transactionInfo);
@@ -142,15 +144,16 @@ router.get('/burnFrom-csv', async (req, res) => {
         const csvWriter = createCsvWriter({
             path: __dirname+'/dummy/conx-burnFrom.csv',
             header: [
-                'fcn', 'adminWalletAddress', 'fromAddress', 'amount', 'messageHash', 'signature'
+                'fcn', 'adminWalletAddress', 'fromAddress', 'amount', 'messageHash', 'signature', 'burnId'
             ]
         });
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 2; i++) {
             let fromAddress = walletJson[i].walletAddress;
-            let _value = 100;
-            console.log('_value: ',_value)
-            let value = web3.utils.toWei(_value.toString())
-            const encoded = web3.eth.abi.encodeParameters(['uint256', 'address'], [value, fromAddress])
+            let _burnId = '0xdad693d9830bec57a841eec67ff6ca452a0e2e6126b27a1bb1732858d95de1df'
+            let _value = '100';
+            console.log('_value: ', _value)
+            let value = web3.utils.toWei(_value, 'ether')
+            const encoded = web3.eth.abi.encodeParameters(['bytes32', 'uint256', 'address'], [_burnId, value, fromAddress])
             const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
             let hashed = await Eth.CreateSignature(hash, adminPk);
             let transactionInfo = {
@@ -159,7 +162,8 @@ router.get('/burnFrom-csv', async (req, res) => {
                 fromAddress: fromAddress, 
                 amount: _value,
                 messageHash: hashed.messageHash,
-                signature: hashed.signature
+                signature: hashed.signature,
+                burnId: _burnId
             }
             walletList.push(transactionInfo);
             csvData.push(transactionInfo);
