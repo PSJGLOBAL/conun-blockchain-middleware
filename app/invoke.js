@@ -30,6 +30,7 @@ module.exports = class Invoke {
 
     async connect (arg) {
         this.connection = await connectionOrg(arg.walletAddress, arg.orgName);
+        console.log('connect wallet: ', arg)
         this.gateway = new Gateway();
         await this.gateway.connect(this.connection.ccp, this.connection.connectOptions);
         this.network = await this.gateway.getNetwork(arg.channelName);
@@ -221,7 +222,7 @@ module.exports = class Invoke {
         await this.connect(arg)
         return new Promise (
             (resolve, reject) => {
-                this.contract.submitTransaction(arg.fcn, arg.walletAddress, arg.messageHash, arg.signature)
+                this.contract.submitTransaction(arg.fcn, arg.walletAddress)
                 .then((result) => {
                     this.payload = JSON.parse(result.toString());
                     console.log('this.payload >>', this.payload);

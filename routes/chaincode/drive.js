@@ -32,10 +32,10 @@ function CallInvokeDrive(event, req) {
             eventDeal.on('CreateFile', async () => {
                 let result = await invokeDrive.CreateFile({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.content.author,
+                    walletAddress: req.body.content.author.toLowerCase(),
                     content: req.body.content,
                 });
                 if(!result.status) reject(result.message);
@@ -59,7 +59,7 @@ function CallInvokeDrive(event, req) {
             eventDeal.on('Approve', async () => {
                 let result = await invokeDrive.ApproveFile({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
                     author: req.body.author,
@@ -89,10 +89,10 @@ function CallInvokeDrive(event, req) {
             eventDeal.on('LikeContent', async () => {
                 let result = await invokeDrive.LikeContentFile({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.action.wallet,
+                    walletAddress: req.body.action.wallet.toLowerCase(),
                     action : req.body.action
                 });
                 console.log('LikeContent result: ', result);
@@ -118,10 +118,10 @@ function CallInvokeDrive(event, req) {
             eventDeal.on('CountDownloads', async () => {
                 let result = await invokeDrive.CountDownloadsFile({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.action.wallet,
+                    walletAddress: req.body.action.wallet.toLowerCase(),
                     action: req.body.action
                 });
                 if(!result.status) reject(result.message);
@@ -159,10 +159,10 @@ function CallQueryDrive(event, req) {
             eventQuery.on('Allowance', async () => {
                 let result = await queryDrive.AllowanceFile({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn: req.query.fcn,
                     orgName: req.query.orgName,
-                    walletAddress: req.query.walletAddress,
+                    walletAddress: req.query.walletAddress.toLowerCase(),
                     ccid : req.query.ccid
                 });
                 if(!result.status) reject(result.message);
@@ -186,10 +186,10 @@ function CallQueryDrive(event, req) {
             eventQuery.on('GetTotalLikes', async () => {
             let result = await queryDrive.GetTotalLikesFile({
                 channelName: req.params.channelName,
-                chainCodeName: req.params.chainCodeName,
+                chainCodeName: req.params.chainCodeName.toLowerCase(),
                 fcn: req.query.fcn,
                 orgName: req.query.orgName,
-                walletAddress: req.query.walletAddress,
+                walletAddress: req.query.walletAddress.toLowerCase(),
                 ccid : req.query.ccid
             });
             if(!result.status) reject(result.message);
@@ -212,10 +212,10 @@ function CallQueryDrive(event, req) {
             eventQuery.on('GetTotalDownloads', async () => {
             let result = await queryDrive.GetTotalDownloads({
                 channelName: req.params.channelName,
-                chainCodeName: req.params.chainCodeName,
+                chainCodeName: req.params.chainCodeName.toLowerCase(),
                 fcn: req.query.fcn,
                 orgName: req.query.orgName,
-                walletAddress: req.query.walletAddress,
+                walletAddress: req.query.walletAddress.toLowerCase(),
                 ccid : req.query.ccid
             });
             if(!result.status) reject(result.message);
@@ -238,10 +238,10 @@ function CallQueryDrive(event, req) {
             eventQuery.on('GetFile', async () => {
             let result = await queryDrive.GetFile({
                 channelName: req.params.channelName,
-                chainCodeName: req.params.chainCodeName,
+                chainCodeName: req.params.chainCodeName.toLowerCase(),
                 fcn: req.query.fcn,
                 orgName: req.query.orgName,
-                walletAddress: req.query.walletAddress,
+                walletAddress: req.query.walletAddress.toLowerCase(),
                 ccid : req.query.ccid
             });
             if(!result.status) reject(result.message);

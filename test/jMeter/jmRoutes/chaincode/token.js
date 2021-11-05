@@ -14,7 +14,7 @@ function CallInvoke(event, req) {
                 const invokeHandler = new Invoke();
                 invokeHandler.conxMintAndTransfer({
                     channelName: 'mychannel',
-                    chainCodeName: 'CONX',
+                    chainCodeName: 'conx',
                     fcn: req.body.fcn,
                     orgName: 'Org1',
                     walletAddress: req.body.adminWalletAddress,
@@ -35,7 +35,7 @@ function CallInvoke(event, req) {
                 const invokeHandler = new Invoke();
                 invokeHandler.conxBurnFrom({
                     channelName: 'mychannel',
-                    chainCodeName: 'CONX',
+                    chainCodeName: 'conx',
                     fcn: req.body.fcn,
                     orgName: 'Org1',
                     walletAddress: req.body.adminWalletAddress,
@@ -56,7 +56,7 @@ function CallInvoke(event, req) {
                 const invokeHandler = new Invoke();
                 invokeHandler.conxTransfer({
                     channelName: 'mychannel',
-                    chainCodeName: 'CONX',
+                    chainCodeName: 'conx',
                     fcn: req.body.fcn,
                     orgName: 'Org1',
                     walletAddress: req.body.fromAddress,

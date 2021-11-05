@@ -15,12 +15,10 @@ function CallInvoke(event, req) {
                 const invokeHandler = new Invoke();
                 invokeHandler.init({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.walletAddress,
-                    messageHash: req.body.messageHash,
-                    signature: req.body.signature
+                    walletAddress: req.body.walletAddress.toLowerCase()
                 })
                 .then((result)=> {
                     resolve(result.message);
@@ -34,10 +32,10 @@ function CallInvoke(event, req) {
                 const invokeHandler = new Invoke();
                 invokeHandler.conxMintAndTransfer({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.walletAddress,
+                    walletAddress: req.body.walletAddress.toLowerCase(),
                     amount: req.body.amount,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
@@ -54,10 +52,10 @@ function CallInvoke(event, req) {
                 const invokeHandler = new Invoke();
                 invokeHandler.conxBurnFrom({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.walletAddress,
+                    walletAddress: req.body.walletAddress.toLowerCase(),
                     amount: req.body.amount,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
@@ -74,11 +72,11 @@ function CallInvoke(event, req) {
                 const invokeHandler = new Invoke();
                 invokeHandler.conxTransfer({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn: req.body.fcn,
                     orgName: req.body.orgName,
-                    walletAddress: req.body.fromAddress,
-                    to: req.body.toAddress,
+                    walletAddress: req.body.fromAddress.toLowerCase(),
+                    to: req.body.toAddress.toLowerCase(),
                     amount: req.body.value,
                     messageHash: req.body.messageHash,
                     signature: req.body.signature
@@ -109,9 +107,9 @@ function CallQuery(event, req) {
             eventQuery.on('BalanceOf', async () => {
                 queryHandler.BalanceOf({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn:  req.query.fcn,
-                    walletAddress: req.query.walletAddress,
+                    walletAddress: req.query.walletAddress.toLowerCase(),
                     orgName: req.query.orgName
                 })
                 .then((result)=> {
@@ -125,9 +123,9 @@ function CallQuery(event, req) {
             eventQuery.on('GetDetails', async () => {
                 queryHandler.GetDetails({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn:  req.query.fcn,
-                    walletAddress: req.query.walletAddress,
+                    walletAddress: req.query.walletAddress.toLowerCase(),
                     orgName: req.query.orgName
                 })
                 .then((result)=> {
@@ -141,9 +139,9 @@ function CallQuery(event, req) {
             eventQuery.on('ClientAccountID', async () => {
                 queryHandler.ClientAccountID({
                     channelName: req.params.channelName,
-                    chainCodeName: req.params.chainCodeName,
+                    chainCodeName: req.params.chainCodeName.toLowerCase(),
                     fcn:  req.query.fcn,
-                    walletAddress: req.query.walletAddress,
+                    walletAddress: req.query.walletAddress.toLowerCase(),
                     orgName: req.query.orgName
                 })
                 .then((result)=> {
