@@ -17,7 +17,7 @@ async function connectionOrg(walletAddress, orgName) {
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
-        logger.info(`connectionOrg Wallet path: ${walletPath}`);
+        // logger.info(`connectionOrg Wallet path: ${walletPath}`);
 
         // // Check to see if we've already enrolled the user.
         let identity = await wallet.get(walletAddress);

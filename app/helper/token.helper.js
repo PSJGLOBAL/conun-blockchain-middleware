@@ -181,7 +181,7 @@ const getRegisteredUser = async (arg) => {
     console.log('caURL: ',caURL);
     const walletPath = path.join(process.cwd(), 'wallet');
     const wallet = await Wallets.newFileSystemWallet(walletPath);
-    console.log(`Wallet path: ${walletPath}`);
+    // console.log(`Wallet path: ${walletPath}`);
 
     // Check to see if we've already enrolled the admin user.
     let adminIdentity = await wallet.get('admin');

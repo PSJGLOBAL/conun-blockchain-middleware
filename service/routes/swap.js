@@ -9,9 +9,9 @@ const Eth = require('../../app/web3/eth.main');
 
 const auth = require('../../middleware/auth');
 const Helper = require('../../common/helper');
-const logger = Helper.getLogger('TokenAPI');
-const EtherEvent = require('./event/ether.event')
-const bridgeAbiJson = require('../app/web3/bridge.swap.abi.json');
+const logger = Helper.getLogger('worker');
+const EtherEvent = require('../event/ether.event')
+const bridgeAbiJson = require('../../app/web3/bridge.swap.abi.json');
 
 const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
 const web3 = new Web3(provider);
@@ -33,6 +33,8 @@ router.get('/', async (req, res)  => {
 
 router.post('/swap-request/type/:swapType', auth, async (req, res) => {
     console.log('swap request: ',  req.body);
+    logger.info('swap request: ',  req.body);
+
     const { error } = validateSwap(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })

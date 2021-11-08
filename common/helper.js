@@ -6,6 +6,7 @@ class helper {
         const logger = log4js.getLogger(modulName);
 
         let appLog = 'logs/app/app.log';
+        let workerLog = 'logs/worker/worker.log';
         let dbLog = 'logs/db/db.log';
         let appLevel = 'debug';
         let dbLelvel = 'debug';
@@ -22,22 +23,32 @@ class helper {
         // setup logging conf..
         const logConfig = {
             appenders: {
-                app: {
+                "app": {
                     type: 'dateFile',
                     filename: appLog,
+                    pattern: "-yyyy-MM-dd",
                     maxLogSize: 8 * 1024 * 1024,
                     daysToKeep: 7
                 },
-                db: {
+                "worker": {
+                    type: 'dateFile',
+                    filename: workerLog,
+                    pattern: "-yyyy-MM-dd",
+                    maxLogSize: 8 * 1024 * 1024,
+                    daysToKeep: 7
+                },
+                "db": {
                     type: 'dateFile',
                     filename: dbLog,
+                    pattern: "-yyyy-MM-dd",
                     maxLogSize: 8 * 1024 * 1024,
                     daysToKeep: 7
                 }
             },
             categories: {
-                default: {appenders: ['app'], level: appLevel},
-                MongoDB: {appenders: ['db'], level: dbLelvel}
+                default: {appenders: ["app"], level: appLevel},
+                worker: {appenders: ["worker"], level: 'all'},
+                MongoDB: {appenders: ["db"], level: dbLelvel}
             }
         };
 
@@ -53,5 +64,4 @@ class helper {
 //     logger.error('>> uncaughtException: ', ex);
 // });
 
-// exports.helper = helper
 module.exports = helper;

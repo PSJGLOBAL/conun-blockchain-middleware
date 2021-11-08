@@ -65,7 +65,7 @@ class EtherEvent {
                 invokeHandler.swapMintAndTransfer({
                     channelName: 'mychannel',
                     chainCodeName: 'bridge',
-                    fcn: 'Mint',
+                    fcn: 'MintAndTransfer',
                     orgName: invoke.user.orgName,
                     id: invoke.swap.swapID.slice(2, invoke.swap.swapID.length),
                     key: invoke.swap.swapKey.slice(2, invoke.swap.swapKey.length),

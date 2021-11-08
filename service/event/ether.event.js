@@ -3,7 +3,7 @@ const Invoke = require('../../app/invoke');
 const {Swap} = require('../../models/profile/swap.model');
 const {User} = require('../../models/profile/user');
 const Helper = require('../../common/helper');
-const logger = Helper.getLogger('app');
+const logger = Helper.getLogger('worker');
 
 module.exports = class EtherEvent {
     constructor(contractAddress, abi, url) {
@@ -56,7 +56,7 @@ module.exports = class EtherEvent {
     swapCONtoCONX(ivoke) {
         return new Promise(
             (resolve, reject) => {
-                console.log('swapCONtoCONX >>');
+                logger.info('swapCONtoCONX >>', ivoke);
                 const invokeHandler = new Invoke();
                 invokeHandler.swapMintAndTransfer({
                     channelName: 'mychannel',
@@ -71,7 +71,7 @@ module.exports = class EtherEvent {
                     signature: ivoke.swap.signature
                 })
                 .then((response) => {
-                    console.log('response: ', response)
+                    logger.info('response: ', response)
                     const filter = {
                         wallet: ivoke.user._id,
                         swapID: ivoke.queryData.returnValues.swapID,
@@ -85,8 +85,8 @@ module.exports = class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((conunTX) => {
-                            console.log('ethereumTx', invoke.ethereumTx.ethereumTx)
-                            console.log('conunTX', response.conunTx);
+                            logger.info('ethereumTx', invoke.ethereumTx.ethereumTx)
+                            logger.info('conunTX', response.conunTx);
                             resolve(conunTX);    
                         })
                         .catch((err) => {
@@ -104,6 +104,7 @@ module.exports = class EtherEvent {
     swapCONXtoCON(ivoke) {
         return new Promise(
             (resolve, reject) => {
+                logger.info('swapCONXtoCON >>', ivoke);
                 const invokeHandler = new Invoke();
                 invokeHandler.swapBurnFrom({
                     channelName: 'mychannel',
@@ -130,8 +131,8 @@ module.exports = class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((response) => {
-                            console.log('ethereumTx', invoke.ethereumTx.ethereumTx)
-                            console.log('conunTX', response.conunTx);
+                            logger.info('ethereumTx', invoke.ethereumTx.ethereumTx)
+                            logger.info('conunTX', response.conunTx);
                             resolve(response);
                         })
                         .catch((err) => {
@@ -148,17 +149,23 @@ module.exports = class EtherEvent {
     listenEvent() {
         this.listenContract.events.allEvents()
         .on('connected', (id) => {
+            logger.info('Ethereum EVENT CONNECTED', id);
             console.log('Ethereum EVENT CONNECTED', id);
             this.eventId = id;
         })
         .on('data', (data) => {
+            console.log('>> Interupted Listen Event >>', this.eventId);
             if(data.event === 'CONtoCONX') {
                 this.querySwapID(data, this.eventId)
                     .then((invoke) => {
                         this.swapCONtoCONX(invoke)
+                            .catch((error) => {
+                                console.log('swapCONtoCONX - > error: ', error)
+                                logger.error(`swapCONtoCONX error: ${error}`);
+                            })
                     })
                     .catch((error) => {
-                        console.log('querySwapID - > error: ', error)
+                        console.log('querySwapID - > error: ', error);
                         logger.error(`querySwapID error: ${error}`);
                     })
             }
@@ -167,6 +174,10 @@ module.exports = class EtherEvent {
                 this.querySwapID(data, this.eventId)
                     .then((invoke) => {
                         this.swapCONXtoCON(invoke)
+                            .catch((error) => {
+                                console.log('swapCONXtoCON - > error: ', error);
+                                logger.error(`swapCONXtoCON error: ${error}`);
+                            })
                     })
                     .catch((error) => {
                         console.log('querySwapID -> error: ', error)
