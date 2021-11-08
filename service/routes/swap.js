@@ -23,6 +23,7 @@ const etherEvent = new EtherEvent(BridgeContractAddress, bridgeAbiJson, url);
 etherEvent.listenEvent();
 
 router.get('/', async (req, res)  => {
+    logger.info('TEST LOGGER >>>> >>>> >>>');
     res.status(200).json({
         message: `worker Id: ${etherEvent.eventId}`,
         success: true,
