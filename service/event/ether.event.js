@@ -56,7 +56,6 @@ module.exports = class EtherEvent {
     swapCONtoCONX(ivoke) {
         return new Promise(
             (resolve, reject) => {
-                logger.info('swapCONtoCONX >>', ivoke);
                 const invokeHandler = new Invoke();
                 invokeHandler.swapMintAndTransfer({
                     channelName: 'mychannel',
@@ -71,30 +70,34 @@ module.exports = class EtherEvent {
                     signature: ivoke.swap.signature
                 })
                 .then((response) => {
-                    logger.info('response: ', response)
+                    console.log('swapCONtoCONX -> response: ', response);
+                    logger.info('swapCONtoCONX -> response: ', response);
+                    if(!response.status) 
+                        reject(response);
                     const filter = {
                         wallet: ivoke.user._id,
                         swapID: ivoke.queryData.returnValues.swapID,
-                        amount: response.message.Value
+                        amount: response.Value
                     }
                     const update = {
-                        amount: response.message.Value,
-                        conunTx: response.message.txHash,
+                        amount: response.Value,
+                        conunTx: response.txHash,
                         isComplited: true,
                         complitedAt: Date.now()
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((conunTX) => {
-                            logger.info('ethereumTx', invoke.ethereumTx.ethereumTx)
                             logger.info('conunTX', response.conunTx);
                             resolve(conunTX);    
                         })
                         .catch((err) => {
+                            logger.error('1-swapCONtoCONX err: ', err)
                             reject(err)
                         })
                     
                 })
                 .catch((error) => {
+                    logger.error('2-swapCONtoCONX err: ', error)
                     reject(error);
             });       
             }
@@ -104,7 +107,6 @@ module.exports = class EtherEvent {
     swapCONXtoCON(ivoke) {
         return new Promise(
             (resolve, reject) => {
-                logger.info('swapCONXtoCON >>', ivoke);
                 const invokeHandler = new Invoke();
                 invokeHandler.swapBurnFrom({
                     channelName: 'mychannel',
@@ -118,28 +120,31 @@ module.exports = class EtherEvent {
                     signature: ivoke.swap.signature
                 })
                 .then((response) => {
+                    logger.info('swapCONXtoCON -> response: ', response)
+                    if(!response.status) reject(response)
                     const filter = {
                         wallet: ivoke.user._id,
                         swapID: ivoke.queryData.returnValues.swapID,
-                        amount: response.message.Value
+                        amount: response.Value
                     }
                     const update = {
-                        amount: response.message.Value,
-                        conunTx: response.message.txHash,
+                        amount: response.Value,
+                        conunTx: response.txHash,
                         isComplited: true,
                         complitedAt: Date.now()
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((response) => {
-                            logger.info('ethereumTx', invoke.ethereumTx.ethereumTx)
                             logger.info('conunTX', response.conunTx);
                             resolve(response);
                         })
                         .catch((err) => {
+                            logger.error('1-swapCONXtoCON err: ', err)
                             reject(err)
                         })
                 })
                 .catch((error) => {
+                    logger.error('2-swapCONXtoCON err: ', error)
                     reject(error);
                 });       
             }
