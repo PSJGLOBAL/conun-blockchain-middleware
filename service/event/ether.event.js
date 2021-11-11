@@ -10,7 +10,14 @@ module.exports = class EtherEvent {
         this.contractAddress = contractAddress;
         this.abi = abi;
         this.url = url;
-        this.provider = new Web3.providers.WebsocketProvider(this.url);
+        this.provider = new Web3.providers.WebsocketProvider(this.url, {
+            reconnect: {
+                auto: true,
+                delay: 5000, // ms
+                maxAttempts: 5,
+                onTimeout: false,
+              }
+        });
         this.web3 = new Web3(this.provider);
         this.listenContract = new this.web3.eth.Contract(this.abi, this.contractAddress);
         this.eventId = null;
@@ -72,8 +79,7 @@ module.exports = class EtherEvent {
                 .then((response) => {
                     console.log('swapCONtoCONX -> response: ', response);
                     logger.info('swapCONtoCONX -> response: ', response);
-                    if(!response.status) 
-                        reject(response);
+                    if(!response.status) reject(response);
                     const filter = {
                         wallet: ivoke.user._id,
                         swapID: ivoke.queryData.returnValues.swapID,

@@ -108,98 +108,74 @@ module.exports = class Invoke {
 
     async conxMintAndTransfer(arg) {
         logger.info('2-conxMintAndTransfer >> ', arg)
-        await this.connect(arg)
-        return new Promise (
-            (resolve, reject) => {
-                let value = web3.utils.toWei(arg.amount, 'ether');
-                this.transaction = this.contract.createTransaction(arg.fcn)
-                this.transaction.submit(arg.toAddress, value, arg.messageHash, arg.signature, arg.mintId)
-                .then((result) => {
-                    this.payload = JSON.parse(result.toString());
-                    this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    logger.info('this.payload >>', this.payload);
-                    this.gateway.disconnect();
-                    resolve({
-                        status: true,
-                        message: this.payload
-                    });
-                })
-                .catch((error) => {
-                    logger.error(`conxMintAndTransfer error: ${error.message}, arg: ${arg}`);
-                    reject({
-                        status: false,
-                        message: splitString(error.message),
-                        txHash: this.transaction.getTransactionId()
-                    });
-                    this.gateway.disconnect();
-                })
+        try {
+            await this.connect(arg);
+            let value = web3.utils.toWei(arg.amount, 'ether');
+            this.transaction = this.contract.createTransaction(arg.fcn)
+            let result = await this.transaction.submit(arg.toAddress, value, arg.messageHash, arg.signature, arg.mintId);
+            this.payload = JSON.parse(result.toString());
+            this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
+            this.payload.txHash = this.transaction.getTransactionId();
+            this.payload.status = true
+            console.log('this.payload >>', this.payload);
+            this.gateway.disconnect();
+            return this.payload;
+        } catch (error) {
+            this.gateway.disconnect();
+            logger.error(`swapMintAndTransfererror: ${error}, Function: ${arg.fcn}`);
+            return {
+                status: false,
+                message: splitString(error.message)
             }
-        ) 
+        }
     }
     
     async conxBurnFrom(arg) {
         logger.info('2-conxBurnFrom >> ', arg)
-        await this.connect(arg)
-        return new Promise (
-            (resolve, reject) => {
-                let value = web3.utils.toWei(arg.amount, 'ether');
-                this.transaction = this.contract.createTransaction(arg.fcn)
-                this.transaction.submit(arg.fromAddress, value, arg.messageHash, arg.signature, arg.burnId)
-                .then((result) => {
-                    this.payload = JSON.parse(result.toString());
-                    this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    console.log('this.payload >>', this.payload);
-                    this.gateway.disconnect();
-                    resolve({
-                        status: true,
-                        message: this.payload
-                    });
-                })
-                .catch((error) => {
-                    logger.error(`conxBurnFrom error: ${error.message}, arg: ${arg}`);
-                    reject({
-                        status: false,
-                        message: splitString(error.message),
-                        txHash: this.transaction.getTransactionId()
-                    });
-                    this.gateway.disconnect();
-                })
+        try {
+            await this.connect(arg);
+            let value = web3.utils.toWei(arg.amount, 'ether');
+            this.transaction = this.contract.createTransaction(arg.fcn)
+            let result = await this.transaction.submit(arg.fromAddress, value, arg.messageHash, arg.signature, arg.burnId);
+            this.payload = JSON.parse(result.toString());
+            this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
+            this.payload.txHash = this.transaction.getTransactionId();
+            this.payload.status = true
+            console.log('this.payload >>', this.payload);
+            this.gateway.disconnect();
+            return this.payload;    
+        } catch (error) {
+            this.gateway.disconnect();
+            logger.error(`swapMintAndTransfererror: ${error}, Function: ${arg.fcn}`);
+            return {
+                status: false,
+                message: splitString(error.message)
             }
-        ) 
+        }
     }
 
     async conxTransfer(arg) {
         logger.info('2-conxTransfer >> ', arg)
-        await this.connect(arg)
-        return new Promise (
-            (resolve, reject) => {
-                let value = web3.utils.toWei(arg.amount, 'ether');
-                this.transaction = this.contract.createTransaction(arg.fcn)
-                this.transaction.submit(arg.walletAddress, arg.to, value, arg.messageHash, arg.signature)
-                .then((result) => {
-                    this.payload = JSON.parse(result.toString());
-                    this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
-                    this.payload.txHash = this.transaction.getTransactionId();
-                    console.log('this.payload >>', this.payload);
-                    this.gateway.disconnect();
-                    resolve({
-                        status: true,
-                        message: this.payload
-                    });
-                })
-                .catch((error) => {
-                    logger.error(`conxTransfer error: ${error.message}, arg: ${arg}`);
-                    reject({
-                        status: false,
-                        message: splitString(error.message),
-                        txHash: this.transaction.getTransactionId()
-                    });
-                    this.gateway.disconnect();
-                })
+        try {
+            await this.connect(arg);
+            let value = web3.utils.toWei(arg.amount, 'ether');
+            this.transaction = this.contract.createTransaction(arg.fcn)
+            let result = await this.transaction.submit(arg.walletAddress, arg.to, value, arg.messageHash, arg.signature)
+            this.payload = JSON.parse(result.toString());
+            this.payload.Func.Value = web3.utils.fromWei(this.payload.Func.Value, "ether");
+            this.payload.txHash = this.transaction.getTransactionId();
+            this.payload.status = true
+            console.log('this.payload >>', this.payload);
+            this.gateway.disconnect();
+            return this.payload; 
+        } catch (error) {
+            this.gateway.disconnect();
+            logger.error(`swapMintAndTransfererror: ${error}, Function: ${arg.fcn}`);
+            return {
+                status: false,
+                message: splitString(error.message)
             }
-        ) 
+        } 
     }
 
 

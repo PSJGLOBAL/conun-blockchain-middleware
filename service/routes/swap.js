@@ -19,18 +19,33 @@ const web3 = new Web3(provider);
 let BridgeContractAddress = process.env.ETHER_BRIDGE_CONTRACT_ADDRESS;
 let url = process.env.ETHER_WS_PROVIDER;
 
-const etherEvent = new EtherEvent(BridgeContractAddress, bridgeAbiJson, url);
-etherEvent.listenEvent();
+const etherEvent = ()=> new EtherEvent(BridgeContractAddress, bridgeAbiJson, url);
+etherEvent().listenEvent();
+
+const checkWeb3Connection = ()=> {
+    if (!etherEvent().web3.currentProvider.connected) {
+        logger.error('Disconnected!')
+        etherEvent()
+        etherEvent().listenEvent();
+      } else logger.info('Connected!')
+}
+
+setInterval(checkWeb3Connection, 5000)
 
 router.get('/', async (req, res)  => {
-    logger.info('TEST LOGGER >>>> >>>> >>>');
+    if (!etherEvent().web3.currentProvider.connected) {
+        logger.error('Disconnected!')
+        etherEvent().web3.setProvider(etherEvent)
+      } else logger.info('Connected!')
+
+    
+    logger.info(`worker Id: ${etherEvent().eventId}`);
     res.status(200).json({
-        message: `worker Id: ${etherEvent.eventId}`,
+        message: `worker Id: ${etherEvent().eventId}`,
         success: true,
         status: 200
     })
 });
-
 
 router.post('/swap-request/type/:swapType', auth, async (req, res) => {
     console.log('swap request: ',  req.body);
@@ -62,7 +77,7 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
             swapKey: _key,
             messageHash: hashed.messageHash,
             signature: hashed.signature,
-            eventId: etherEvent.eventId
+            eventId: etherEvent().eventId
            })
 
            let _swap = await swap.save()
@@ -88,7 +103,7 @@ router.post('/swap-request/type/:swapType', auth, async (req, res) => {
                 swapKey: _key,
                 messageHash: hashed.messageHash,
                 signature: hashed.signature,
-                eventId: etherEvent.eventId
+                eventId: etherEvent().eventId
                })
     
                let _swap = await swap.save();     
