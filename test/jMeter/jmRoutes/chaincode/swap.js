@@ -90,8 +90,6 @@ class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((conunTX) => {
-                            console.log('ethereumTx', invoke.ethereumTx.ethereumTx)
-                            console.log('conunTX', response.message.txHash);
                             logger.info('conunTX:', conunTX);
                             resolve(conunTX);    
                         })
@@ -140,8 +138,6 @@ class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((response) => {
-                            console.log('ethereumTx', invoke.ethereumTx.ethereumTx)
-                            console.log('conunTX', response.conunTx);
                             logger.info('conunTX:', response);
                             resolve(response);
                         })

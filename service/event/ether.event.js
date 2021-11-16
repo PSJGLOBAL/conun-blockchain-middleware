@@ -93,7 +93,7 @@ module.exports = class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((conunTX) => {
-                            logger.info('conunTX', response.conunTx);
+                            logger.info('conunTX', conunTX);
                             resolve(conunTX);    
                         })
                         .catch((err) => {
@@ -160,9 +160,9 @@ module.exports = class EtherEvent {
     listenEvent() {
         this.listenContract.events.allEvents()
         .on('connected', (id) => {
-            logger.info('Ethereum EVENT CONNECTED', id);
-            console.log('Ethereum EVENT CONNECTED', id);
             this.eventId = id;
+            logger.info('Ethereum EVENT CONNECTED', this.eventId);
+            console.log('Ethereum EVENT CONNECTED', this.eventId);
         })
         .on('data', (data) => {
             console.log('>> Interupted Listen Event >>', this.eventId);
@@ -200,5 +200,13 @@ module.exports = class EtherEvent {
             console.log('listenContractEvent err: ', error);
             logger.error(`listenContractEvent error: ${error}`);
         });
+    }
+
+    async isConnected() {
+        return await this.web3.eth.net.isListening();
+    }
+
+    getEventId() {
+        return this.eventId;
     }
 }
