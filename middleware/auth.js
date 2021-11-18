@@ -1,4 +1,7 @@
 const jwt = require('jsonwebtoken');
+const Helper = require("../common/helper");
+const logger = Helper.getLogger("middleware/auth");
+
 /**
 * auth token jwt
 * verifying user
@@ -18,8 +21,8 @@ function auth(req, res, next) {
                 next();
             });
     } catch (e) {
-            console.log('auth: ', e)
-            return res.status(400).json({payload: e.message, success: false,  status:  400 })
+        logger.error('auth middleware error: ', e);
+        return res.status(400).json({payload: e.message, success: false,  status:  400 });
     }
 }
 module.exports = auth;

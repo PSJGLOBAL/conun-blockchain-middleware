@@ -47,15 +47,12 @@ app.get('/', async (req, res)  => {
     })
 });
 
-console.log('process.env.NODE_ENV:  ', process.env.NODE_ENV, process.env.PORT);
-
 const server = app.listen(process.env.PORT, () => {
-    console.log(`Server listening to ${process.env.PORT}`);
+    console.log('Server listening to... ')
     logger.info(`Server listening to ${process.env.PORT}`);
 });
 
 process.on('uncaughtException', ex => {
-    console.log('>> uncaughtException: ', ex);
     logger.error('>> uncaughtException:', ex);
 });
 

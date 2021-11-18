@@ -30,7 +30,7 @@ router.post('/', async (req, res, next) => {
                 let pKey = _privateKey.slice(2+i.toString().length, _privateKey.length);
                 let privateKey = '0x'+`${i}`+pKey;
                 console.log('privateKey: ', privateKey, i.toString().length);
-                let keyStore = await Eth.TestPrivateKey(privateKey)
+                let keyStore = await Eth.TestPrivateKey(privateKey) // tets key was deleted in production
                 let walletAddress = '0x' + keyStore.address;
                 let x509Identity = await helper.getRegisteredUser({
                     walletAddress: walletAddress.toLowerCase(), 

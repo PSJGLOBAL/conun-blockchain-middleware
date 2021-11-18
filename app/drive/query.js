@@ -2,18 +2,15 @@ const { Gateway } = require('fabric-network');
 const connectionOrg = require('../helper/conection')
 
 const Helper = require("../../common/helper");
-const { reject } = require('lodash');
-
-const logger = Helper.getLogger("QueryDrive");
+const logger = Helper.getLogger("app/drive/query");
 
 function splitString(msg) {
     try {
         const [name, error] = msg.split('\n');
         const [peer, status, message] = error.split(', ');
-        console.log('name + message: ', name + message)
         return name + message
     } catch (e) {
-        console.log('splitString err: ', e);
+        logger.error('splitString err: ', e);
         return msg
     }
 }

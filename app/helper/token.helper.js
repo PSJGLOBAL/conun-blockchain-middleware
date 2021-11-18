@@ -6,6 +6,8 @@ const path = require("path")
 const FabricCAServices = require('fabric-ca-client');
 const connectionOrg = require('../helper/conection')
 const crypto = require('../../utils/crypto/encryption.algorithm');
+const Helper = require("../../common/helper");
+const logger = Helper.getLogger("app/helper/token.helper");
 
 const mapOrganizations = new Map();
 mapOrganizations.set('Org1', 'ca.org1.conun.io')
@@ -14,14 +16,12 @@ mapOrganizations.set('Org2', 'ca.org2.conun.io')
 
 const getUserIdentity = async (arg)  => {
     try {
-        console.log('arg : ', arg);
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(arg.walletAddress);
         if (!identity) return false;
 
         const connection = await connectionOrg(arg.walletAddress, arg.orgName);
-        // console.log('connection: ', connection)
         const gateway = new Gateway();
         await gateway.connect(connection.ccp, connection.connectOptions);
 
@@ -31,10 +31,10 @@ const getUserIdentity = async (arg)  => {
 
         let adminIdentity = await wallet.get('admin');
         if (!adminIdentity) {
-            console.log('An identity for the admin user "admin" does not exist in the wallet');
+            logger.info('An identity for the admin user "admin" does not exist in the wallet');
             await enrollAdmin();
             adminIdentity = await wallet.get('admin');
-            console.log("Admin Enrolled Successfully")
+            logger.info("Admin Enrolled Successfully")
         }
         const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
         const adminUser = await provider.getUserContext(adminIdentity, 'admin');
@@ -44,7 +44,6 @@ const getUserIdentity = async (arg)  => {
         const retrieveIdentity = await identityService.getOne(arg.walletAddress, adminUser)
         let userWallet = retrieveIdentity.result.id
 
-        console.log('attrs: ', retrieveIdentity.result);
         await gateway.disconnect();
         return new Promise((resolve, reject) => {
             retrieveIdentity.result.attrs.forEach(obj => {
@@ -61,7 +60,7 @@ const getUserIdentity = async (arg)  => {
             reject(false)
         })
     } catch (error) {
-        console.log(`Getting error: ${error}`)
+        logger.error(`Getting error: ${error}`)
         return false
     }
 }
@@ -69,7 +68,6 @@ const getUserIdentity = async (arg)  => {
 
 const importWalletByCertificate = async (arg)  => {
     try {
-        console.log('arg : ', arg)
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(arg.walletAddress);
@@ -78,7 +76,6 @@ const importWalletByCertificate = async (arg)  => {
         }
 
         const connection = await connectionOrg(arg.walletAddress, arg.orgName);
-        console.log('connection: ', connection);
         const gateway = new Gateway();
         await gateway.connect(connection.ccp, connection.connectOptions);
 
@@ -88,10 +85,10 @@ const importWalletByCertificate = async (arg)  => {
 
         let adminIdentity = await wallet.get('admin');
         if (!adminIdentity) {
-            console.log('An identity for the admin user "admin" does not exist in the wallet');
+            logger.info('An identity for the admin user "admin" does not exist in the wallet');
             await enrollAdmin();
             adminIdentity = await wallet.get('admin');
-            console.log("Admin Enrolled Successfully")
+            logger.info("Admin Enrolled Successfully")
         }
         const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
         const adminUser = await provider.getUserContext(adminIdentity, 'admin');
@@ -99,12 +96,11 @@ const importWalletByCertificate = async (arg)  => {
         const identityService = await ca.newIdentityService();
 
         const retrieveIdentity = await identityService.getOne(arg.walletAddress, adminUser)
-        console.log('userWallet: ', retrieveIdentity.result.id);
         await gateway.disconnect();
 
         return retrieveIdentity.result.id;
     } catch (error) {
-        console.log(`Getting error: ${error}`)
+        logger.error(`Getting error: ${error}`)
         return false
     }
 }
@@ -112,7 +108,6 @@ const importWalletByCertificate = async (arg)  => {
 // todo get linked wallets
 const getLinkedWallets = async (arg)  => {
     try {
-        console.log('arg : ', arg)
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(arg.walletAddress);
@@ -122,7 +117,6 @@ const getLinkedWallets = async (arg)  => {
         }
 
         const connection = await connectionOrg(arg.walletAddress, arg.orgName);
-        console.log('connection: ', connection);
         const gateway = new Gateway();
         await gateway.connect(connection.ccp, connection.connectOptions);
 
@@ -132,10 +126,10 @@ const getLinkedWallets = async (arg)  => {
 
         let adminIdentity = await wallet.get('admin');
         if (!adminIdentity) {
-            console.log('An identity for the admin user "admin" does not exist in the wallet');
+            logger.info('An identity for the admin user "admin" does not exist in the wallet');
             await enrollAdmin();
             adminIdentity = await wallet.get('admin');
-            console.log("Admin Enrolled Successfully")
+            logger.info("Admin Enrolled Successfully")
         }
         const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
         const adminUser = await provider.getUserContext(adminIdentity, 'admin');
@@ -145,7 +139,6 @@ const getLinkedWallets = async (arg)  => {
         const retrieveIdentity = await identityService.getOne(arg.walletAddress, adminUser)
         let userWallet = retrieveIdentity.result.id
 
-        console.log('attrs: ', retrieveIdentity.result);
         await gateway.disconnect();
         return new Promise((resolve, reject) => {
             retrieveIdentity.result.attrs.forEach(obj => {
@@ -163,33 +156,29 @@ const getLinkedWallets = async (arg)  => {
             reject(false)
         })
     } catch (error) {
-        console.log(`Getting error: ${error}`)
+        logger.error(`Getting error: ${error}`)
         return false
     }
 }
 
 const getRegisteredUser = async (arg) => {
-    console.log('getRegisteredUser walletAddress: ', arg.walletAddress);
     const ccpPath = path.resolve(__dirname, '../../', 'config', 'connection-org1.json');
     const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
     const ccp = JSON.parse(ccpJSON);
 
-    console.log('ccp: ',ccp);
     // Create a new CA client for interacting with the CA.
     const caURL = ccp.certificateAuthorities[mapOrganizations.get(arg.orgName)].url;
     const ca = new FabricCAServices(caURL);
-    console.log('caURL: ',caURL);
     const walletPath = path.join(process.cwd(), 'wallet');
     const wallet = await Wallets.newFileSystemWallet(walletPath);
-    // console.log(`Wallet path: ${walletPath}`);
 
     // Check to see if we've already enrolled the admin user.
     let adminIdentity = await wallet.get('admin');
     if (!adminIdentity) {
-        console.log('An identity for the admin user "admin" does not exist in the wallet');
+        logger.error('An identity for the admin user "admin" does not exist in the wallet');
         await enrollAdmin();
         adminIdentity = await wallet.get('admin');
-        console.log("Admin Enrolled Successfully");
+        logger.error("Admin Enrolled Successfully");
     }
 
     // build a user object for authenticating with the CA
@@ -197,14 +186,11 @@ const getRegisteredUser = async (arg) => {
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
 
     let keyStore = crypto.AesEncrypt(JSON.stringify(arg.keyStore), arg.password);
-    console.log('keyStore: ', keyStore)
     if(!keyStore) return;
     // Register the user, enroll the user, and import the new identity into the wallet.
     const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: arg.walletAddress, role: 'client', attrs: [{ name: arg.walletType, value: keyStore, ecert: true }] }, adminUser);
-    console.log('secret: ', secret);
     const enrollment = await ca.enroll({ enrollmentID: arg.walletAddress, enrollmentSecret: secret, attr_reqs: [{ name: arg.walletType, optional: true }] });
 
-    console.log('enrollment: ', enrollment)
     const x509Identity = {
         walletAddress: arg.walletAddress,
         credentials: {
@@ -216,8 +202,6 @@ const getRegisteredUser = async (arg) => {
     };
 
     await wallet.put(arg.walletAddress, x509Identity);
-    console.log(`Successfully registered and enrolled admin user ${arg.walletAddress} and imported it into the wallet`);
-
     return x509Identity
 }
 
@@ -235,12 +219,10 @@ const enrollAdmin = async () => {
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
-        // console.log(`Wallet path: ${walletPath}`);
-
         // Check to see if we've already enrolled the admin user.
         const identity = await wallet.get('admin');
         if (identity) {
-            console.log('An identity for the admin user "admin" already exists in the wallet');
+            logger.info('An identity for the admin user "admin" already exists in the wallet');
             return;
         }
 
@@ -255,9 +237,8 @@ const enrollAdmin = async () => {
             type: 'X.509',
         };
         await wallet.put('admin', x509Identity);
-        console.log('Successfully enrolled admin user "admin" and imported it into the wallet');
     } catch (error) {
-        console.error(`Failed to enroll admin user "admin": ${error}`);
+        logger.error(`Failed to enroll admin user "admin": ${error}`);
     }
 
 

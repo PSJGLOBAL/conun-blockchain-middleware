@@ -90,7 +90,7 @@ class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((conunTX) => {
-                            logger.info('conunTX:', conunTX);
+                            logger.info('swapCONtoCONX Compited')
                             resolve(conunTX);    
                         })
                         .catch((err) => {
@@ -138,7 +138,7 @@ class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((response) => {
-                            logger.info('conunTX:', response);
+                            logger.info('swapCONXtoCON Compited')
                             resolve(response);
                         })
                         .catch((err) => {

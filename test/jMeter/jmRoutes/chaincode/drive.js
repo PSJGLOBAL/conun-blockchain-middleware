@@ -266,8 +266,8 @@ router.post('/:channelName/:chainCodeName', async (req, res) => {
                     );
                 }
             ).catch((error) => {
-            console.log(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
-            logger.error(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
+            console.log(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
+            logger.error(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
             res.status(400).json({
                     payload: error,
                     success: false,
@@ -276,8 +276,8 @@ router.post('/:channelName/:chainCodeName', async (req, res) => {
             );
         });
     } catch (error) {
-        console.log(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
-        logger.error(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
+        console.log(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
+        logger.error(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
         res.status(400).json({
             payload: error.message,
             success: false,

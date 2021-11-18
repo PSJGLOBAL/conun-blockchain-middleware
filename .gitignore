@@ -19,3 +19,4 @@ start.sh
 .env
 nginx.middleware.conf
 .dummy
+docker-compose.yml

@@ -2,16 +2,15 @@ const { Gateway } = require('fabric-network');
 const connectionOrg = require('../helper/conection');
 
 const Helper = require("../../common/helper");
-const logger = Helper.getLogger("InvokeDrive")
+const logger = Helper.getLogger("app/drive/invoke")
 
 function splitString(msg) {
     try {
         const [name, error] = msg.split('\n');
         const [peer, status, message] = error.split(', ');
-        console.log('name + message: ', name + message)
         return name + message
     } catch (e) {
-        console.log('splitString err: ', e);
+        logger.error('splitString err: ', e);
         return msg
     }
 }
@@ -43,7 +42,6 @@ class InvokeDriveNetworkClass {
     async _create(fcn, content) {
         try {
             let result = await this.contract.submitTransaction(fcn, JSON.stringify(content));
-            console.log('result: ', result);
             return {
                 status: true,
                 message: JSON.parse(result.toString())
@@ -79,7 +77,6 @@ class InvokeDriveNetworkClass {
 
     async likeContent(fcn, action) {
         try {
-            logger.info(`Getting action: ${action}`);
             let result = await this.contract.submitTransaction(fcn, JSON.stringify(action));
             return {
                 status: true,
@@ -197,7 +194,6 @@ module.exports = {
                 })
             })
         } catch (error) {
-            console.log(`LikeContentFile: Failed to evaluate transaction 2: ${error}`, arg);
             logger.error(`LikeContentFile: Failed to evaluate transaction 2: ${error}`, arg);
             return {
                 status: false,

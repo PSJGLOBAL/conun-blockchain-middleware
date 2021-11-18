@@ -8,7 +8,7 @@ const queryDrive = require('../../app/drive/query');
 const events = require('events');
 
 const Helper = require('../../common/helper');
-const logger = Helper.getLogger('DriveAPI');
+const logger = Helper.getLogger('chaincode/drive');
 
 function CallInvokeDrive(event, req) {
     const eventDeal = new events.EventEmitter();
@@ -95,7 +95,6 @@ function CallInvokeDrive(event, req) {
                     walletAddress: req.body.action.wallet.toLowerCase(),
                     action : req.body.action
                 });
-                console.log('LikeContent result: ', result);
                 if(!result.status) reject(result.message);
                 resolve(result.message);
             });
@@ -269,8 +268,7 @@ router.post('/:channelName/:chainCodeName', async (req, res) => {
                     );
                 }
             ).catch((error) => {
-            console.log(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
-            logger.error(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
+            logger.error(`Drive Post CallInvokeDrive 1: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
             res.status(400).json({
                     payload: error,
                     success: false,
@@ -279,8 +277,7 @@ router.post('/:channelName/:chainCodeName', async (req, res) => {
             );
         });
     } catch (error) {
-        console.log(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
-        logger.error(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
+        logger.error(`Drive Post CallInvokeDrive 2: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
         res.status(400).json({
             payload: error.message,
             success: false,
@@ -301,7 +298,7 @@ router.get('/:channelName/:chainCodeName', async (req, res) => {
                     });
                 }
             ).catch((error) => {
-            logger.error(`Drive Post CallQueryDrive 1: Type: ${req.query.fcn} Reqeest: ${req.query} `, error);
+            logger.error(`Drive Post CallQueryDrive 1: Type: ${req.query.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
             res.status(400).json({
                 payload: error,
                 success: false,
@@ -309,7 +306,7 @@ router.get('/:channelName/:chainCodeName', async (req, res) => {
             });
         });
     } catch (error) {
-        logger.error(`Drive Post CallQueryDrive 2: Type: ${req.query.fcn} Reqeest: ${req.query} `, error);
+        logger.error(`Drive Post CallQueryDrive 2: Type: ${req.query.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
         res.status(400).json({
             payload: error.message,
             success: false,

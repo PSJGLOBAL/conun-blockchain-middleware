@@ -20,22 +20,21 @@ module.exports = function () {
 
     // Retry connection
     const connectWithRetry = () => {
-        console.log('MongoDB connection with retry')
+        logger.info('MongoDB connection with retry')
         return mongoose.connect(`mongodb://${process.env.MONGODB_URL}`, options)
     }
 
 // Exit application on error
     mongoose.connection.on('error', err => {
-        console.log(mongoose.connection.readyState);
-        console.log(`MongoDB connection error: ${err}`);
+        logger.info(mongoose.connection.readyState);
+        logger.error(`MongoDB connection error: ${err}`);
         mongoose.connection.close();
         setTimeout(connectWithRetry, 50000)
     })
 
     mongoose.connection.on('connected', () => {
-        console.log(mongoose.connection.readyState);
-        console.log('Mongo DB is Connected!');
-            logger.info('Mongo DB is Connected!');
+        logger.info(mongoose.connection.readyState);
+        logger.info('Mongo DB is Connected!');
     })
 
     if (process.env.NODE_ENV === 'development') {

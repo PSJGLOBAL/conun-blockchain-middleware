@@ -159,7 +159,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
                     );
             }
         ).catch((error) => {
-            logger.error(`Token Post CallInvoke 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
+            logger.error(`Token Post CallInvoke 1: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
             res.status(400).json({
                     payload: error,
                     success: false,
@@ -168,7 +168,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', async (req, res)
             );
         });
     } catch (error) {
-        logger.error(`Token Post CallInvoke 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
+        logger.error(`Token Post CallInvoke 2: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
         res.status(400).json({
             payload: error.message,
             success: false,

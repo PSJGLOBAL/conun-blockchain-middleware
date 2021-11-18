@@ -8,7 +8,7 @@ const helper = require('../../app/helper/token.helper');
 const Eth = require('../../app/web3/eth.main');
 const crypto = require('../../utils/crypto/encryption.algorithm');
 const Helper = require('../../common/helper');
-const _logger = Helper.getLogger("UserAPI");
+const logger = Helper.getLogger("profile/admin");
 
 
 router.post('/auth-create', oauth,  async (req, res) => {
@@ -21,7 +21,6 @@ router.post('/auth-create', oauth,  async (req, res) => {
     try {
         let orgName = req.body.orgName;
         let decryptData = await Eth.keyStoreDecrypt(req.body.keyStore, req.body.password);
-        console.log('decryptData.privateKey: ', decryptData.privateKey);
         let x509Identity = await helper.getRegisteredUser({
             orgName,
             walletType: req.body.walletType,
@@ -30,9 +29,7 @@ router.post('/auth-create', oauth,  async (req, res) => {
             password: req.body.password
         });
 
-        console.log('x509Identity: ', x509Identity);
         let hashed = await Eth.CreateSignature(JSON.stringify(x509Identity), decryptData.privateKey)
-        console.log('walletSignature: ', hashed.signature)
         user = new User ({
             name: req.body.name,
             email: req.body.email,
@@ -43,7 +40,6 @@ router.post('/auth-create', oauth,  async (req, res) => {
             walletSignature: hashed.signature,
             isAdmin: true
         });
-        console.log('User DB save: ', user);
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, salt);
 
@@ -54,13 +50,12 @@ router.post('/auth-create', oauth,  async (req, res) => {
             res.status(400).json({payload: x509Identity, success: false, status: 400})
         }
     } catch (error) {
-        _logger.error(`/create email: ${req.body.walletAddress} `, error);
+        logger.error(`/create email: ${req.body.walletAddress} `, error);
         res.status(400).json({payload: `${req.body.walletAddress} user error: ${error}`, success: false, status: 400})
     }
 });
 
 router.post('/auth-login', oauth, async (req, res) => {
-    console.log('req.body: ', req.body)
     const { error } = validateAuthLogin(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })

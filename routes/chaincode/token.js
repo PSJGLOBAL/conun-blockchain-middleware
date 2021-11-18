@@ -5,7 +5,7 @@ const queryHandler = require('../../app/query');
 const auth = require('../../middleware/auth');
 const events = require('events');
 const Helper = require('../../common/helper');
-const logger = Helper.getLogger('TokenAPI');
+const logger = Helper.getLogger('chaincode/token');
 
 function CallInvoke(event, req) {
     const eventDeal = new events.EventEmitter();
@@ -21,11 +21,11 @@ function CallInvoke(event, req) {
                     walletAddress: req.body.walletAddress.toLowerCase()
                 })
                 .then((result)=> {
-                    if(!response.status) reject(response);
+                    if(!result.status) reject(response);
                     resolve(result.message);
                 })
                 .catch((err)=> {
-                    reject(err.message);
+                    reject(err);
                 })
             });
             
@@ -42,11 +42,11 @@ function CallInvoke(event, req) {
                     signature: req.body.signature
                 })
                 .then((result)=> {
-                    if(!response.status) reject(response);
+                    if(!result.status) reject(response);
                     resolve(result.message);
                 })
                 .catch((err)=> {
-                    reject(err.message);
+                    reject(err);
                 })
             });
             
@@ -63,11 +63,11 @@ function CallInvoke(event, req) {
                     signature: req.body.signature
                 })
                 .then((result)=> {
-                    if(!response.status) reject(response);
+                    if(!result.status) reject(response);
                     resolve(result.message);
                 })
                 .catch((err)=> {
-                    reject(err.message);
+                    reject(err);
                 })
             });
 
@@ -85,18 +85,18 @@ function CallInvoke(event, req) {
                     signature: req.body.signature
                 })
                 .then((result)=> {
-                    if(!response.status) reject(response);
+                    if(!result.status) reject(response);
                     resolve(result.message);
                 })
                 .catch((err)=> {
-                    reject(err.message);
+                    reject(err);
                 })
             });
 
 
             let status = eventDeal.emit(event)
             if (!status) {
-                console.log('CallInvoke - > status: ', status)
+                logger.error('CallInvoke - > status: ', status)
                 eventDeal.removeAllListeners();
                 reject('not valid request to chain-code');
             }
@@ -177,7 +177,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req
                     );
             }
         ).catch((error) => {
-            logger.error(`Token Post CallInvoke 1: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
+            logger.error(`Token Post CallInvoke 1: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
             res.status(400).json({
                     payload: error,
                     success: false,
@@ -186,7 +186,7 @@ router.post('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req
             );
         });
     } catch (error) {
-        logger.error(`Token Post CallInvoke 2: Type: ${req.body.fcn} Reqeest: ${req.body} `, error);
+        logger.error(`Token Post CallInvoke 2: Type: ${req.body.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
         res.status(400).json({
             payload: error.message,
             success: false,
@@ -206,7 +206,7 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req,
                 });
             }
         ).catch((error) => {
-            logger.error(`Token Post CallQuery 1: Type: ${req.query.fcn} `, error);
+            logger.error(`Token Post CallQuery 1: Type: ${req.query.fcn} Reqeest: ${JSON.stringify(req.body)} `, error);
             res.status(400).json({
                 payload: error,
                 success: false,
@@ -214,7 +214,7 @@ router.get('/channels/:channelName/chaincodes/:chainCodeName', auth, async (req,
             });
         });
     } catch (error) {
-        logger.error(`Token Post CallQuery 2: Type: ${req.query.fcn}`, error)
+        logger.error(`Token Post CallQuery 2: Type: ${req.query.fcn} Reqeest: ${JSON.stringify(req.body)} `, error)
         res.status(400).json({
             payload: error.message,
             success: false,

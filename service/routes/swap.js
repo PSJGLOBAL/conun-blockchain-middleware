@@ -21,31 +21,24 @@ let url = process.env.ETHER_WS_PROVIDER;
 
 const etherEvent =  new EtherEvent(BridgeContractAddress, bridgeAbiJson, url);
 etherEvent.listenEvent();
-console.log(`worker Id: ${etherEvent.getEventId()}`);
 
 const checkWeb3Connection = async ()=> {
     let status = await etherEvent.isConnected();
-    console.log('connected: ', status);
-    console.log(`worker Id: ${etherEvent.getEventId()}`);
     if (!status) {
-        logger.error('Disconnected!')
+        logger.error('checkWeb3Connection -> Disconnected!', status)
         etherEvent.listenEvent();
-      } else logger.info('Connected!')
+    } 
 }
 
-setInterval(checkWeb3Connection, 35000)
+setInterval(checkWeb3Connection, 55000)
 
 router.get('/', async (req, res)  => {
     let status = await etherEvent.isConnected();
-    console.log(`worker Id: ${etherEvent.getEventId()}`);
-    console.log('connected: ', status)
     if (!status) {
-        logger.error('Disconnected!')
-        etherEvent
+        logger.error('checkWeb3Connection -> Disconnected!', status)
         etherEvent.listenEvent();
-      } else logger.info('Connected!')
-
-    
+      }
+ 
     logger.info(`worker Id: ${etherEvent.getEventId()}`);
     res.status(200).json({
         message: `worker Id: ${etherEvent.getEventId()}`,

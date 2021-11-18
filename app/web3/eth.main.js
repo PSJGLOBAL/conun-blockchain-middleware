@@ -16,7 +16,7 @@ const fs = require('fs');
 apiurl = JSON.parse(apijson);
 
 const Helper = require('../../common/helper');
-const logger = Helper.getLogger('app');
+const logger = Helper.getLogger('app/web3/eth.main');
 
 //https://ethereum.stackexchange.com/questions/70832/signing-transactions-with-web3-js
 
@@ -61,7 +61,6 @@ module.exports = {
 
     CreateAccountAdvanced : async ( password ) => {
         const cw = web3.eth.accounts.create(password);
-        console.log('cw: ', cw)
         return new Promise(
             (resolve, reject) => {
                 let getKeystore = web3.eth.accounts.encrypt(cw.privateKey, password);
@@ -85,7 +84,6 @@ module.exports = {
             (resolve, reject) => {
                 let getKeystore = web3.eth.accounts.encrypt(privateKey, password);
                 let account = web3.eth.accounts.privateKeyToAccount(privateKey);
-                logger.info(`ImportAccountByPrivateKey: privateKey: ${privateKey}, password: ${password} `, account);
                 if (getKeystore) {
                     let data = {
                         walletAddress: account.address,
@@ -158,11 +156,9 @@ module.exports = {
             from: object.fromAddress,
             to: object.toAddress
         });
-        console.log('estimateGas: ', data.gasLimit);
 
         await web3.eth.getGasPrice().then((result) => {
             data.gasPrice = web3.utils.fromWei(result, 'gwei');
-            console.log('getGasPrice: ', data.gasPrice)
         });
 
         return {
@@ -194,10 +190,7 @@ module.exports = {
         var	myContract = new web3.eth.Contract(abiarray,ConContractAddress,{
             from: object.fromAddress
         });
-        console.log('?>?')
         const myData = myContract.methods.transfer(object.toAddress, web3.utils.toWei(object.value)).encodeABI();
-
-        console.log("myData: ", myData)
 
         data.gasLimit = await web3.eth.estimateGas({
             from     : object.fromAddress,
@@ -207,7 +200,6 @@ module.exports = {
 
         await web3.eth.getGasPrice().then((result) => {
             data.gasPrice = web3.utils.fromWei(result, 'gwei');
-            console.log('getGasPrice: ', typeof data.gasPrice)
         });
 
         return {
@@ -230,33 +222,14 @@ module.exports = {
     },
 
     SendETH: async (object) => {
-        console.log('Send ETH', object);
-        // if(object.type === 'default') {
-        //     // console.log('estimateGas: ', setEstimateGas);
-        //     object.gasLimit = await web3.eth.estimateGas({
-        //         from: object.fromAddress,
-        //         to: object.toAddress
-        //     });
-        //     console.log('estimateGas: ', object.gasLimit);
-        //
-        //     await web3.eth.getGasPrice().then((result) => {
-        //         object.gasPrice = web3.utils.fromWei(result, 'gwei');
-        //         console.log('getGasPrice: ', object.gasPrice)
-        //     });
-        // }
         return  new Promise(
             (resolve, reject) => {
                 web3.eth.defaultAccount = object.fromAddress;
 
                 if(object.privateKey.includes('0x')) {
                     object.privateKey = object.privateKey.slice(2, object.privateKey.length);
-                    console.log('>> ', object.privateKey);
                 }
-
                 object.privateKey = Buffer.from(object.privateKey, 'hex');
-
-
-                console.log('Get SendETH: ', object);
                 web3.eth.getTransactionCount(object.fromAddress, (err, txCount) => {
                     // // Build the transaction
                     const txObject = {
@@ -267,19 +240,15 @@ module.exports = {
                         gasPrice: web3.utils.toHex(web3.utils.toWei(object.gasPrice, 'gwei')),
                         // data: myData
                     };
-                    console.log('txObject: ', txObject);
                     // Sign the transaction
                     const tx = new Tx(txObject, {chain: 'ropsten'});
                     tx.sign(object.privateKey);
 
                     const serializedTx = tx.serialize();
                     const raw = '0x' + serializedTx.toString('hex');
-                    console.log('RAW: ', raw);
-
                     // Broadcast the transaction
                     // web3.eth.sendSignedTransaction(raw)
                     //     // .on('transactionHash', function(hash){
-                    //     //     console.log('1 transactionHash: ', hash)
                     //     //     resolve(hash);
                     //     // })
                     //     .on('receipt', function (tx) {
@@ -304,13 +273,9 @@ module.exports = {
 
             if(object.privateKey.includes('0x')) {
                 object.privateKey = object.privateKey.slice(2, object.privateKey.length);
-                console.log('>> ', object.privateKey);
             }
 
             object.privateKey = Buffer.from(object.privateKey, 'hex');
-
-
-            console.log('Get SendCON: ', object);
 
             var myContract = new web3.eth.Contract(abiarray, object.contract_address, {
                 from: object.fromAddress
@@ -336,19 +301,15 @@ module.exports = {
                             // gasPrice: "0x04e3b29200",
                             data: myData
                         };
-                        console.log('txObject: ', txObject);
                         // Sign the transaction
                         const tx = new Tx(txObject, {chain: 'ropsten'});
                         tx.sign(object.privateKey);
 
                         const serializedTx = tx.serialize();
-                        console.log('serializedTx: ', serializedTx);
                         var raw = '0x' + serializedTx.toString('hex');
-                        console.log('RAW: ', raw);
 
                         // web3.eth.sendSignedTransaction(raw)
                         //     // .on('transactionHash', function(hash){
-                        //     //     console.log('1 transactionHash: ', hash)
                         //     //     resolve(hash);
                         //     // })
                         //     .on('receipt', function (tx) {
@@ -364,7 +325,7 @@ module.exports = {
                 }
             );
         } catch (e) {
-            console.log('>> Con transaction err: ',e)
+            logger.error('>> Con transaction err: ',e)
             return false
         }
     },
@@ -385,38 +346,5 @@ module.exports = {
     VerifySignature: async (data, signature) => {
         let whoSigned = await web3.eth.accounts.recover(data, signature);
         return whoSigned;
-    },
-
-    TestPrivateKey: async (privateKey) => {
-        console.log('TestPrivateKey>> ', privateKey)
-        // let privateKey = 
-        // "0xe70f4ffe01cefe6145fdc567bbdab5098bb00f3286e9bad20bc14c4a2cd6b23a";
- 
-        // let accounts = await web3.eth.getAccounts();
-
-        // let sig1 = await web3.eth.sign(accounts[0], msg);
-        // console.log('sig1: ', sig1)
-
-        // let sigObj = await web3.eth.accounts.sign(msg, privateKey)
-        // console.log('sigObj: ', sigObj);
-        // let msgHash2 = sigObj.messageHash;
-        // console.log('msgHash2: ', msgHash2);
-        // let sig2 = sigObj.signature;W
-        // console.log('sig2: ', sig2);
-
-        // let whoSigned1 = await web3.eth.accounts.recover(msg, sig2)
-        // let whoSigned2 = await web3.eth.accounts.recover(sigObj)
-
-        // console.log('whoSigned1: ', whoSigned1);
-        // console.log('whoSigned2: ', whoSigned2);
-
-        // const cw = web3.eth.accounts.create(password);
-        let getKeystore = await web3.eth.accounts.encrypt(privateKey, '123456');
-        console.log('getKeystore: ', getKeystore);
-
-        // let data = web3.eth.accounts.decrypt(getKeystore, '123456')
-        // console.log('data: ', data);
-
-        return getKeystore;
     }
 }

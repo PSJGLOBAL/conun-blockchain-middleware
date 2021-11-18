@@ -8,12 +8,10 @@ const DiscoveryOption =  process.env.DISCOVERY_OPTION;
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
-const logger = Helper.getLogger("ConnectionOrg");
+const logger = Helper.getLogger("app/helper/connection");
 
 async function connectionOrg(walletAddress, orgName) {
     try {
-        logger.info('connectionOrg: ', walletAddress, orgName);
-
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);

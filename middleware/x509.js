@@ -2,7 +2,8 @@ const path = require('path');
 const { Certificate, PrivateKey } = require('@fidm/x509')
 const { Wallets } = require('fabric-network');
 const jwt = require('jsonwebtoken');
-
+const Helper = require("../common/helper");
+const logger = Helper.getLogger("middleware/x509");
 /*
 * Features of x509 Signature: It is based on Hashed Timelock, user wallet that makes it a timebound transaction
 * sign to transaction with x509.
@@ -13,7 +14,6 @@ const jwt = require('jsonwebtoken');
 
 const verify = async (req, res, next) => {
     try {
-        console.log('1 >> req: ', req.body)
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(req.user.walletAddress);
@@ -43,7 +43,7 @@ const verify = async (req, res, next) => {
             } else next();
         });
     } catch (e) {
-        console.log('>> signIn error: ', e);
+        logger.error('>> signIn error: ', e);
         res.status(401).json({
             payload: 'invalid key pair',
             success: false,
@@ -65,16 +65,15 @@ const sign = async (walletAddress,  payload) => {
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         let identity = await wallet.get(walletAddress);
-        console.log('identity.credentials.privateKey: ', identity.credentials.privateKey)
+       
         const privateKey = PrivateKey.fromPEM(identity.credentials.privateKey);
-        console.log('> privateKey: ', privateKey)
+ 
         const signature = privateKey.sign(Buffer.from(JSON.stringify(payload)), 'sha256')
-        console.log('> signature: ', signature)
+        
         let sign = jwt.sign({signature: signature.toString('base64')}, identity.credentials.privateKey, { expiresIn: '1000ms' });
 
-        console.log('sign: ', sign)
 
     } catch (e) {
-        console.log('>> signIn error: ', e);
+        logger.error('>> signIn error: ', e);
     }
 }

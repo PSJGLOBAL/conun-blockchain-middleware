@@ -7,7 +7,7 @@ const Eth = require('../../app/web3/eth.main');
 const helper = require('../../app/helper/token.helper');
 
 const Helper = require("../../common/helper");
-const logger = Helper.getLogger("EtherAPI");
+const logger = Helper.getLogger("ether/eth");
 
 router.post('/SendETH', async (req, res) => {
     helper.getUserIdentity({
@@ -31,7 +31,7 @@ router.post('/SendETH', async (req, res) => {
                         status: 200
                     });
                 }).catch((error) => {
-                    logger.error(`SendETH: Reqeest: ${req.body} `, error);
+                    logger.error(`SendETH: Reqeest: ${JSON.stringify(req.body)} `, error);
                     res.status(400).json({
                         payload: error,
                         success: false,
@@ -64,7 +64,7 @@ router.post('/SendCON', async (req, res) => {
                     status: 200
                 });
             }).catch((error) => {
-                logger.error(`SendCON: Reqeest: ${req.body} `, error);
+                logger.error(`SendCON: Reqeest: ${JSON.stringify(req.body)} `, error);
                 res.status(400).json({
                     payload: error,
                     success: false,
@@ -85,7 +85,7 @@ router.get('/getBalanceOfEth', async (req, res) => {
               status: 200
           });
       }).catch((error) => {
-          logger.error(`getBalanceOfEth: Reqeest: ${req.query} `, error);
+          logger.error(`getBalanceOfEth: Reqeest: ${JSON.stringify(req.body)} `, error);
           res.status(400).json({
               payload: error,
               success: false,
@@ -104,7 +104,7 @@ router.get('/getBalanceOfCon', async (req, res) => {
                 status: 200
             });
         }).catch((error) => {
-            logger.error(`getBalanceOfEth: Reqeest: ${req.query} `, error);
+            logger.error(`getBalanceOfEth: Reqeest: ${JSON.stringify(req.body)} `, error);
             res.status(400).json({
                 payload: error,
                 success: false,
@@ -125,7 +125,7 @@ router.get('/getTransactionFeeETH', async (req, res) => {
                 status: 200
             });
         }).catch((error) => {
-            logger.error(`getTransactionFeeETH: Reqeest: ${req.query} `, error);
+            logger.error(`getTransactionFeeETH: Reqeest: ${JSON.stringify(req.body)} `, error);
             res.status(400).json({
                 payload: error,
                 success: false,
@@ -147,19 +147,13 @@ router.get('/getTransactionFeeCON', async (req, res) => {
                 status: 200
             });
         }).catch((error) => {
-            logger.error(`getTransactionFeeCON: Reqeest: ${req.query} `, error);
+            logger.error(`getTransactionFeeCON: Reqeest: ${JSON.stringify(req.body)} `, error);
             res.status(400).json({
                 payload: error,
                 success: false,
                 status: 400
             });
     })
-});
-
-router.post('/TestPrivateKey', async (req, res) => {
-    res.status(200).json(
-    await Eth.TestPrivateKey(req.body.privateKey)
-    );
 });
 
 module.exports = router;

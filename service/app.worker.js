@@ -4,7 +4,6 @@ const cors = require('cors');
 require("dotenv").config();
 const bodyParser = require('body-parser');
 const logger = require('../common/helper').getLogger('worker');
-// const logger = Helper.getLogger('worker');
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -29,17 +28,11 @@ app.use(bodyParser.urlencoded({
 require('./startup/worker.routes.v1')(app);
 require('./startup/db')();
 
-
-console.log('process.env.NODE_ENV:  ', process.env.NODE_ENV, process.env.WORKER_PORT);
-
 const server = app.listen(process.env.WORKER_PORT, () => {
-    console.log(`Woker listening to ${process.env.WORKER_PORT}`);
-    logger.info(`worker listening to ${process.env.WORKER_PORT}`);
-    logger.error(`worker listening to ${process.env.WORKER_PORT}`);
+    logger.info(`worker listening ...`);
 });
 
 process.on('uncaughtException', ex => {
-    console.log('>> worker uncaughtException: ', ex);
     logger.error('>> worker uncaughtException:', ex);
 });
 

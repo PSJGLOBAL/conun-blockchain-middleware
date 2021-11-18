@@ -77,8 +77,6 @@ module.exports = class EtherEvent {
                     signature: ivoke.swap.signature
                 })
                 .then((response) => {
-                    console.log('swapCONtoCONX -> response: ', response);
-                    logger.info('swapCONtoCONX -> response: ', response);
                     if(!response.status) reject(response);
                     const filter = {
                         wallet: ivoke.user._id,
@@ -93,7 +91,6 @@ module.exports = class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((conunTX) => {
-                            logger.info('conunTX', conunTX);
                             resolve(conunTX);    
                         })
                         .catch((err) => {
@@ -126,7 +123,6 @@ module.exports = class EtherEvent {
                     signature: ivoke.swap.signature
                 })
                 .then((response) => {
-                    logger.info('swapCONXtoCON -> response: ', response)
                     if(!response.status) reject(response)
                     const filter = {
                         wallet: ivoke.user._id,
@@ -141,7 +137,6 @@ module.exports = class EtherEvent {
                     }
                     Swap.findOneAndUpdate(filter, update, {new: true})
                         .then((response) => {
-                            logger.info('conunTX', response.conunTx);
                             resolve(response);
                         })
                         .catch((err) => {
@@ -162,21 +157,18 @@ module.exports = class EtherEvent {
         .on('connected', (id) => {
             this.eventId = id;
             logger.info('Ethereum EVENT CONNECTED', this.eventId);
-            console.log('Ethereum EVENT CONNECTED', this.eventId);
         })
         .on('data', (data) => {
-            console.log('>> Interupted Listen Event >>', this.eventId);
+            logger.info('>> Interupted Listen Event >>', this.eventId);
             if(data.event === 'CONtoCONX') {
                 this.querySwapID(data, this.eventId)
                     .then((invoke) => {
                         this.swapCONtoCONX(invoke)
                             .catch((error) => {
-                                console.log('swapCONtoCONX - > error: ', error)
                                 logger.error(`swapCONtoCONX error: ${error}`);
                             })
                     })
                     .catch((error) => {
-                        console.log('querySwapID - > error: ', error);
                         logger.error(`querySwapID error: ${error}`);
                     })
             }
@@ -186,18 +178,15 @@ module.exports = class EtherEvent {
                     .then((invoke) => {
                         this.swapCONXtoCON(invoke)
                             .catch((error) => {
-                                console.log('swapCONXtoCON - > error: ', error);
                                 logger.error(`swapCONXtoCON error: ${error}`);
                             })
                     })
                     .catch((error) => {
-                        console.log('querySwapID -> error: ', error)
                         logger.error(`querySwapID error: ${error}`);
                     }) 
             }       
         })
         .on('error', (error) => {
-            console.log('listenContractEvent err: ', error);
             logger.error(`listenContractEvent error: ${error}`);
         });
     }

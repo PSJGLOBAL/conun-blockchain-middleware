@@ -5,7 +5,7 @@ const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER
 const web3 = new Web3(provider);
 
 const Helper = require('../common/helper');
-const logger = Helper.getLogger('app');
+const logger = Helper.getLogger('app/query');
 
 function splitString(msg) {
     try {
@@ -21,7 +21,6 @@ function splitString(msg) {
 module.exports = {
     BalanceOf: async (arg) => {
         try {
-            // console.log('arg: ', arg);
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -34,7 +33,6 @@ module.exports = {
             const contract = network.getContract(arg.chainCodeName);
 
             let result = await contract.evaluateTransaction(arg.fcn, arg.walletAddress);
-            // console.log(`Transaction has been evaluated, result is: ${result}`);
             return {
                 status: true,
                 message: web3.utils.fromWei(result.toString(), "ether")
@@ -50,14 +48,12 @@ module.exports = {
 
     GetDetails: async (arg) => {
         try {
-            // console.log('arg: ', arg);
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.queryConnectOptions);
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
             let result = await contract.evaluateTransaction(arg.fcn);
-            // console.log(`Transaction has been evaluated, result is: ${result}`);
             return {
                 status: true,
                 message: JSON.parse(result.toString())
@@ -73,14 +69,12 @@ module.exports = {
 
     ClientAccountID: async (arg) => {
         try {
-            // console.log('arg: ', arg);
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             const gateway = new Gateway();
             await gateway.connect(connection.ccp, connection.queryConnectOptions);
             const network = await gateway.getNetwork(arg.channelName);
             const contract = network.getContract(arg.chainCodeName);
             let result = await contract.evaluateTransaction(arg.fcn);
-            // console.log(`Transaction has been evaluated, result is: ${result}`);
             return {
                 status: true,
                 message: result.toString()
@@ -96,7 +90,6 @@ module.exports = {
 
     _getTransactionByID: async (arg) => {
         try {
-            // console.log('arg: ', arg);
             const connection = await connectionOrg(arg.walletAddress, arg.orgName);
             // Create a new gateway for connecting to our peer node.
             const gateway = new Gateway();
@@ -117,7 +110,6 @@ module.exports = {
             //         -c '{"function":"GetTransactionByID","Args":["mychannel", "b2d4920bb653cced5622e7a51dc90f3c23df83172eaee670605e4be1d1b1f6e5"]}'
             let result = await network.queryTransaction('b2d4920bb653cced5622e7a51dc90f3c23df83172eaee670605e4be1d1b1f6e5', 'peer0.org1.conun.io')
 
-            // console.log(`Transaction has been evaluated, result is: ${result}`);
             return {
                 status: true,
                 message: JSON.parse(result.toString())
