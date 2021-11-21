@@ -9,7 +9,7 @@ const logger = Helper.getLogger('chaincode/token');
 
 function CallInvoke(event, req) {
     const eventDeal = new events.EventEmitter();
-    return new Promise(
+    return new Promise (
         (resolve, reject) => {
             eventDeal.on('Init', async () => {
                 const invokeHandler = new Invoke();
