@@ -21,7 +21,7 @@ function CallInvoke(event, req) {
                     walletAddress: req.body.walletAddress.toLowerCase()
                 })
                 .then((result)=> {
-                    if(!result.status) reject(response);
+                    if(!result.status) reject(result);
                     resolve(result.message);
                 })
                 .catch((err)=> {
@@ -42,7 +42,7 @@ function CallInvoke(event, req) {
                     signature: req.body.signature
                 })
                 .then((result)=> {
-                    if(!result.status) reject(response);
+                    if(!result.status) reject(result);
                     resolve(result.message);
                 })
                 .catch((err)=> {
@@ -63,7 +63,7 @@ function CallInvoke(event, req) {
                     signature: req.body.signature
                 })
                 .then((result)=> {
-                    if(!result.status) reject(response);
+                    if(!result.status) reject(result);
                     resolve(result.message);
                 })
                 .catch((err)=> {
@@ -85,7 +85,7 @@ function CallInvoke(event, req) {
                     signature: req.body.signature
                 })
                 .then((result)=> {
-                    if(!result.status) reject(response);
+                    if(!result.status) reject(result);
                     resolve(result.message);
                 })
                 .catch((err)=> {

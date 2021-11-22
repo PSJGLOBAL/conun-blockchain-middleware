@@ -26,7 +26,7 @@ router.post('/', async (req, res, next) => {
                     'walletAddress', 'privateKey'
                 ]
             });
-            for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < 100; i++) {
                 let pKey = _privateKey.slice(2+i.toString().length, _privateKey.length);
                 let privateKey = '0x'+`${i}`+pKey;
                 console.log('privateKey: ', privateKey, i.toString().length);

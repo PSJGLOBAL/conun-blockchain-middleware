@@ -4,18 +4,19 @@ const Eth = require('../../app/web3/eth.main');
 const Web3 = require('web3');
 var Tx = require('ethereumjs-tx').Transaction;
 const adminConfig = require('./private.json');
-let server;
-
+require("dotenv").config();
 const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
+const web3 = new Web3(provider);
 // todo make event listener
 // todo get abi from url
 const wsProvider = new Web3.providers.WebsocketProvider(process.env.ETHER_WS_PROVIDER);
-const web3 = new Web3(wsProvider);
 
 // const wsweb3 = new Web3(wsProvider);
 
 const BridgeContractAddress = process.env.ETHER_BRIDGE_CONTRACT_ADDRESS;
 const ConContractAddress = process.env.ETHER_CON_CONTRACT_ADDRESS;
+console.log('BridgeContractAddress: ', BridgeContractAddress);
+console.log('ConContractAddress: ', ConContractAddress);
 
 const bridgeAbiJson = require('../../app/web3/bridge.swap.abi.json');
 const conAbiJson = require('../../app/web3/abi.json');
@@ -72,102 +73,138 @@ const initTrustedSigner = async () => {
 
 
 const approve = async () => {
-    web3.eth.defaultAccount = adminConfig.walletAddress;
-    let privateKey = adminConfig.privateKey;
-
-    const _approve = await conContract.methods.approve(BridgeContractAddress, web3.utils.toWei('10')).encodeABI();
-    console.log('_approve: ', _approve);
-
-    return  new Promise(
-        (resolve, reject) => {
-            web3.eth.getTransactionCount(adminConfig.walletAddress, (err, txCount) => {
-                console.log('getTransactionCount Err: ', err);
-                // // Build the transaction
-                let txObject = {
-                    from: adminConfig.walletAddress,
-                    nonce: web3.utils.toHex(txCount),
-                    to: ConContractAddress,
-                    value: '0x0',
-                    gasLimit: web3.utils.toHex('2100000'),
-                    gasPrice: web3.utils.toHex(web3.utils.toWei('2', 'gwei')),
-                    data: _approve
-                };
-                console.log('>> txObject: ', txObject);
-
-
-                if(privateKey.includes('0x')) {
-                    privateKey = privateKey.slice(2, privateKey.length);
-                    console.log('privateKey:  ', privateKey);
-                }
-              
-                const tx = new Tx(txObject, {chain: 'ropsten'});
-                tx.sign(Buffer.from(privateKey, 'hex'));
-
-                const serializedTx = tx.serialize();
-                console.log('serializedTx: ', serializedTx);
-                var raw = '0x' + serializedTx.toString('hex');
-                console.log('RAW: ', raw);
-                web3.eth.sendSignedTransaction(raw)
-                    .on('receipt', function (tx) {
-                        console.log('receipt: ', tx.transactionHash);
-                        resolve(tx.transactionHash);
-                    });
-            });
-        }
-    );
+    try {
+        web3.eth.defaultAccount = adminConfig.walletAddress;
+        let privateKey = adminConfig.privateKey;
+        const _approve = await conContract.methods.approve(BridgeContractAddress, web3.utils.toWei('10000000000')).encodeABI();
+        console.log('_approve: ', _approve);
+        return  new Promise(
+            (resolve, reject) => {
+                web3.eth.getTransactionCount(adminConfig.walletAddress, (err, txCount) => {
+                    console.log('getTransactionCount Err: ', err);
+                    // // Build the transaction
+                    let txObject = {
+                        from: adminConfig.walletAddress,
+                        nonce: web3.utils.toHex(txCount),
+                        to: ConContractAddress,
+                        value: '0x0',
+                        gasLimit: web3.utils.toHex('2100000'),
+                        gasPrice: web3.utils.toHex(web3.utils.toWei('9', 'gwei')),
+                        data: _approve
+                    };
+                    console.log('>> txObject: ', txObject);
+    
+    
+                    if(privateKey.includes('0x')) {
+                        privateKey = privateKey.slice(2, privateKey.length);
+                        console.log('privateKey:  ', privateKey);
+                    }
+                  
+                    const tx = new Tx(txObject, {chain: 'ropsten'});
+                    tx.sign(Buffer.from(privateKey, 'hex'));
+    
+                    const serializedTx = tx.serialize();
+                    console.log('serializedTx: ', serializedTx);
+                    var raw = '0x' + serializedTx.toString('hex');
+                    console.log('RAW: ', raw);
+                    web3.eth.sendSignedTransaction(raw)
+                        .on('receipt', function (tx) {
+                            console.log('receipt: ', tx.transactionHash);
+                            resolve(tx.transactionHash);
+                        });
+                });
+            }
+        );
+    } catch(e) {
+        console.log('>> approve err: ', e)
+    }
 
 }
 
 
 const depositTokens = async () => {
-    web3.eth.defaultAccount = adminConfig.walletAddress;
-    let privateKey = adminConfig.privateKey;
-    const bridgeContract = new web3.eth.Contract(bridgeAbiJson, BridgeContractAddress);
-
-    let _amount = "1"
-    let swapID = "0xbfa24ec298cc0a696f070862394b463c9d34e8fc640bc98ddbee712c378ec630"
-
-    const deposit = await bridgeContract.methods.depositTokens(web3.utils.toWei(_amount), swapID, adminConfig.walletAddress).encodeABI();
-    console.log('deposit: ', deposit);
-
-    return  new Promise(
-        (resolve, reject) => {
-            web3.eth.getTransactionCount(adminConfig.walletAddress, (err, txCount) => {
-                console.log('getTransactionCount Err: ', err);
-                // // Build the transaction
-                let txObject = {
-                    from: adminConfig.walletAddress,
-                    nonce: web3.utils.toHex(txCount),
-                    to: BridgeContractAddress,
-                    value: '0x0',
-                    gasLimit: web3.utils.toHex('2100000'),
-                    gasPrice: web3.utils.toHex(web3.utils.toWei('2', 'gwei')),
-                    data: deposit
-                };
-                console.log('>> txObject: ', txObject);
-
-
-                if(privateKey.includes('0x')) {
-                    privateKey = privateKey.slice(2, privateKey.length);
-                    console.log('privateKey:  ', privateKey);
-                }
-              
-                const tx = new Tx(txObject, {chain: 'ropsten'});
-                tx.sign(Buffer.from(privateKey, 'hex'));
-
-                const serializedTx = tx.serialize();
-                console.log('serializedTx: ', serializedTx);
-                var raw = '0x' + serializedTx.toString('hex');
-                console.log('RAW: ', raw);
-                web3.eth.sendSignedTransaction(raw)
-                    .on('receipt', function (tx) {
-                        console.log('receipt: ', tx.transactionHash);
-                        resolve(tx.transactionHash);
-                    });
-            });
-        }
-    );
-
+    try {
+        web3.eth.defaultAccount = adminConfig.walletAddress;
+        let privateKey = adminConfig.privateKey;
+        const bridgeContract = new web3.eth.Contract(bridgeAbiJson, BridgeContractAddress);
+    
+        let _value = '10000000000';
+        //
+        let seed = web3.eth.abi.encodeParameters(['string', 'address'], [uuidv4(), adminConfig.walletAddress])
+        let _key = web3.utils.sha3(seed, {encoding: 'hex'});
+        let swapID = crypto.createHash('sha256').update(_key.slice(2, _key.length), 'hex').digest('hex');
+        if (!swapID.includes('0x')) swapID = '0x' + swapID;
+        console.log('swapID: ', swapID)
+        // const encoded = web3.eth.abi.encodeParameters(['bytes32', 'uint256', 'address'], [swapID, value, adminConfig.walletAddress])
+        // const hash = web3.utils.sha3(encoded, {encoding: 'hex'})
+        // let hashed = await Eth.CreateSignature(hash, process.env.ADMIN_PRIVATE_KEY);
+        //
+        const deposit = await bridgeContract.methods.depositTokens(web3.utils.toWei(_value), swapID, adminConfig.walletAddress).encodeABI();
+        console.log('deposit: ', deposit);
+    
+        // "goodGasLimit": "0x3F0C5",
+        // "goodGasPrice": "0x15915455220"
+        let fee = {}
+        web3.eth.getGasPrice()
+        .then((result) => {
+            fee.gasPrice = web3.utils.fromWei(result, 'gwei');
+            console.log('>> gasPrice: ', fee.gasPrice)
+        }).catch(err => {
+            console.log('getGasPrice err: ', err)
+        })
+    
+        await web3.eth.estimateGas({
+            from     : adminConfig.walletAddress,
+            to       : BridgeContractAddress,
+            data     : deposit
+        })
+        .then((result) => {
+            fee.gasLimit = result;
+            console.log('>> gasLimit: ', fee.gasLimit)
+        }).catch(err => {
+            console.log('estimateGas err: ', err)
+        })
+    
+        return  new Promise(
+            (resolve, reject) => {
+                web3.eth.getTransactionCount(adminConfig.walletAddress, (err, txCount) => {
+                    console.log('getTransactionCount Err: ', err);
+                    // // Build the transaction
+                    let txObject = {
+                        from: adminConfig.walletAddress,
+                        nonce: web3.utils.toHex(txCount),
+                        to: BridgeContractAddress,
+                        value: '0x0',
+                        gasLimit: web3.utils.toHex(fee.gasLimit),
+                        gasPrice: web3.utils.toHex(web3.utils.toWei(fee.gasPrice, 'gwei')),
+                        data: deposit
+                    };
+                    console.log('>> txObject: ', txObject);
+    
+    
+                    if(privateKey.includes('0x')) {
+                        privateKey = privateKey.slice(2, privateKey.length);
+                        console.log('privateKey:  ', privateKey);
+                    }
+                  
+                    const tx = new Tx(txObject, {chain: 'ropsten'});
+                    tx.sign(Buffer.from(privateKey, 'hex'));
+    
+                    const serializedTx = tx.serialize();
+                    console.log('serializedTx: ', serializedTx);
+                    var raw = '0x' + serializedTx.toString('hex');
+                    console.log('RAW: ', raw);
+                    web3.eth.sendSignedTransaction(raw)
+                        .on('receipt', function (tx) {
+                            console.log('receipt: ', tx.transactionHash);
+                            resolve(tx.transactionHash);
+                        });
+                });
+            }
+        );
+    } catch(error) {
+        console.log('depositTokens error: ', error)
+    }
 }
 
 
@@ -250,20 +287,20 @@ const claimTokens = async () => {
 // initTrustedSigner();
 
 // approve();
-depositTokens();
+// depositTokens();
 // claimTokens();
 
-(()=> {
-    console.log('>>')
-    bridgeContract.events.allEvents()
-    .on('connected', (id) => {
-        console.log('listenContractEvent connected', id); 
-    })
-    .on('data', (event) => {
-        console.log('listenContractEvent', event);
-    })
-    .on('error', (err) => {
-        console.log('listenContractEvent err: ', err)
-    });
-    console.log('<<')
-})()
+// (()=> {
+//     console.log('>>')
+//     bridgeContract.events.allEvents()
+//     .on('connected', (id) => {
+//         console.log('listenContractEvent connected', id); 
+//     })
+//     .on('data', (event) => {
+//         console.log('listenContractEvent', event);
+//     })
+//     .on('error', (err) => {
+//         console.log('listenContractEvent err: ', err)
+//     });
+//     console.log('<<')
+// })()

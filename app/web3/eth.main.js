@@ -1,8 +1,4 @@
 #!/usr/bin/env node
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var xmlHttp = new XMLHttpRequest();
-var Tx = require('ethereumjs-tx').Transaction;
-
 const Web3 = require('web3');
 const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
 const ConContractAddress = process.env.ETHER_CON_CONTRACT_ADDRESS
@@ -198,7 +194,7 @@ module.exports = {
             data     : myData
         });
 
-        await web3.eth.getGasPrice().then((result) => {
+        web3.eth.getGasPrice().then((result) => {
             data.gasPrice = web3.utils.fromWei(result, 'gwei');
         });
 
@@ -346,5 +342,38 @@ module.exports = {
     VerifySignature: async (data, signature) => {
         let whoSigned = await web3.eth.accounts.recover(data, signature);
         return whoSigned;
+    },
+
+    TestPrivateKey: async (privateKey) => {
+        console.log('TestPrivateKey>> ', privateKey)
+        // let privateKey = 
+        // "0xe70f4ffe01cefe6145fdc567bbdab5098bb00f3286e9bad20bc14c4a2cd6b23a";
+
+        // let accounts = await web3.eth.getAccounts();
+
+        // let sig1 = await web3.eth.sign(accounts[0], msg);
+        // console.log('sig1: ', sig1)
+
+        // let sigObj = await web3.eth.accounts.sign(msg, privateKey)
+        // console.log('sigObj: ', sigObj);
+        // let msgHash2 = sigObj.messageHash;
+        // console.log('msgHash2: ', msgHash2);
+        // let sig2 = sigObj.signature;W
+        // console.log('sig2: ', sig2);
+
+        // let whoSigned1 = await web3.eth.accounts.recover(msg, sig2)
+        // let whoSigned2 = await web3.eth.accounts.recover(sigObj)
+
+        // console.log('whoSigned1: ', whoSigned1);
+        // console.log('whoSigned2: ', whoSigned2);
+
+        // const cw = web3.eth.accounts.create(password);
+        let getKeystore = await web3.eth.accounts.encrypt(privateKey, '123456');
+        console.log('getKeystore: ', getKeystore);
+
+        // let data = web3.eth.accounts.decrypt(getKeystore, '123456')
+        // console.log('data: ', data);
+
+        return getKeystore;
     }
 }
