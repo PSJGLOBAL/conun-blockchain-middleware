@@ -1,14 +1,14 @@
 FROM node:12
 
 
-RUN mkdir /conun-middleware-testnet-v3
-WORKDIR /conun-middleware-testnet-v3
+RUN mkdir /conun-middleware-mainnet-v3
+WORKDIR /conun-middleware-mainnet-v3
 
 COPY . .
-COPY package.json /conun-middleware-testnet-v3
+COPY package.json /conun-middleware-mainnet-v3
 
 # Bundle app source
-COPY . /conun-middleware-testnet-v3
+COPY . /conun-middleware-mainnet-v3
 COPY hosts /etc/hosts
 # Build assets
 

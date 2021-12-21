@@ -7,6 +7,7 @@ services:
     env_file: ./.env
     volumes:
       - ./nginx.middleware.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./ssl-certs:/etc/nginx/ssl-certs
     environment:
       - NGINX_PORT=$NGINX_PORT
       - API_HOST=$API_HOST
@@ -45,9 +46,9 @@ services:
     command: sh -c "cat hosts >> /etc/hosts && npm run start"
     env_file: ./.env
     volumes:
-      - .:/conun-middleware-testnet-v3/
-      - /conun-middleware-testnet-v3/node_modules
-      - ./wallet:/conun-middleware-testnet-v3/wallet
+      - .:/conun-middleware-mainnet-v3/
+      - /conun-middleware-mainnet-v3/node_modules
+      - ./wallet:/conun-middleware-mainnet-v3/wallet
     ports:
       - $PORT_1:$PORT_1
     environment:
@@ -79,9 +80,9 @@ services:
     command: sh -c "cat hosts >> /etc/hosts && npm run start"
     env_file: ./.env
     volumes:
-      - .:/conun-middleware-testnet-v3/
-      - /conun-middleware-testnet-v3/node_modules
-      - ./wallet:/conun-middleware-testnet-v3/wallet
+      - .:/conun-middleware-mainnet-v3/
+      - /conun-middleware-mainnet-v3/node_modules
+      - ./wallet:/conun-middleware-mainnet-v3/wallet
     ports:
       - $PORT_2:$PORT_2
     environment:
@@ -113,17 +114,17 @@ services:
     command: sh -c "cat hosts >> /etc/hosts && npm run worker"
     env_file: ./.env
     volumes:
-      - ./service:/conun-middleware-testnet-v3/service
-      - ./package.json:/conun-middleware-testnet-v3/package.json
-      - ./common:/conun-middleware-testnet-v3/common
-      - ./app/web3:/conun-middleware-testnet-v3/app/web3
-      - ./app/invoke:/conun-middleware-testnet-v3/app/invoke
-      - ./models:/conun-middleware-testnet-v3/models
-      - ./middleware/auth:/conun-middleware-testnet-v3/middleware/auth
-      - /conun-middleware-testnet-v3/node_modules
-      - ./wallet:/conun-middleware-testnet-v3/wallet
-      - ./hosts:/conun-middleware-testnet-v3/hosts
-      - ./logs:/conun-middleware-testnet-v3/logs
+      - ./service:/conun-middleware-mainnet-v3/service
+      - ./package.json:/conun-middleware-mainnet-v3/package.json
+      - ./common:/conun-middleware-mainnet-v3/common
+      - ./app/web3:/conun-middleware-mainnet-v3/app/web3
+      - ./app/invoke:/conun-middleware-mainnet-v3/app/invoke
+      - ./models:/conun-middleware-mainnet-v3/models
+      - ./middleware/auth:/conun-middleware-mainnet-v3/middleware/auth
+      - /conun-middleware-mainnet-v3/node_modules
+      - ./wallet:/conun-middleware-mainnet-v3/wallet
+      - ./hosts:/conun-middleware-mainnet-v3/hosts
+      - ./logs:/conun-middleware-mainnet-v3/logs
     ports:
       - $WORKER_PORT_1:$WORKER_PORT_1
     environment:
@@ -156,17 +157,17 @@ services:
     command: sh -c "cat hosts >> /etc/hosts && npm run worker"
     env_file: ./.env
     volumes:
-      - ./service:/conun-middleware-testnet-v3/service
-      - ./package.json:/conun-middleware-testnet-v3/package.json
-      - ./common:/conun-middleware-testnet-v3/common
-      - ./app/web3:/conun-middleware-testnet-v3/app/web3
-      - ./app/invoke:/conun-middleware-testnet-v3/app/invoke
-      - ./models:/conun-middleware-testnet-v3/models
-      - ./middleware/auth:/conun-middleware-testnet-v3/middleware/auth
-      - /conun-middleware-testnet-v3/node_modules
-      - ./wallet:/conun-middleware-testnet-v3/wallet
-      - ./hosts:/conun-middleware-testnet-v3/hosts
-      - ./logs:/conun-middleware-testnet-v3/logs
+      - ./service:/conun-middleware-mainnet-v3/service
+      - ./package.json:/conun-middleware-mainnet-v3/package.json
+      - ./common:/conun-middleware-mainnet-v3/common
+      - ./app/web3:/conun-middleware-mainnet-v3/app/web3
+      - ./app/invoke:/conun-middleware-mainnet-v3/app/invoke
+      - ./models:/conun-middleware-mainnet-v3/models
+      - ./middleware/auth:/conun-middleware-mainnet-v3/middleware/auth
+      - /conun-middleware-mainnet-v3/node_modules
+      - ./wallet:/conun-middleware-mainnet-v3/wallet
+      - ./hosts:/conun-middleware-mainnet-v3/hosts
+      - ./logs:/conun-middleware-mainnet-v3/logs
     ports:
       - $WORKER_PORT_2:$WORKER_PORT_2
     environment:
