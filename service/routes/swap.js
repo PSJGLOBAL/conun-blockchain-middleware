@@ -22,29 +22,42 @@ let url = process.env.ETHER_WS_PROVIDER;
 const etherEvent =  new EtherEvent(BridgeContractAddress, bridgeAbiJson, url);
 etherEvent.listenEvent();
 
-const checkWeb3Connection = async ()=> {
-    let status = await etherEvent.isConnected();
-    if (!status) {
-        logger.error('checkWeb3Connection -> Disconnected!', status)
-        etherEvent.listenEvent();
-    } 
+const checkWeb3Connection = async () => {
+    try {
+        let status = await etherEvent.isConnected();
+        if (!status) {
+            logger.error('checkWeb3Connection -> Disconnected!', status)
+            etherEvent.listenEvent();
+        } else logger.info('checkWeb3Connection -> Status', status);   
+    } catch (error) {
+        logger.error('Error with checking Web3Connection: ', error);
+    }
 }
 
 setInterval(checkWeb3Connection, 55000)
 
 router.get('/', async (req, res)  => {
+   try {
     let status = await etherEvent.isConnected();
     if (!status) {
         logger.error('checkWeb3Connection -> Disconnected!', status)
         etherEvent.listenEvent();
-      }
+      } else logger.info('checkWeb3Connection -> Status', status);  
  
     logger.info(`worker Id: ${etherEvent.getEventId()}`);
     res.status(200).json({
         message: `worker Id: ${etherEvent.getEventId()}`,
-        success: etherEvent.isConnected(),
+        success: await etherEvent.isConnected(),
         status: 200
     })
+   } catch (error) {
+        logger.error('somthing went wrong with worker:  ', error);
+        res.status(400).json({
+            message: error,
+            success: await etherEvent.isConnected(),
+            status: 400
+        })
+   }
 });
 
 router.post('/swap-request/type/:swapType', auth, async (req, res) => {

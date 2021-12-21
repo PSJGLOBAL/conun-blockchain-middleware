@@ -30,7 +30,6 @@ app.use(bodyParser.urlencoded({
 }));
 
 require('./startup/routes.v1')(app);
-require('./test/jMeter/routes.v1')(app);
 require('./startup/db')();
 require('./startup/config')();
 

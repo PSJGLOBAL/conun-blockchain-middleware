@@ -19,3 +19,6 @@ start.sh
 .env
 nginx.middleware.conf
 .dummy
+ssl-certs
+mongod.conf
+docker-compose.yml

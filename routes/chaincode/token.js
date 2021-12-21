@@ -158,6 +158,7 @@ function CallQuery(event, req) {
 
             let status = eventQuery.emit(event);
             if (!status) {
+                logger.error('request rejected -> not valid request to chain-code')
                 eventQuery.removeAllListeners();
                 reject('not valid request to chain-code');
             }
