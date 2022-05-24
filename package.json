@@ -4,8 +4,11 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "test": "export NODE_ENV=test && export PORT=4444 && jest --watchAll --coverage",
     "start": "node app.js",
-    "worker": "node ./service/app.worker.js"
+    "start:dev": "export NODE_ENV=development && node app.js",
+    "worker": "node ./service/app.worker.js",
+    "web3-test": "node ./test/integration/con.swap.web3.js"
   },
   "keywords": [],
   "author": "",
