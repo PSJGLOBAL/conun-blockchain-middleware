@@ -2,7 +2,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-require("dotenv").config();
+require("dotenv").config({ path: `.env.${process.env.NODE_ENV}`});
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require('./swagger.json');
 const bodyParser = require('body-parser');
@@ -47,7 +47,7 @@ app.get('/', async (req, res)  => {
 });
 
 const server = app.listen(process.env.PORT, () => {
-    console.log('Server listening to... ')
+    console.log(`Server listening to ${process.env.PORT}`)
     logger.info(`Server listening to ${process.env.PORT}`);
 });
 
