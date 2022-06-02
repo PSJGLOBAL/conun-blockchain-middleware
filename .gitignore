@@ -22,3 +22,4 @@ nginx.middleware.conf
 ssl-certs
 mongod.conf
 docker-compose.yml
+.env.development

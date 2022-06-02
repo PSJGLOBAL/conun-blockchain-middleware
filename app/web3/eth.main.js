@@ -2,7 +2,8 @@
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var xmlHttp = new XMLHttpRequest();
 var Tx = require('ethereumjs-tx').Transaction;
-
+const secp256k1 = require('secp256k1');
+const createKeccakHash = require('keccak');
 const Web3 = require('web3');
 const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
 const ConContractAddress = process.env.ETHER_CON_CONTRACT_ADDRESS
@@ -339,12 +340,13 @@ module.exports = {
     },
 
     CreateSignature: async (data, privateKey) => {
-        let signature = await web3.eth.accounts.sign(data, privateKey);
-        return signature;
+        const hash = Crypto.createHash('sha256').update(JSON.stringify(data)).digest(32);
+    const signature = secp256k1.ecdsaSign(hash, Buffer.from(privateKey, 'hex'));
+    return signature;
     },
 
-    VerifySignature: async (data, signature) => {
-        let whoSigned = await web3.eth.accounts.recover(data, signature);
-        return whoSigned;
+    VerifySignature: async (signature, hash, address) => {
+        console.log('>> >> >> signature: ', signature)
+        return secp256k1.ecdsaVerify(Buffer.from(signature), Buffer.from(hash, 'hex'), Buffer.from(address, 'hex'))
     }
 }

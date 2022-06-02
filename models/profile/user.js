@@ -64,8 +64,9 @@ function validateWalletSign(user) {
     const schema = Joi.object({
         orgName: Joi.string().valid('Org1', 'Org2', 'Org3').required(),
         walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
-        walletAddress: Joi.string().min(5).max(300).required(),
-        publicKey: Joi.string().required()
+        walletAddress: Joi.string().min(5).max(100).required(),
+        publicKey: Joi.string().required(),
+        ecdsaHeader: Joi.object().required()
     });
     return schema.validate(user);
 }

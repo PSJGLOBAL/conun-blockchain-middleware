@@ -8,11 +8,15 @@ const KeyResolver = require('key-did-resolver')
 const {User, validateWalletSign} = require('../../models/profile/user');
 const Helper = require('../../common/helper');
 const logger = Helper.getLogger("profile/user");
-const {randomBytes} = require('crypto')
+const {randomBytes} = require('crypto');
 const helper = require('../../app/helper/token.helper');
 const Eth = require('../../app/web3/eth.main');
 
+
+//todo Unit8Array to base64
+//base64 to Unit8Array
 router.post('/wallet-sign', async (req, res) => {
+    console.log('req.body: ', req.body);
     const { error } = validateWalletSign(req.body);
     if (error)
         return res.status(400).json({payload: error.details[0].message, success: false, status: 400 })
@@ -21,10 +25,11 @@ router.post('/wallet-sign', async (req, res) => {
         return res.status(400).json({payload: 'Wallet already exist', success: false, status: 400});
     try {
         let orgName = req.body.orgName;
-        // let signed = await Eth.VerifySignature(_.pick(req.body, ['orgName', 'walletType', 'walletAddress']), req.body.sign);
-        // if(signed !== req.body.walletAddress) {
-        //     return res.status(400).json({payload: 'Make sure you are adding right wallet address', success: false, status: 400});
-        // }
+        let signed = await Eth.VerifySignature(req.body.sign.sig.signature, req.body.sign.hash, req.body.walletAddress);
+        console.log('signed: ', signed)
+        if(signed !== req.body.walletAddress) {
+            return res.status(400).json({payload: 'Make sure you are adding right wallet address', success: false, status: 400});
+        }
         let x509Identity = await helper.getRegisteredUser({
             orgName,
             walletType: req.body.walletType,
@@ -33,10 +38,8 @@ router.post('/wallet-sign', async (req, res) => {
 
         const seed = randomBytes(32)
         const provider = new Ed25519Provider(seed)
-        console.log('provider: ', provider)
         const did = new DID({ provider, resolver: KeyResolver.getResolver() })
         await did.authenticate()
-        
         const jwe = await did.createDagJWS(x509Identity, req.body.publicKey)
         console.log('jwe: ', jwe)
         const jws = await did.createJWS({ hello: 'world' })
