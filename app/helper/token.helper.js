@@ -185,11 +185,9 @@ const getRegisteredUser = async (arg) => {
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
 
-    let keyStore = crypto.AesEncrypt(JSON.stringify(arg.keyStore), arg.password);
-    if(!keyStore) return;
     // Register the user, enroll the user, and import the new identity into the wallet.
-    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: arg.walletAddress, role: 'client', attrs: [{ name: arg.walletType, value: keyStore, ecert: true }] }, adminUser);
-    const enrollment = await ca.enroll({ enrollmentID: arg.walletAddress, enrollmentSecret: secret, attr_reqs: [{ name: arg.walletType, optional: true }] });
+    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: arg.walletAddress, role: 'client' }, adminUser);
+    const enrollment = await ca.enroll({ enrollmentID: arg.walletAddress, enrollmentSecret: secret });
 
     const x509Identity = {
         walletAddress: arg.walletAddress,

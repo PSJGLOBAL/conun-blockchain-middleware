@@ -19,32 +19,32 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 3,
-        maxlength: 50,
-    },
-    password: {
-        type: String,
-        required: true,
-        minlength: 5,
-        maxlength: 1024
+        maxlength: 10,
     },
     walletAddress: {
         type: String,
         required: true,
         unique: true,
         minlength: 5,
-        maxlength: 300,
+        maxlength: 36,
     },
-    x509keyStore: {
+    JWKeyStore: {
         type: Object,
         required: false,
         minlength: 10,
-        maxlength: 1024,
+        maxlength: 300,
     },
     walletSignature: {
         type: String,
         required: true,
         unique: true,
         minlength: 5,
+        maxlength: 100,
+    },
+    balance: {
+        type: Number,
+        required: false,
+        minlength: 1,
         maxlength: 300,
     },
     swaps: [{type: mongoose.Schema.Types.ObjectId,ref:'Swap'}],
@@ -59,86 +59,18 @@ userSchema.methods.generateAuthToken = function () {
 const User = mongoose.model('User', userSchema);
 
 
-function validateMember(user) {
+
+function validateWalletSign(user) {
     const schema = Joi.object({
-        name: Joi.string().min(3).max(50).required(),
-        email: Joi.string().min(5).max(100).email().required(),
-        token: Joi.string().min(5).max(300).required(),
-        oauthType: Joi.string().valid('google', 'kakao').required(),
         orgName: Joi.string().valid('Org1', 'Org2', 'Org3').required(),
-        password: Joi.string().min(5).max(50).required(),
         walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
-        walletAddress: Joi.string().min(5).max(300).required(),
-        keyStore: Joi.object().required()
+        walletAddress: Joi.string().min(5).max(100).required(),
+        publicKey: Joi.string().required(),
+        ecdsaHeader: Joi.object().required()
     });
     return schema.validate(user);
-}
-
-function validateNoneMember(user) {
-    const schema = Joi.object({
-        orgName: Joi.string().valid('Org1', 'Org2', 'Org3').required(),
-        password: Joi.string().min(5).max(50).required(),
-        walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
-        walletAddress: Joi.string().min(5).max(300).required(),
-        keyStore: Joi.object().required()
-    });
-    return schema.validate(user);
-}
-
-function validateAuthLogin(req) {
-    const schema = Joi.object({
-        name: Joi.string().min(3).max(50).required(),
-        email: Joi.string().min(5).max(255).required().email(),
-        password: Joi.string().min(5).max(1024).required(),
-        token: Joi.string().min(5).max(300).required(),
-        oauthType: Joi.string().valid('google', 'kakao').required()
-    });
-    return schema.validate(req);
-}
-
-function validateWalletLogin(req) {
-    const schema = Joi.object({
-        walletAddress: Joi.string().min(5).max(300).required(),
-        password: Joi.string().min(5).max(1024).required()
-    });
-    return schema.validate(req);
-}
-
-function validateWalletImport(req) {
-    const schema = Joi.object({
-        orgName: Joi.string().valid('Org1', 'Org2', 'Org3').required(),
-        password: Joi.string().min(5).max(1024).required(),
-        x509Identity: Joi.object({
-            walletAddress: Joi.string().min(5).max(300).required(),
-            credentials: Joi.object().required(),
-            mspId: Joi.string().valid('Org1MSP', 'Org2MSP', 'Org3MSP').required(),
-            type: Joi.string().required(),
-        }).required()
-    });
-    return schema.validate(req);
-}
-
-
-function validateLinkedWallet(req) {
-    const schema = Joi.object({
-        orgName: Joi.string().valid('Org1', 'Org2', 'Org3').required(),
-        password: Joi.string().min(5).max(100).required(),
-        walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
-        x509Identity: Joi.object({
-            walletAddress: Joi.string().min(5).required(),
-            credentials: Joi.object().required(),
-            mspId: Joi.string().valid('Org1MSP', 'Org2MSP', 'Org3MSP').required(),
-            type: Joi.string().required(),
-        }).required()
-    });
-    return schema.validate(req);
 }
 
 exports.User = User;
 exports.userSchema = userSchema;
-exports.validateMember = validateMember;
-exports.validateNoneMember = validateNoneMember;
-exports.validateAuthLogin = validateAuthLogin;
-exports.validateWalletLogin = validateWalletLogin;
-exports.validateWalletImport = validateWalletImport;
-exports.validateLinkedWallet = validateLinkedWallet;
+exports.validateWalletSign = validateWalletSign;

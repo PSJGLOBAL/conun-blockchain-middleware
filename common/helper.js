@@ -28,21 +28,21 @@ class helper {
                     filename: appLog,
                     pattern: "-yyyy-MM-dd",
                     maxLogSize: 8 * 1024 * 1024,
-                    daysToKeep: 7
+                    numBackups: 7
                 },
                 "worker": {
                     type: 'dateFile',
                     filename: workerLog,
                     pattern: "-yyyy-MM-dd",
                     maxLogSize: 8 * 1024 * 1024,
-                    daysToKeep: 7
+                    numBackups: 7
                 },
                 "db": {
                     type: 'dateFile',
                     filename: dbLog,
                     pattern: "-yyyy-MM-dd",
                     maxLogSize: 8 * 1024 * 1024,
-                    daysToKeep: 7
+                    numBackups: 7
                 }
             },
             categories: {
