@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false,
         minlength: 3,
-        maxlength: 50,
+        maxlength: 100,
     },
     email: {
         type: String,
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         minlength: 5,
-        maxlength: 36,
+        maxlength: 50,
     },
     JWKeyStore: {
         type: Object,
@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: false,
         minlength: 1,
-        maxlength: 300,
+        maxlength: 100,
     },
     swaps: [{type: mongoose.Schema.Types.ObjectId,ref:'Swap'}],
     createdAt: { type: Date, default: Date.now },
@@ -66,7 +66,7 @@ function validateWalletSign(user) {
         walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
         walletAddress: Joi.string().min(5).max(100).required(),
         publicKey: Joi.string().required(),
-        ecdsaHeader: Joi.object().required()
+        signHeader: Joi.object().required()
     });
     return schema.validate(user);
 }

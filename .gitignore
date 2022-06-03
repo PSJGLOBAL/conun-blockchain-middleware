@@ -16,10 +16,12 @@ hosts
 config.json
 start.sh
 .vscode
-.env
 nginx.middleware.conf
 .dummy
 ssl-certs
 mongod.conf
 docker-compose.yml
+.env
 .env.development
+.env.test
+
