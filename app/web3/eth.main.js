@@ -2,8 +2,9 @@
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var xmlHttp = new XMLHttpRequest();
 var Tx = require('ethereumjs-tx').Transaction;
-const secp256k1 = require('secp256k1');
-const createKeccakHash = require('keccak');
+let elliptic = require('elliptic');
+let ec = new elliptic.ec('secp256k1');
+let sha3 = require('js-sha3');
 const Web3 = require('web3');
 const provider = new Web3.providers.HttpProvider(process.env.ETHER_HTTP_PROVIDER);
 const ConContractAddress = process.env.ETHER_CON_CONTRACT_ADDRESS
@@ -15,7 +16,7 @@ var jsonload = require("./api.json");
 var apijson = JSON.stringify(jsonload);
 const fs = require('fs');
 apiurl = JSON.parse(apijson);
-
+const u8a = require('../../utils/u8a.multiformats')
 const Helper = require('../../common/helper');
 const logger = Helper.getLogger('app/web3/eth.main');
 
@@ -340,13 +341,16 @@ module.exports = {
     },
 
     CreateSignature: async (data, privateKey) => {
-        const hash = Crypto.createHash('sha256').update(JSON.stringify(data)).digest(32);
-    const signature = secp256k1.ecdsaSign(hash, Buffer.from(privateKey, 'hex'));
-    return signature;
+        let signature = await web3.eth.accounts.sign(data, privateKey);
+        return signature;
     },
 
-    VerifySignature: async (signature, hash, address) => {
-        console.log('>> >> >> signature: ', signature)
-        return secp256k1.ecdsaVerify(Buffer.from(signature), Buffer.from(hash, 'hex'), Buffer.from(address, 'hex'))
+    VerifySignature: async (data, signature) => {
+        let whoSigned = await web3.eth.accounts.recover(data, signature);
+        return whoSigned.toLowerCase();
+    },
+
+    HashMessage: (encoded) => {
+        return web3.utils.sha3(encoded, {encoding: 'hex'})
     }
 }
