@@ -7,7 +7,7 @@ function base64ToBytes(string) {
 }
   
 function bytesToBase64(bytes){
-    return u8a.toString(bytes, 'base64')
+    return u8a.toString(bytes, 'base64url')
 }
 
 function JsonToBase64(object) {
@@ -20,14 +20,22 @@ function Base64ToJson(object) {
     return JSON.parse(u8a.fromString(inputBase64Url, 'base64'))
 }
 
+function hexToBytes(s) {
+    const input = s.startsWith('0x') ? s.substring(2) : s
+    return u8a.fromString(input.toLowerCase(), 'base16')
+}
+
+
 function bytesToHex(bytes){
     return u8a.toString(bytes, 'hex')
 }
+
 
 module.exports = {
     base64ToBytes,
     bytesToBase64,
     JsonToBase64,
     Base64ToJson,
-    bytesToHex
+    bytesToHex,
+    hexToBytes
 }
