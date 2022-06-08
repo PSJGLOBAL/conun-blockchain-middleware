@@ -199,6 +199,8 @@ router.post('/import-wallet', async (req, res) => {
   }
 }
 */
+
+//todo import-certificate
 router.post('/import-certificate', async (req, res) => {
     const { error } = validateLinkedWallet(req.body);
     if (error)
