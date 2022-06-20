@@ -1,3 +1,4 @@
+"use strict";
 const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
@@ -11,7 +12,8 @@ const helper = require('../../app/helper/token.helper');
 const Eth = require('../../app/web3/eth.main');
 const u8a = require('../../utils/u8a.multiformats')
 const auth = require('../../middleware/auth');
-const { DID } = require('conun-dids');
+// import { DID } from 'conun-dids';
+const { DID } = require('conun-dids')
 /*
 req: {
   "orgName": "Org1",
@@ -36,6 +38,7 @@ res: {
     "status": 201
 }
 */
+
 router.post('/create-wallet', async (req, res) => {
     const { error } = validateWalletSign(req.body);
     if (error)
@@ -45,7 +48,7 @@ router.post('/create-wallet', async (req, res) => {
         return res.status(400).json({payload: 'Wallet already exist', success: false, status: 400});
     try {
         let orgName = req.body.orgName;
-        let signParam = {walletAddress: req.body.walletAddress}
+        let signParam = {walletAddress: req.body.walletAddress, publicKey: req.body.walletAddress}
         let hashMsg = Eth.HashMessage(JSON.stringify(signParam))
         if(hashMsg.toLowerCase() !== req.body.signHeader.messageHash.toLowerCase()) {
             return res.status(400).json({payload: 'Key Pair and sign error', success: false, status: 400});
@@ -61,14 +64,12 @@ router.post('/create-wallet', async (req, res) => {
             walletAddress: req.body.walletAddress.toLowerCase()
         });
 
-
-        
         const provider = new Ed25519Provider(process.env.ADMIN_PRIVATE_KEY)
-        const did = new DID({ provider, resolver: KeyResolver.getResolver() })
+        const did = new DID({ provider, resolver: KeyResolver.getResolver()})
         await did.authenticate()
         const jwe = await did.createDagJWS(x509Identity, req.body.publicKey)
         console.log('jwk: ', jwe)
-        
+
         const encryptedToken = await new JoseJwe()
             .setSecretKey(req.body.signHeader.signature)
             .encrypt(jwe)
@@ -77,7 +78,6 @@ router.post('/create-wallet', async (req, res) => {
             orgName: orgName,
             walletAddress: req.body.walletAddress.toLowerCase(),
             JWKeyStore: jwe,
-            walletSignature: req.body.signHeader.signature,
             isAdmin: false
         });
 

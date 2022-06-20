@@ -1,8 +1,8 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const Eth = require('../../app/web3/eth.main');
-//{ createWallet, CreateDID, CreateSignature, VerifySignature }
 const  Helper = require('../integration/helper/utils');
+const { DID } = require('conun-dids');
 let server;
 
 var assert = chai.assert;    // Using Assert style
@@ -41,14 +41,18 @@ describe('USER', async() => {
             let whois = await Eth.VerifySignature(hashMsg, hashed.signature)
             console.log('whois: ', whois)
 
+            const provider = new Ed25519Provider(wallet.privateKey)
+            const did = new DID({ provider, resolver: KeyResolver.getResolver()})
+            await did.authenticate()
+
             orgName = 'Org1'
             walletType = 'ETH'
             walletAddress = wallet.address
-            publicKey = wallet.publicKey
+            publicKey = did.id
             signHeader = {
                 messageHash: hashMsg,
                 signature: hashed.signature
-            } 
+            }
         });
 
         it('1.Should Create New Wallet', () => {

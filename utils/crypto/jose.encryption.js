@@ -13,10 +13,6 @@ class JOSEJWE {
        return this
     }
 
-    async generateKeyPair() {
-        return await jose.generateKeyPair('PS256')
-    }
-
     async signEncrypt(certificate) {
         try {
             return await new jose.EncryptJWT(certificate)
