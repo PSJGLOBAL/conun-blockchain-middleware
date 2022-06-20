@@ -1,40 +1,68 @@
 const jose = require('jose')
-const {getPrivateJWK, getPublicJWK} = require('../elliptic')
 
-class EclticJOSE {
+class JOSEJWE {
     
-    setPrivateKey(_privateKey) {
-       return getPrivateJWK(_privateKey)
+    _secretKey = null;
+    _issuer  = null;
+    _audience = null;
+
+    setSecretKey(obj) {
+       this._secretKey = obj.secretKey
+       this._issuer = obj.issuer
+       this._audience = obj.audience
+       return this
     }
 
-    setPublicKey(_publicKey) {
-        return getPublicJWK(_publicKey)
+    async generateKeyPair() {
+        return await jose.generateKeyPair('PS256')
     }
 
-    encrypt(data, publicKey) {
-        return await new jose.GeneralEncrypt(
-                    new TextEncoder().encode(
-                        data
-                    )
-                  )
-                  .setProtectedHeader({ enc: 'A256GCM' })
-                  .addRecipient(publicKey)
-                  .setUnprotectedHeader({ alg: 'ECDH-ES+A256KW' })
-                  .encrypt()
+    async signEncrypt(certificate) {
+        try {
+            return await new jose.EncryptJWT(certificate)
+                .setProtectedHeader({ alg: 'dir', enc: 'A256GCM' })
+                .setIssuedAt()
+                .setIssuer(this._issuer)
+                .setAudience(this._audience)
+                .setExpirationTime('5s')
+                .encrypt(this.secretKey)
+        } catch (error) {
+            console.log('enc: ', error)
+        }
     }
 
-    decrypt() {
-        
+    async signDecrypt(jwt) {
+       return await jose.jwtDecrypt(jwt, this._secretKey, {
+        issuer: this._issuer,
+        audience: this._audience
+       })
     }
-} 
 
-let pubKeyHex = '04004cbe828243d9b8fe87cf917ba1e38e5e8cda6fbef69721cbf39504ba5f44d87eb135b6746efe50f8638a5b578da709ab5e07faf2ea5a1f428c0d6bcb72e7a6' 
-const Elitejose = new EclticJOSE();
-let jwk = Elitejose.setPrivateKey('81e02f4a9632dc0ac06bc12257999f136e51f673e2a1d7bf903d928c291e818d')
-console.log('jwk: ', jwk)
-let jwe = Elitejose.setPublicKey(pubKeyHex)
-console.log('jwe: ', jwe)
+    async encrypt(certificate) {
+        return await new jose.CompactEncrypt(
+            new TextEncoder().encode(
+                JSON.stringify(certificate)
+            )
+            )
+            .setProtectedHeader({ alg: 'RSA-OAEP-256', enc: 'A256GCM' })
+            .encrypt(this._secretKey)
+    }
 
+
+    async decrypt(jwe) {
+        return await jose.compactDecrypt(jwe, this._secretKey)
+    }
+}
+
+module.exports = JOSEJWE
+
+
+//let pubKeyHex = '02004cbe828243d9b8fe87cf917ba1e38e5e8cda6fbef69721cbf39504ba5f44d8' 
+// const Elitejose = new EclticJOSE();
+// let jwk = Elitejose.setPrivateKey('81e02f4a9632dc0ac06bc12257999f136e51f673e2a1d7bf903d928c291e818d')
+// console.log('jwk: ', jwk)
+// let jwe = Elitejose.setPublicKey(pubKeyHex)
+// console.log('jwe: ', jwe)
 
 
 

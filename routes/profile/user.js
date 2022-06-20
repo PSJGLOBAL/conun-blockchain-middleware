@@ -2,9 +2,7 @@ const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
-const { DID } = require('dids');
-const {Ed25519Provider} = require('key-did-provider-ed25519')
-const KeyResolver = require('key-did-resolver')
+const JoseJwe  = require('../../utils/crypto/jose.encryption')
 const {User, validateWalletSign} = require('../../models/profile/user');
 const Helper = require('../../common/helper');
 const logger = Helper.getLogger("profile/user");
@@ -13,7 +11,7 @@ const helper = require('../../app/helper/token.helper');
 const Eth = require('../../app/web3/eth.main');
 const u8a = require('../../utils/u8a.multiformats')
 const auth = require('../../middleware/auth');
-
+const { DID } = require('conun-dids');
 /*
 req: {
   "orgName": "Org1",
@@ -47,11 +45,11 @@ router.post('/create-wallet', async (req, res) => {
         return res.status(400).json({payload: 'Wallet already exist', success: false, status: 400});
     try {
         let orgName = req.body.orgName;
-        let signParam = {walletAddress: req.body.walletAddress, publicKey: req.body.publicKey}
+        let signParam = {walletAddress: req.body.walletAddress}
         let hashMsg = Eth.HashMessage(JSON.stringify(signParam))
         if(hashMsg.toLowerCase() !== req.body.signHeader.messageHash.toLowerCase()) {
             return res.status(400).json({payload: 'Key Pair and sign error', success: false, status: 400});
-        }    
+        }
         let signed = await Eth.VerifySignature(hashMsg, req.body.signHeader.signature);
         if(signed !== req.body.walletAddress) {
             return res.status(400).json({payload: 'Make sure you are adding right wallet address', success: false, status: 400});
@@ -63,11 +61,17 @@ router.post('/create-wallet', async (req, res) => {
             walletAddress: req.body.walletAddress.toLowerCase()
         });
 
-        const seed = randomBytes(32)
-        const provider = new Ed25519Provider(seed)
+
+        
+        const provider = new Ed25519Provider(process.env.ADMIN_PRIVATE_KEY)
         const did = new DID({ provider, resolver: KeyResolver.getResolver() })
         await did.authenticate()
         const jwe = await did.createDagJWS(x509Identity, req.body.publicKey)
+        console.log('jwk: ', jwe)
+        
+        const encryptedToken = await new JoseJwe()
+            .setSecretKey(req.body.signHeader.signature)
+            .encrypt(jwe)
         
         user = new User ({
             orgName: orgName,
@@ -76,18 +80,16 @@ router.post('/create-wallet', async (req, res) => {
             walletSignature: req.body.signHeader.signature,
             isAdmin: false
         });
-        
-        const salt = await bcrypt.genSalt();
-        user.walletSignature = await bcrypt.hash(req.body.signHeader.signature, salt);
 
         if(x509Identity) await user.save();
         if (typeof x509Identity !== 'string') {
-            res.status(201).json({payload: {user: _.pick(user, ['_id', 'walletAddress']), jwe: JSON.stringify(jwe)}, success: true, status: 201})
+            res.status(201).json({payload: {user: _.pick(user, ['_id', 'walletAddress']), encryptedToken }, success: true, status: 201})
         } else {
             logger.error('this is not type of certificate: ', {payload: x509Identity, success: false, status: 400})
             res.status(400).json({payload: x509Identity, success: false, status: 400})
         }
     } catch (error) {
+        console.log(`/wallet-create: ${req.body.walletAddress}`, error);
         logger.error(`/wallet-create: ${req.body.walletAddress} `, error);
         res.status(400).json({payload: `${req.body.walletAddress} user error: ${error}`, success: false, status: 400})
     }

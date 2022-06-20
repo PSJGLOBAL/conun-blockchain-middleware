@@ -1,4 +1,3 @@
-
 const u8a = require('uint8arrays')
 
 function base64ToBytes(string) {
@@ -6,7 +5,7 @@ function base64ToBytes(string) {
     return u8a.fromString(inputBase64Url, 'base64')
 }
   
-function bytesToBase64(bytes){
+function bytesToBase64url(bytes){
     return u8a.toString(bytes, 'base64url')
 }
 
@@ -33,7 +32,7 @@ function bytesToHex(bytes){
 
 module.exports = {
     base64ToBytes,
-    bytesToBase64,
+    bytesToBase64url,
     JsonToBase64,
     Base64ToJson,
     bytesToHex,

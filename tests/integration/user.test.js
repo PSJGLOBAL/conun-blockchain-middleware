@@ -30,25 +30,21 @@ describe('USER', async() => {
 
         beforeEach(async () => {
             let wallet = Helper.createWallet();
-            let did = await Helper.CreateDID(wallet.privateKey)
 
             let hashMsg = Eth.HashMessage(JSON.stringify({
                 walletAddress: wallet.address,
-                publicKey: did.id
+                publicKey: wallet.publicKey
             }))
             console.log('hashMsg: ', hashMsg)
             let hashed = await Eth.CreateSignature(hashMsg, wallet.privateKey)
 
-            let whois = await Eth.VerifySignature(JSON.stringify({
-                walletAddress: wallet.address,
-                publicKey: did.id
-            }), hashed.signature)
+            let whois = await Eth.VerifySignature(hashMsg, hashed.signature)
             console.log('whois: ', whois)
 
             orgName = 'Org1'
             walletType = 'ETH'
             walletAddress = wallet.address
-            publicKey = did.id
+            publicKey = wallet.publicKey
             signHeader = {
                 messageHash: hashMsg,
                 signature: hashed.signature
@@ -74,6 +70,7 @@ describe('USER', async() => {
                 }).end(function(err, res) {
                     if(err) console.log(err)
                     responce = res.body;
+                    console.log('responce: ', responce)
                     expect(res.status).to.equal(201);
                     should.not.Throw;
                 })
