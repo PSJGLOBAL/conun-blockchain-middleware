@@ -1,5 +1,4 @@
-import { jest } from '@jest/globals'
-import { DID } from '../did.js'
+import { DID } from '../did'
 
 const VERSION_0_VANILLA = {
   didResolutionMetadata: {
@@ -193,11 +192,8 @@ describe('atTime', () => {
     did.resolve = fauxResolve
   })
 
-  const beforeRotation = new Date('2021-07-07T08:00:19Z')
-  const afterRotation = new Date('2021-07-07T08:40:19Z')
-  const timeKeysRotatedInSec = Math.floor(
-    new Date(VERSION_0_ROTATED.didDocumentMetadata.nextUpdate).valueOf() / 1000
-  )
+  const beforeRotation = new Date('2021-07-07T08:00:19Z').valueOf()
+  const afterRotation = new Date('2021-07-07T08:40:19Z').valueOf()
 
   test('ok before rotation', async () => {
     const { kid } = await did.verifyJWS(jwsV0, { atTime: beforeRotation })
@@ -212,30 +208,6 @@ describe('atTime', () => {
     await expect(
       did.verifyJWS(jwsV0, { atTime: afterRotation, disableTimecheck: true })
     ).resolves.toBeTruthy()
-  })
-  test('ok after rotation if within revocation phase out period', async () => {
-    // values in s
-    const revocationPhaseOutSecs = 10
-    const afterRotationBeforePhaseOut = timeKeysRotatedInSec + revocationPhaseOutSecs - 1
-
-    await expect(
-      did.verifyJWS(jwsV0, {
-        atTime: new Date(afterRotationBeforePhaseOut * 1000),
-        revocationPhaseOutSecs,
-      })
-    ).resolves.toBeTruthy()
-  })
-  test('fail after rotation if not within revocation phase out period', async () => {
-    // values in s
-    const revocationPhaseOutSecs = 10
-    const afterRotationAfterPhaseOut = timeKeysRotatedInSec + revocationPhaseOutSecs
-
-    await expect(
-      did.verifyJWS(jwsV0, {
-        atTime: new Date(afterRotationAfterPhaseOut * 1000),
-        revocationPhaseOutSecs,
-      })
-    ).rejects.toThrow(/invalid_jws: signature authored with a revoked DID version/)
   })
 
   test('before DID version available', async () => {

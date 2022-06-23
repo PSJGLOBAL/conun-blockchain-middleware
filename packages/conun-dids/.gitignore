@@ -1,13 +1,5 @@
 node_modules/
 lib/
 coverage/
-.idea
-.DS_Store
-.idea
-package-lock.json
-*.csv
-logs/
-*.log
-.vscode
 
-
+.idea

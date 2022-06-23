@@ -2,9 +2,8 @@ import { ResolverOptions, DIDResolutionResult, ResolverRegistry, Resolver } from
 import { createJWE, JWE, verifyJWS, resolveX25519Encrypters } from 'did-jwt'
 import { encodePayload, prepareCleartext, decodeCleartext } from 'dag-jose-utils'
 import { RPCClient } from 'rpc-utils'
-import { CID } from 'multiformats/cid'
-import { CacaoBlock, Cacao } from 'ceramic-cacao'
-import type { DagJWS, DIDProvider, DIDProviderClient } from './types.js'
+
+import type { DagJWS, DIDProvider, DIDProviderClient } from './types'
 import {
   fromDagJWS,
   encodeBase64,
@@ -14,7 +13,7 @@ import {
   randomString,
   didWithTime,
   extractControllers,
-} from './utils.js'
+} from './utils'
 
 export interface AuthenticateOptions {
   provider?: DIDProvider
@@ -43,7 +42,7 @@ export interface VerifyJWSOptions {
   /**
    * JS timestamp when the signature was allegedly made. `undefined` means _now_.
    */
-  atTime?: Date
+  atTime?: number
 
   /**
    * If true, timestamp checking is disabled.
@@ -54,16 +53,6 @@ export interface VerifyJWSOptions {
    * DID that issued the signature.
    */
   issuer?: string
-
-  /**
-   * Cacao OCAP to verify the JWS with.
-   */
-  capability?: Cacao
-
-  /**
-   * Number of seconds that a revoked key stays valid for after it was revoked
-   */
-  revocationPhaseOutSecs?: number
 }
 
 export interface VerifyJWSResult {
@@ -88,14 +77,12 @@ export interface DecryptJWEResult {
 export interface DagJWSResult {
   jws: DagJWS
   linkedBlock: Uint8Array
-  cacaoBlock?: Uint8Array
 }
 
 export interface DIDOptions {
   provider?: DIDProvider
   resolver?: Resolver | ResolverRegistry
   resolverOptions?: ResolverOptions
-  capability?: Cacao
 }
 
 function isResolver(resolver: Resolver | ResolverRegistry): resolver is Resolver {
@@ -109,26 +96,12 @@ export class DID {
   private _client?: DIDProviderClient
   private _id?: string
   private _resolver!: Resolver
-  private _capability?: Cacao
 
-  constructor({ provider, resolver = {}, resolverOptions, capability }: DIDOptions = {}) {
+  constructor({ provider, resolver = {}, resolverOptions }: DIDOptions = {}) {
     if (provider != null) {
       this._client = new RPCClient(provider)
     }
-    if (capability) {
-      this._capability = capability
-    }
     this.setResolver(resolver, resolverOptions)
-  }
-
-  /**
-   * Check if the DID has a capability attached
-   */
-  get capability(): Cacao {
-    if (!this._capability) {
-      throw new Error('DID has no capability attached')
-    }
-    return this._capability
   }
 
   /**
@@ -146,19 +119,6 @@ export class DID {
       throw new Error('DID is not authenticated')
     }
     return this._id
-  }
-
-  /**
-   * Attach a capability to the DID instance
-   * @param cap The capability to attach
-   * @returns A new DID instance with the capability attached
-   */
-  withCapability(cap: Cacao): DID {
-    return new DID({
-      provider: this._client?.connection,
-      resolver: this._resolver,
-      capability: cap,
-    })
   }
 
   /**
@@ -223,17 +183,6 @@ export class DID {
   async createJWS<T = any>(payload: T, options: CreateJWSOptions = {}): Promise<DagJWS> {
     if (this._client == null) throw new Error('No provider available')
     if (this._id == null) throw new Error('DID is not authenticated')
-    if (this._capability) {
-      const cacaoBlock = await CacaoBlock.fromCacao(this._capability)
-      const capCID = CID.asCID(cacaoBlock.cid)
-      if (!capCID) {
-        throw new Error(
-          `Capability CID of the JWS cannot be set to the capability payload cid as they are incompatible`
-        )
-      }
-      options.protected = options.protected || {}
-      options.protected.cap = `ipfs://${capCID?.toString()}`
-    }
     const { jws } = await this._client.request('did_createJWS', {
       did: this._id,
       ...options,
@@ -257,19 +206,7 @@ export class DID {
     const payloadCid = encodeBase64Url(cid.bytes)
     Object.assign(options, { linkedBlock: encodeBase64(linkedBlock) })
     const jws = await this.createJWS(payloadCid, options)
-
-    const compatibleCID = CID.asCID(cid)
-    if (!compatibleCID) {
-      throw new Error(
-        'CID of the JWS cannot be set to the encoded payload cid as they are incompatible'
-      )
-    }
-    jws.link = compatibleCID
-
-    if (this._capability) {
-      const cacaoBlock = await CacaoBlock.fromCacao(this._capability)
-      return { jws, linkedBlock, cacaoBlock: cacaoBlock.bytes }
-    }
+    jws.link = cid
     return { jws, linkedBlock }
   }
 
@@ -291,12 +228,8 @@ export class DID {
       const nextUpdate = didResolutionResult.didDocumentMetadata?.nextUpdate
       if (nextUpdate) {
         // This version of the DID document has been revoked. Check if the JWS
-        // was signed before the revocation happened.
-        const phaseOutMS = options.revocationPhaseOutSecs
-          ? options.revocationPhaseOutSecs * 1000
-          : 0
-        const revocationTime = new Date(nextUpdate).valueOf() + phaseOutMS
-        const isEarlier = options.atTime && options.atTime.getTime() < revocationTime
+        // was signed before it the revocation happened.
+        const isEarlier = options.atTime && options.atTime < new Date(nextUpdate).valueOf()
         const isLater = !isEarlier
         if (isLater) {
           // Do not allow using a key _after_ it is being revoked
@@ -305,39 +238,20 @@ export class DID {
       }
       // Key used before `updated` date
       const updated = didResolutionResult.didDocumentMetadata?.updated
-      if (updated && options.atTime && options.atTime.getTime() < new Date(updated).valueOf()) {
+      if (updated && options.atTime && options.atTime < new Date(updated).valueOf()) {
         throw new Error(`invalid_jws: signature authored before creation of DID version: ${kid}`)
       }
     }
 
     const signerDid = didResolutionResult.didDocument?.id
-    if (
-      options.issuer &&
-      options.issuer === options.capability?.p.iss &&
-      signerDid === options.capability.p.aud
-    ) {
-      Cacao.verify(options.capability, {
-        atTime: options.atTime ? options.atTime : undefined,
-      })
-    } else if (options.issuer && options.issuer !== signerDid) {
+    if (options.issuer && options.issuer !== signerDid) {
       const issuerUrl = didWithTime(options.issuer, options.atTime)
       const issuerResolution = await this.resolve(issuerUrl)
       const controllerProperty = issuerResolution.didDocument?.controller
       const controllers = extractControllers(controllerProperty)
-
-      if (
-        options.capability?.s &&
-        options.capability.p.aud === signerDid &&
-        controllers.includes(options.capability.p.iss)
-      ) {
-        Cacao.verify(options.capability, {
-          atTime: options.atTime ? options.atTime : undefined,
-        })
-      } else {
-        const signerIsController = signerDid ? controllers.includes(signerDid) : false
-        if (!signerIsController) {
-          throw new Error(`invalid_jws: not a valid verificationMethod for issuer: ${kid}`)
-        }
+      const signerIsController = signerDid ? controllers.includes(signerDid) : false
+      if (!signerIsController) {
+        throw new Error(`invalid_jws: not a valid verificationMethod for issuer: ${kid}`)
       }
     }
 
@@ -381,8 +295,7 @@ export class DID {
     recipients: Array<string>,
     options: CreateJWEOptions = {}
   ): Promise<JWE> {
-    const preparedCleartext = await prepareCleartext(cleartext)
-    return this.createJWE(preparedCleartext, recipients, options)
+    return this.createJWE(prepareCleartext(cleartext), recipients, options)
   }
 
   /**
@@ -406,6 +319,7 @@ export class DID {
    * Try to decrypt the given DagJWE with the currently authenticated user.
    *
    * @param jwe                 The JWE to decrypt
+   * @param options             Optional parameters
    * @returns                   An ipld object
    */
   async decryptDagJWE(jwe: JWE): Promise<Record<string, any>> {

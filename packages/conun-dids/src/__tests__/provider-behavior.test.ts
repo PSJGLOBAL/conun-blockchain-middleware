@@ -1,22 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { jest } from '@jest/globals'
+
+import { DIDDocument, ResolverRegistry } from 'did-resolver'
+import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPairFromSeed } from '@stablelib/x25519'
-import { Cacao, CacaoBlock, SiweMessage } from 'ceramic-cacao'
-import { decodeCleartext, encodePayload, prepareCleartext } from 'dag-jose-utils'
-import { decryptJWE, JWE, x25519Decrypter } from 'did-jwt'
-import { DIDDocument, ResolverRegistry } from 'did-resolver'
-import { Wallet } from 'ethers'
-import * as u8a from 'uint8arrays'
-import type { DIDProvider } from '../types.js'
+import { x25519Decrypter, decryptJWE, JWE } from 'did-jwt'
+import { encodePayload, prepareCleartext, decodeCleartext } from 'dag-jose-utils'
 
-jest.unstable_mockModule('../random-string.util.js', () => {
-  return {
-    randomString: () => 'rWCXyH1otp5/F78tycckgg',
-  }
-})
+import * as utils from '../utils'
+// @ts-ignore
+utils.randomString = () => 'rWCXyH1otp5/F78tycckgg'
+const { encodeBase64, encodeBase64Url } = utils
 
 global.Date.now = jest.fn(() => 1606236374000)
+
+import { DID } from '../did'
+import { DIDProvider } from '../types'
 
 const MOCK_AUTH_JWS = {
   payload:
@@ -74,20 +73,17 @@ const MOCK_RESOLVER_REGISTRY: ResolverRegistry = {
 
 const defaultOptions = { provider: { send: jest.fn() } as DIDProvider }
 
-test('`authenticated` property', async () => {
-  const { DID } = await import('../did.js')
+test('`authenticated` property', () => {
   const did = new DID(defaultOptions)
   expect(did.authenticated).toBe(false)
 })
 
-test('`id` property', async () => {
-  const { DID } = await import('../did.js')
+test('`id` property', () => {
   const did = new DID(defaultOptions)
   expect(() => did.id).toThrow('DID is not authenticated')
 })
 
 test('RPC calls throw an error if the response payload is an error', async () => {
-  const { DID } = await import('../did.js')
   const provider1 = {
     send: jest.fn((req: { id: number }) => {
       return Promise.resolve({
@@ -113,8 +109,7 @@ test('RPC calls throw an error if the response payload is an error', async () =>
   await expect(() => did2.authenticate()).rejects.toThrow('Application error')
 })
 
-test('`setProvider` method', async () => {
-  const { DID } = await import('../did.js')
+test('`setProvider` method', () => {
   const provider1 = {} as DIDProvider
   const provider2 = {} as DIDProvider
 
@@ -134,7 +129,6 @@ test('`setProvider` method', async () => {
 
 describe('`authenticate` method', () => {
   test('uses the provider attached to the instance', async () => {
-    const { DID } = await import('../did.js')
     const provider = {
       send: jest.fn((req: { id: number }) => {
         return Promise.resolve({
@@ -164,7 +158,6 @@ describe('`authenticate` method', () => {
   })
 
   test('uses the provider given in options', async () => {
-    const { DID } = await import('../did.js')
     const provider = {
       send: jest.fn((req: { id: number }) => {
         return Promise.resolve({
@@ -194,7 +187,6 @@ describe('`authenticate` method', () => {
   })
 
   test('throws an error if there is no provider', async () => {
-    const { DID } = await import('../did.js')
     const did = new DID()
     await expect(did.authenticate()).rejects.toThrow('No provider available')
   })
@@ -202,7 +194,6 @@ describe('`authenticate` method', () => {
 
 describe('`createJWS` method', () => {
   test('uses the provider attached to the instance', async () => {
-    const { DID } = await import('../did.js')
     let authCalled = false
     const provider = {
       send: jest.fn((req: { id: string }) => {
@@ -247,7 +238,6 @@ describe('`createJWS` method', () => {
   })
 
   test('throws an error if there is no provider', async () => {
-    const { DID } = await import('../did.js')
     const did = new DID()
     await expect(did.createJWS({})).rejects.toThrow('No provider available')
   })
@@ -255,138 +245,11 @@ describe('`createJWS` method', () => {
 
 describe('`createDagJWS method`', () => {
   test('throws an error if there is no provider', async () => {
-    const { DID } = await import('../did.js')
     const did = new DID()
     await expect(did.createJWS({})).rejects.toThrow('No provider available')
   })
 
-  test('creates a DagJWS with capability correctly', async () => {
-    const { DID } = await import('../did.js')
-    let authCalled = false
-    const provider = {
-      send: jest.fn((req: { id: string }) => {
-        let result
-        if (authCalled) {
-          result = {
-            jws: {
-              payload: 'AXESIF0YCN-uia9HZG8dCzmQ-c3SooWwZ_k01MzQXUgERz_s',
-              signatures: [
-                {
-                  protected:
-                    'eyJhbGciOiJFZERTQSIsImNhcCI6ImlwZnM6Ly9iYWZ5cmVpY2szajZ2d2E3bTJ5dWgzb3VuY3ZkM2x1cTRtMzNlc3Q3NWU0dWQ3emx1azZza2V4eXN6NCIsImtpZCI6ImRpZDprZXk6ejZNa3JCZE5kd1VQblhEVkQxREN4ZWR6VlZCcGFHaThhU21vWEZBZUtOZ3RBZXI4I3o2TWtyQmROZHdVUG5YRFZEMURDeGVkelZWQnBhR2k4YVNtb1hGQWVLTmd0QWVyOCJ9',
-                  signature:
-                    'GpxlcwZ8ouPVV4rYVxc5fka6-9rq4iVKwRLejh7IdVoa50gqP8wn01ivlv4PlpITNJUBELKqSZhUaWnG9wg5Dg',
-                },
-              ],
-            },
-          }
-        } else {
-          authCalled = true
-          result = {
-            payload:
-              'eyJkaWQiOiJkaWQ6a2V5Ono2TWtyQmROZHdVUG5YRFZEMURDeGVkelZWQnBhR2k4YVNtb1hGQWVLTmd0QWVyOCIsImV4cCI6MTYwNjIzNjk3NCwibm9uY2UiOiJyV0NYeUgxb3RwNS9GNzh0eWNja2dnIiwicGF0aHMiOltdfQ',
-            signatures: [
-              {
-                protected:
-                  'eyJhbGciOiJFZERTQSIsImtpZCI6ImRpZDprZXk6ejZNa3JCZE5kd1VQblhEVkQxREN4ZWR6VlZCcGFHaThhU21vWEZBZUtOZ3RBZXI4I3o2TWtyQmROZHdVUG5YRFZEMURDeGVkelZWQnBhR2k4YVNtb1hGQWVLTmd0QWVyOCJ9',
-                signature:
-                  'uGjLPvi5hAFXuBp6jSDcAdQcRfgHEuD7cSH6XqyiYMGP3xBw45O_cIfeUcP0u8w57AJk9Mgg2aiL9sTC1ERiCw',
-              },
-            ],
-          }
-        }
-        return Promise.resolve({
-          jsonrpc: '2.0',
-          id: req.id,
-          result,
-        })
-      }),
-    } as DIDProvider
-    const resolver: ResolverRegistry = {
-      key: () =>
-        Promise.resolve({
-          didResolutionMetadata: {
-            contentType: 'application/did+json',
-          },
-          didDocument: {
-            id: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
-            verificationMethod: [
-              {
-                id: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8#z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
-                type: 'Ed25519VerificationKey2018',
-                controller: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
-                publicKeyBase58: 'CjNL3hDxSyj26WNWH5g9ePdpkhSHAZXSqEFiV6isFS4k',
-              },
-            ],
-            authentication: [
-              'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8#z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
-            ],
-          },
-          didDocumentMetadata: {},
-        }),
-    }
-
-    const wallet = new Wallet('0x01104074416bab5b755dd6cd1fb177db7e981335e18b935b1d887d5640015e4c')
-    const siwe = new SiweMessage({
-      domain: 'service.org',
-      address: wallet.address,
-      statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-      uri: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
-      version: '1',
-      nonce: '32891757',
-      issuedAt: '2021-09-30T16:25:24.000Z',
-      notBefore: '2021-09-30T16:25:24.000Z',
-      chainId: '1',
-      resources: [
-        'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
-        'https://example.com/my-web2-claim.json',
-      ],
-    })
-
-    const signature = await wallet.signMessage(siwe.toMessage())
-    siwe.signature = signature
-
-    const cacao = Cacao.fromSiweMessage(siwe)
-    const cacaoBlock = await CacaoBlock.fromCacao(cacao)
-    const did = new DID({ provider, resolver, capability: cacao })
-    await did.authenticate()
-
-    const data = {
-      foo: Buffer.from('foo'),
-    }
-
-    const res = await did.createDagJWS(data)
-    const encPayload = await encodePayload(data)
-
-    expect(async () => {
-      await did.verifyJWS(res.jws, {
-        issuer: `did:pkh:eip155:1:${wallet.address}`,
-        capability: cacao,
-        atTime: new Date('2021-10-30T16:25:24.000Z'),
-      })
-    }).not.toThrowError()
-
-    expect(res).toEqual({
-      jws: {
-        link: encPayload.cid,
-        payload: 'AXESIF0YCN-uia9HZG8dCzmQ-c3SooWwZ_k01MzQXUgERz_s',
-        signatures: [
-          {
-            protected:
-              'eyJhbGciOiJFZERTQSIsImNhcCI6ImlwZnM6Ly9iYWZ5cmVpY2szajZ2d2E3bTJ5dWgzb3VuY3ZkM2x1cTRtMzNlc3Q3NWU0dWQ3emx1azZza2V4eXN6NCIsImtpZCI6ImRpZDprZXk6ejZNa3JCZE5kd1VQblhEVkQxREN4ZWR6VlZCcGFHaThhU21vWEZBZUtOZ3RBZXI4I3o2TWtyQmROZHdVUG5YRFZEMURDeGVkelZWQnBhR2k4YVNtb1hGQWVLTmd0QWVyOCJ9',
-            signature:
-              'GpxlcwZ8ouPVV4rYVxc5fka6-9rq4iVKwRLejh7IdVoa50gqP8wn01ivlv4PlpITNJUBELKqSZhUaWnG9wg5Dg',
-          },
-        ],
-      },
-      linkedBlock: encPayload.linkedBlock,
-      cacaoBlock: cacaoBlock.bytes,
-    })
-  })
-
   test('creates a DagJWS correctly', async () => {
-    const { DID } = await import('../did.js')
-    const { encodeBase64Url, encodeBase64 } = await import('../utils.js')
     let authCalled = false
     const provider = {
       send: jest.fn((req: { id: string }) => {
@@ -470,7 +333,6 @@ describe('`verifyJWS method`', () => {
     '3': () => Promise.resolve(THREE_ID_RESOLVER_RESULT),
   }
   test('correctly verifies jws string', async () => {
-    const { DID } = await import('../did.js')
     const did = new DID({ resolver: resolverRegistry })
     const jws =
       'eyJraWQiOiJkaWQ6MzpiYWdjcWNlcmFza3hxeng0N2l2b2tqcW9md295dXliMjN0aWFlcGRyYXpxNXJsem4yaHg3a215YWN6d29hP3ZlcnNpb24taWQ9MCNrV01YTU1xazVXc290UW0iLCJhbGciOiJFUzI1NksifQ.AXESIHhRlyKdyLsRUpRdpY4jSPfiee7e0GzCynNtDoeYWLUB.h7bHmTaBGza_QlFRI9LBfgB3Nw0m7hLzwMm4nLvcR3n9sHKRoCrY0soWnDbmuG7jfVgx4rYkjJohDuMNgbTpEQ'
@@ -481,7 +343,6 @@ describe('`verifyJWS method`', () => {
   })
 
   test('correctly verifies DagJWS', async () => {
-    const { DID } = await import('../did.js')
     const did = new DID({ resolver: resolverRegistry })
     const jws = {
       payload: 'AXESIHhRlyKdyLsRUpRdpY4jSPfiee7e0GzCynNtDoeYWLUB',
@@ -501,7 +362,6 @@ describe('`verifyJWS method`', () => {
   })
 
   test('correctly verifies jws auth JWS', async () => {
-    const { DID } = await import('../did.js')
     const did = new DID({ resolver: resolverRegistry })
     expect(await did.verifyJWS(MOCK_AUTH_JWS)).toEqual({
       didResolutionResult: MOCK_RESOLVER_RESULT,
@@ -540,7 +400,6 @@ describe('`createJWE method`', () => {
     jest.resetAllMocks()
   })
   test('correctly encrypts, one recipient', async () => {
-    const { DID } = await import('../did.js')
     const recipient = 'did:test:asdf'
     const secretKey = randomBytes(32)
     const registry = createRegistry({ [recipient]: secretKey })
@@ -553,7 +412,6 @@ describe('`createJWE method`', () => {
   })
 
   test('correctly encrypts, two recipients', async () => {
-    const { DID } = await import('../did.js')
     const recipient1 = 'did:test:asdf'
     const secretKey1 = randomBytes(32)
     const recipient2 = 'did:test:lalal'
@@ -572,7 +430,6 @@ describe('`createJWE method`', () => {
 
 describe('`createDagJWE method`', () => {
   test('correctly formats dagJWE cleartext', async () => {
-    const { DID } = await import('../did.js')
     const recipient = 'did:test:asdf'
     const secretKey = randomBytes(32)
     const registry = createRegistry({ [recipient]: secretKey })
@@ -588,13 +445,11 @@ describe('`createDagJWE method`', () => {
 
 describe('`decryptJWE method`', () => {
   test('throws an error if there is no provider', async () => {
-    const { DID } = await import('../did.js')
     const did = new DID()
     await expect(did.createJWS({})).rejects.toThrow('No provider available')
   })
 
   test('uses the provider attached to the instance', async () => {
-    const { DID } = await import('../did.js')
     const provider = {
       send: jest.fn((req: { id: string }) => {
         return Promise.resolve({
@@ -627,17 +482,13 @@ describe('`decryptJWE method`', () => {
 
 describe('`decryptDagJWE` method', () => {
   test('throws an error if there is no provider', async () => {
-    const { DID } = await import('../did.js')
     const did = new DID()
     await expect(did.createJWS({})).rejects.toThrow('No provider available')
   })
 
   test('uses the provider attached to the instance', async () => {
-    const { DID } = await import('../did.js')
-    const { encodeBase64 } = await import('../utils.js')
     const clearObj = { asdf: 432 }
-    const preparedCleartext = await prepareCleartext(clearObj)
-    const cleartext = encodeBase64(preparedCleartext)
+    const cleartext = encodeBase64(prepareCleartext(clearObj))
     const provider = {
       send: jest.fn((req: { id: string }) => {
         return Promise.resolve({

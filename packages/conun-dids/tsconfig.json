@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
-    "module": "ES2020",
-    "target": "ES2020",
-    "resolveJsonModule": false,
-    "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true,
+    "module": "commonjs",
+    "lib": ["dom", "es2017"],
+    "target": "es6",
     "strict": true,
     "declaration": true,
     "noImplicitAny": true,
     "removeComments": true,
+    "esModuleInterop": true,
     "sourceMap": true,
     "baseUrl": "./packages",
     "outDir": "lib",

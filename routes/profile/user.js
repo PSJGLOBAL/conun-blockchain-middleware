@@ -12,8 +12,10 @@ const helper = require('../../app/helper/token.helper');
 const Eth = require('../../app/web3/eth.main');
 const u8a = require('../../utils/u8a.multiformats')
 const auth = require('../../middleware/auth');
-// import { DID } from 'conun-dids';
 const { DID } = require('conun-dids')
+const { Ed25519Provider } = require('key-did-provider-ed25519')
+const KeyResolver = require('key-did-resolver').default
+
 /*
 req: {
   "orgName": "Org1",
@@ -48,31 +50,25 @@ router.post('/create-wallet', async (req, res) => {
         return res.status(400).json({payload: 'Wallet already exist', success: false, status: 400});
     try {
         let orgName = req.body.orgName;
-        let signParam = {walletAddress: req.body.walletAddress, publicKey: req.body.walletAddress}
-        let hashMsg = Eth.HashMessage(JSON.stringify(signParam))
-        if(hashMsg.toLowerCase() !== req.body.signHeader.messageHash.toLowerCase()) {
-            return res.status(400).json({payload: 'Key Pair and sign error', success: false, status: 400});
-        }
-        let signed = await Eth.VerifySignature(hashMsg, req.body.signHeader.signature);
+        let signed = await Eth.VerifySignature(req.body.walletAddress, req.body.signHeader.signature);
         if(signed !== req.body.walletAddress) {
             return res.status(400).json({payload: 'Make sure you are adding right wallet address', success: false, status: 400});
         }
-
         let x509Identity = await helper.getRegisteredUser({
             orgName,
             walletType: req.body.walletType,
             walletAddress: req.body.walletAddress.toLowerCase()
         });
 
-        const provider = new Ed25519Provider(process.env.ADMIN_PRIVATE_KEY)
+        const provider = new Ed25519Provider(Buffer.from(process.env.ADMIN_PRIVATE_KEY, 'hex'))
         const did = new DID({ provider, resolver: KeyResolver.getResolver()})
         await did.authenticate()
         const jwe = await did.createDagJWS(x509Identity, req.body.publicKey)
-        console.log('jwk: ', jwe)
+        console.log('jwe: ', jwe)
 
         const encryptedToken = await new JoseJwe()
             .setSecretKey(req.body.signHeader.signature)
-            .encrypt(jwe)
+            .signEncrypt(jwe)
         
         user = new User ({
             orgName: orgName,

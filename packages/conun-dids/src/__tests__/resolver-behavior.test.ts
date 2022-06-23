@@ -1,10 +1,14 @@
-import { jest } from '@jest/globals'
-import { DIDResolutionResult, Resolver } from 'did-resolver'
-import { DID } from '../did.js'
-
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
+import { DIDResolutionResult, Resolver } from 'did-resolver'
+
+import * as utils from '../utils'
+// @ts-ignore
+utils.randomString = () => 'rWCXyH1otp5/F78tycckgg'
+
 global.Date.now = jest.fn(() => 1606236374000)
+
+import { DID } from '../did'
 
 test('uses the given Resolver instance', () => {
   const resolver = new Resolver()

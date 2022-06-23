@@ -33,21 +33,6 @@ class JOSEJWE {
         audience: this._audience
        })
     }
-
-    async encrypt(certificate) {
-        return await new jose.CompactEncrypt(
-            new TextEncoder().encode(
-                JSON.stringify(certificate)
-            )
-            )
-            .setProtectedHeader({ alg: 'RSA-OAEP-256', enc: 'A256GCM' })
-            .encrypt(this._secretKey)
-    }
-
-
-    async decrypt(jwe) {
-        return await jose.compactDecrypt(jwe, this._secretKey)
-    }
 }
 
 module.exports = JOSEJWE
