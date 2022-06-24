@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "allowJs": true,
+      "module": "commonjs",
+      "noImplicitReturns": true,
+      "noImplicitAny": false,
+      "experimentalDecorators": true,
+      "sourceMap": true,
+      "outDir": "./bin",
+      "baseUrl": ".",
+      "skipLibCheck": true,
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "forceConsistentCasingInFileNames": true,
+      "noFallthroughCasesInSwitch": true,
+      "resolveJsonModule": true,
+      "typeRoots": ["./node_modules/@types", "./src/types"]
+    }
+  }

@@ -1,5 +1,5 @@
 const express = require('express');
-const usersRoute = require('../routes/profile/user');
+const usersRoute = require('../routes/profile/user.js');
 const usersAdmin = require('../routes/profile/admin');
 const tokenRoute = require('../routes/chaincode/token');
 const driveRoute = require('../routes/chaincode/drive');

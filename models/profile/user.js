@@ -3,24 +3,6 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: false,
-        minlength: 3,
-        maxlength: 100,
-    },
-    email: {
-        type: String,
-        required: false,
-        minlength: 5,
-        maxlength: 100,
-    },
-    orgName: {
-        type: String,
-        required: true,
-        minlength: 3,
-        maxlength: 10,
-    },
     walletAddress: {
         type: String,
         required: true,
@@ -28,18 +10,17 @@ const userSchema = new mongoose.Schema({
         minlength: 5,
         maxlength: 50,
     },
+    orgName: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 10,
+    },
     JWKeyStore: {
         type: Object,
         required: false,
         minlength: 10,
         maxlength: 300,
-    },
-    walletSignature: {
-        type: String,
-        required: true,
-        unique: true,
-        minlength: 5,
-        maxlength: 100,
     },
     balance: {
         type: Number,
@@ -52,8 +33,8 @@ const userSchema = new mongoose.Schema({
     isAdmin: Boolean
 });
 
-userSchema.methods.generateAuthToken = function () {
-    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, walletAddress: this.walletAddress, walletSignature: this.walletSignature}, process.env.JWT_PRIVATE_KEY, { expiresIn: '365d' });
+userSchema.methods.generateAuthToken = function (walletSignature) {
+    return jwt.sign({_id: this._id, isAdmin: this.isAdmin, walletAddress: this.walletAddress, walletSignature: walletSignature}, process.env.JWT_PRIVATE_KEY, { expiresIn: '365d' });
 }
 
 const User = mongoose.model('User', userSchema);
@@ -66,7 +47,19 @@ function validateWalletSign(user) {
         walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
         walletAddress: Joi.string().min(5).max(100).required(),
         publicKey: Joi.string().required(),
-        signHeader: Joi.object().required()
+        signHeader: Joi.object().required(),
+        rootHash: Joi.string().required(),
+    });
+    return schema.validate(user);
+}
+
+function validateLogin(user) {
+    const schema = Joi.object({
+        orgName: Joi.string().valid('Org1', 'Org2', 'Org3').required(),
+        walletType: Joi.string().valid('ETH', 'BSC', 'DOT').required(),
+        walletAddress: Joi.string().min(5).max(100).required(),
+        publicKey: Joi.string().required(),
+        encryptedParam: Joi.object().required(),
     });
     return schema.validate(user);
 }
@@ -74,3 +67,4 @@ function validateWalletSign(user) {
 exports.User = User;
 exports.userSchema = userSchema;
 exports.validateWalletSign = validateWalletSign;
+exports.validateLogin = validateLogin;

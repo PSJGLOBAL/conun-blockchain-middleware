@@ -1,9 +1,6 @@
 const Crypto = require('crypto');
 const secp256k1 = require('secp256k1');
 const createKeccakHash = require('keccak');
-const KeyResolver = require('key-did-resolver')
-const {Ed25519Provider} = require('key-did-provider-ed25519')
-const { DID } = require('dids')
 const u8a = require('../../../utils/u8a.multiformats')
 
 function createWallet() {
@@ -16,19 +13,11 @@ function createWallet() {
     if (!address.includes('0x')) address = '0x' + address;
     return {
         privateKey: privateKey.toString('hex'),
-        address
+        address,
+        publicKey: Buffer.from(pubKey).toString('hex')
     }
 }
 
-
-async function CreateDID(seed) {
-    const provider = new Ed25519Provider(Buffer.from(seed, 'hex'))
-    const did = new DID({ provider, resolver: KeyResolver.getResolver() })
-    await did.authenticate()
-    return did
-}
-
 module.exports = {
-    createWallet,
-    CreateDID
+    createWallet
 }

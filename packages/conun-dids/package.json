@@ -1,0 +1,55 @@
+{
+  "name": "conun-dids",
+  "version": "0.0.1",
+  "description": "Typescript library for interacting with DIDs - forked version 2.4.3 less issues and stable",
+  "main": "lib/index.js",
+  "files": [
+    "lib/*"
+  ],
+  "scripts": {
+    "test": "jest",
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build",
+    "prebuild": "npm run clean",
+    "lint": "eslint ./src --ext .js,.ts",
+    "docs": "typedoc ./src/index.ts --excludePrivate --name DID --includeVersion ; touch docs/.nojekyll",
+    "clean": "rm -rf ./lib"
+  },
+  "keywords": [
+    "DID",
+    "identity",
+    "did-provider",
+    "self-sovereign"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@stablelib/random": "^1.0.1",
+    "cids": "^1.1.6",
+    "dag-jose-utils": "^0.1.1",
+    "did-jwt": "^5.6.1",
+    "did-resolver": "^3.1.0",
+    "rpc-utils": "^0.3.4",
+    "uint8arrays": "^2.1.5",
+    "query-string": "^7.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.5",
+    "@babel/preset-typescript": "^7.14.5",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^14.14.41",
+    "@typescript-eslint/eslint-plugin": "^4.27.0",
+    "@typescript-eslint/parser": "^4.27.0",
+    "babel-jest": "^27.0.2",
+    "eslint": "^7.28.0",
+    "eslint-config-3box": "^0.2.0",
+    "jest": "^27.0.4",
+    "prettier": "^2.3.1",
+    "typedoc": "^0.20.37",
+    "typescript": "^4.2.4"
+  },
+  "jest": {
+    "testRegex": ".(spec|test).ts$"
+  }
+}

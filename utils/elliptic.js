@@ -1,15 +1,22 @@
 const EC = require('elliptic').ec;
+let elliptic = require('elliptic');
 const { hexToBytes, bytesToBase64url } = require('./u8a.multiformats')
 
-function getPublicJWK(_privateKey) {
-    const secp256k1 = new EC('secp256k1')
-    const kp = secp256k1.keyFromPrivate(_privateKey)
+function getPublicJWK(_publicKey) {
+  try {
+    console.log('_publicKey: ', _publicKey)
+    const secp256k1 = new elliptic.ec('secp256k1');
+    const kp = secp256k1.keyFromPublic(_publicKey, 'hex')
+    
     return  {
       crv: 'secp256k1',
       kty: 'EC',
       x: bytesToBase64url(hexToBytes(kp.getPublic().getX().toString('hex'))),
       y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex'))),
     }
+  } catch (error) {
+    console.log('_publicKey err: ', error)
+  }
 }
 
 function recoverPublicJWK(msgHash, signature, ) {
@@ -39,11 +46,20 @@ function getPrivateJWK(_privateKey) {
   }*/
 
   return  {
-    crv: 'secp256k1',
-    kty: 'EC',
-    x: bytesToBase64url(hexToBytes(kp.getPublic().getX().toString('hex'))),
-    y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex'))),
-    d: bytesToBase64url(hexToBytes(privateKey)),
+    privateKey: {
+      crv: 'secp256k1',
+      kty: 'EC',
+      x: bytesToBase64url(hexToBytes(kp.getPublic().getX().toString('hex'))),
+      y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex'))),
+      d: bytesToBase64url(hexToBytes(privateKey)),
+    },
+    publicKey: {
+      crv: 'secp256k1',
+      kty: 'EC',
+      x: bytesToBase64url(hexToBytes(kp.getPublic().getX().toString('hex'))),
+      y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex'))),
+      
+    }
   }
   
 }
