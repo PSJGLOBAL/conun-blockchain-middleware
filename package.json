@@ -47,7 +47,6 @@
     "mongoose": "^5.10.10",
     "multiformats": "^9.6.5",
     "node-rsa": "^1.1.1",
-    "ts-node": "^9.1.1",
     "typescript": "^4.7.4",
     "uint8arrays": "^3.0.0",
     "uuid": "^8.3.2",
@@ -63,10 +62,7 @@
     "nodemon": "^2.0.13",
     "supertest": "^6.2.3",
     "swagger-jsdoc": "^6.0.1",
-    "swagger-ui-express": "^4.1.6",
-    "ts-node": "~10.6.0",
-    "tslib": "^2.4.0",
-    "typescript": "^4.6.4"
+    "swagger-ui-express": "^4.4.0"
   },
   "workspaces": {
     "packages": [
